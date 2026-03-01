@@ -38,6 +38,7 @@ class EvalResult(Base):
 class AuditLog(Base):
     __tablename__ = "audit_logs"
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    incident_id = Column(String, nullable=True)  # link to incident for trace view
     agent_name = Column(String)
     action = Column(String)
     mcp_server = Column(String, nullable=True)

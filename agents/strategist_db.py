@@ -11,14 +11,8 @@ from backend.database import SessionLocal
 from backend.models import AgentDecision, AuditLog
 
 
-async def run_and_persist(service: str, scenario: str = None) -> dict:
-    result = await full_pipeline(service, scenario)
-    strat = result.get("strategist")
-
-    if not strat:
-        print("\n  No strategy produced. Nothing to persist.")
-        return result
-
+def persist_strategist_result(strat: dict) -> None:
+    """Persist strategist result to DB. Used by API pipeline."""
     db = SessionLocal()
     try:
         decision = AgentDecision(
@@ -40,9 +34,10 @@ async def run_and_persist(service: str, scenario: str = None) -> dict:
             tool_calls=strat.get("tool_calls", []),
         )
         db.add(decision)
-
+        incident_id_for_audit = strat.get("incident_id")
         for tc in strat.get("tool_calls", []):
             audit = AuditLog(
+                incident_id=incident_id_for_audit,
                 agent_name="strategist",
                 action="mcp_tool_call",
                 mcp_server=tc.get("server"),
@@ -51,15 +46,27 @@ async def run_and_persist(service: str, scenario: str = None) -> dict:
                 output_data={"summary": tc.get("result_summary", "")},
             )
             db.add(audit)
-
         db.commit()
-        print(f"\n  ✓ DB: strategist decision + {len(strat.get('tool_calls', []))} audit entries saved")
-
-    except Exception as e:
+    except Exception:
         db.rollback()
-        print(f"\n  ✗ DB error: {e}")
+        raise
     finally:
         db.close()
+
+
+async def run_and_persist(service: str, scenario: str = None) -> dict:
+    result = await full_pipeline(service, scenario)
+    strat = result.get("strategist")
+
+    if not strat:
+        print("\n  No strategy produced. Nothing to persist.")
+        return result
+
+    try:
+        persist_strategist_result(strat)
+        print(f"\n  ✓ DB: strategist decision + {len(strat.get('tool_calls', []))} audit entries saved")
+    except Exception as e:
+        print(f"\n  ✗ DB error: {e}")
 
     return result
 

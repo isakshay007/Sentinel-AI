@@ -55,10 +55,12 @@ def add_approval_request(
     tool_args: dict,
     risk_level: str,
     service: str,
+    id: Optional[str] = None,
 ) -> ApprovalRequest:
-    """Add a new approval request. Called by the Strategist."""
+    """Add a new approval request. Called by the Strategist or pipeline API.
+    Pass id=approval_id to use the Strategist's approval_id so frontend approve/reject matches."""
     req = ApprovalRequest(
-        id=str(uuid.uuid4()),
+        id=id or str(uuid.uuid4()),
         incident_id=incident_id,
         agent_name=agent_name,
         action=action,

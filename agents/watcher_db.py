@@ -12,12 +12,10 @@ from backend.database import SessionLocal
 from backend.models import Incident, AgentDecision, AuditLog
 
 
-async def run_and_persist(service: str, scenario: str = None) -> dict:
-    result = await run_watcher(service, scenario)
+def persist_watcher_result(result: dict, service: str, scenario: str = None) -> None:
+    """Persist watcher result to DB (incident, decision, audits). Used by API pipeline."""
     db = SessionLocal()
-
     try:
-        # Save agent decision
         decision = AgentDecision(
             incident_id=result.get("incident_id"),
             agent_name="watcher",
@@ -50,9 +48,11 @@ async def run_and_persist(service: str, scenario: str = None) -> dict:
             )
             db.add(incident)
 
-        # Log each MCP tool call
+        # Log each MCP tool call (link to incident when alert triggered)
+        incident_id_for_audit = result.get("incident_id") if result.get("should_alert") else None
         for tc in result.get("tool_calls", []):
             audit = AuditLog(
+                incident_id=incident_id_for_audit,
                 agent_name="watcher",
                 action="mcp_tool_call",
                 mcp_server=tc.get("server"),
@@ -63,16 +63,23 @@ async def run_and_persist(service: str, scenario: str = None) -> dict:
             db.add(audit)
 
         db.commit()
-        print(f"\n  ✓ DB: decision + {len(result.get('tool_calls', []))} audit entries saved")
-        if result.get("incident_id"):
-            print(f"  ✓ DB: incident {result['incident_id'][:12]}... saved")
 
     except Exception as e:
         db.rollback()
-        print(f"\n  ✗ DB error: {e}")
+        raise
     finally:
         db.close()
 
+
+async def run_and_persist(service: str, scenario: str = None) -> dict:
+    result = await run_watcher(service, scenario)
+    try:
+        persist_watcher_result(result, service, scenario)
+        print(f"\n  ✓ DB: decision + {len(result.get('tool_calls', []))} audit entries saved")
+        if result.get("incident_id"):
+            print(f"  ✓ DB: incident {result['incident_id'][:12]}... saved")
+    except Exception as e:
+        print(f"\n  ✗ DB error: {e}")
     return result
 
 

@@ -16,9 +16,9 @@ import argparse
 from pathlib import Path
 from datetime import datetime, timezone
 
-from database import SessionLocal, engine
-from models import Base, Incident, AuditLog
-from mock_data_generator import (
+from backend.database import SessionLocal, engine
+from backend.models import Base, Incident, AuditLog
+from backend.mock_data_generator import (
     MockDataGenerator, SCENARIO_REGISTRY, seed_all_fixtures
 )
 

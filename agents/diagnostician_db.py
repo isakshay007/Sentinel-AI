@@ -12,17 +12,10 @@ from backend.database import SessionLocal
 from backend.models import AgentDecision, AuditLog
 
 
-async def run_and_persist(service: str, scenario: str = None) -> dict:
-    result = await watcher_to_diagnostician(service, scenario)
-    diag = result.get("diagnostician")
-
-    if not diag:
-        print("\n  No diagnosis produced. Nothing to persist.")
-        return result
-
+def persist_diagnostician_result(diag: dict) -> None:
+    """Persist diagnostician result to DB. Used by API pipeline."""
     db = SessionLocal()
     try:
-        # Save diagnostician decision
         decision = AgentDecision(
             incident_id=diag.get("incident_id"),
             agent_name="diagnostician",
@@ -43,10 +36,10 @@ async def run_and_persist(service: str, scenario: str = None) -> dict:
             tool_calls=diag.get("tool_calls", []),
         )
         db.add(decision)
-
-        # Log each MCP tool call
+        incident_id_for_audit = diag.get("incident_id")
         for tc in diag.get("tool_calls", []):
             audit = AuditLog(
+                incident_id=incident_id_for_audit,
                 agent_name="diagnostician",
                 action="mcp_tool_call",
                 mcp_server=tc.get("server"),
@@ -55,15 +48,27 @@ async def run_and_persist(service: str, scenario: str = None) -> dict:
                 output_data={"summary": tc.get("result_summary", "")},
             )
             db.add(audit)
-
         db.commit()
-        print(f"\n  ✓ DB: diagnostician decision + {len(diag.get('tool_calls', []))} audit entries saved")
-
-    except Exception as e:
+    except Exception:
         db.rollback()
-        print(f"\n  ✗ DB error: {e}")
+        raise
     finally:
         db.close()
+
+
+async def run_and_persist(service: str, scenario: str = None) -> dict:
+    result = await watcher_to_diagnostician(service, scenario)
+    diag = result.get("diagnostician")
+
+    if not diag:
+        print("\n  No diagnosis produced. Nothing to persist.")
+        return result
+
+    try:
+        persist_diagnostician_result(diag)
+        print(f"\n  ✓ DB: diagnostician decision + {len(diag.get('tool_calls', []))} audit entries saved")
+    except Exception as e:
+        print(f"\n  ✗ DB error: {e}")
 
     return result
 

@@ -1,0 +1,111 @@
+[
+  {
+    "id": "fp-001",
+    "name": "Normal high CPU during deployment",
+    "description": "CPU spikes to 75% during a deployment but returns to normal. This is expected behavior.",
+    "metrics": {
+      "service": "user-service",
+      "cpu_percent": 72.5,
+      "memory_percent": 55.3,
+      "response_time_ms": 250.0,
+      "error_rate": 0.008,
+      "gc_pause_ms": 15.0
+    },
+    "logs": [
+      {
+        "severity": "INFO",
+        "service": "user-service",
+        "message": "Deployment v2.15.5 started \u2014 rolling update in progress"
+      },
+      {
+        "severity": "WARN",
+        "service": "user-service",
+        "message": "Response time elevated: 250ms exceeds p95 threshold of 200ms"
+      },
+      {
+        "severity": "INFO",
+        "service": "user-service",
+        "message": "Deployment v2.15.5 completed successfully \u2014 all health checks passing"
+      },
+      {
+        "severity": "INFO",
+        "service": "user-service",
+        "message": "Response time normalized: 120ms within expected range"
+      }
+    ],
+    "expected_alert": false,
+    "reason": "Temporary CPU spike during deployment is normal and self-resolving",
+    "category": "false_positive"
+  },
+  {
+    "id": "fp-002",
+    "name": "Scheduled GC pause",
+    "description": "A scheduled full GC causes a brief memory spike and pause. This is expected maintenance.",
+    "metrics": {
+      "service": "inventory-service",
+      "cpu_percent": 45.0,
+      "memory_percent": 78.0,
+      "response_time_ms": 180.0,
+      "error_rate": 0.003,
+      "gc_pause_ms": 180.0
+    },
+    "logs": [
+      {
+        "severity": "INFO",
+        "service": "inventory-service",
+        "message": "Scheduled full GC initiated \u2014 expected pause up to 200ms"
+      },
+      {
+        "severity": "WARN",
+        "service": "inventory-service",
+        "message": "GC pause: 180ms \u2014 within scheduled maintenance window"
+      },
+      {
+        "severity": "INFO",
+        "service": "inventory-service",
+        "message": "GC completed \u2014 freed 450MB, heap at 45%"
+      }
+    ],
+    "expected_alert": false,
+    "reason": "Scheduled GC with expected metrics \u2014 not an incident",
+    "category": "false_positive"
+  },
+  {
+    "id": "fp-003",
+    "name": "Expected traffic spike during sale event",
+    "description": "Traffic increases 3x during a flash sale. All metrics elevated but within capacity.",
+    "metrics": {
+      "service": "api-gateway",
+      "cpu_percent": 65.0,
+      "memory_percent": 60.0,
+      "response_time_ms": 350.0,
+      "error_rate": 0.012,
+      "gc_pause_ms": 25.0
+    },
+    "logs": [
+      {
+        "severity": "INFO",
+        "service": "api-gateway",
+        "message": "Traffic surge detected \u2014 flash sale event in progress"
+      },
+      {
+        "severity": "INFO",
+        "service": "api-gateway",
+        "message": "Auto-scaling triggered: 3 \u2192 6 replicas"
+      },
+      {
+        "severity": "WARN",
+        "service": "api-gateway",
+        "message": "Request queue depth: 15 \u2014 above normal baseline of 10"
+      },
+      {
+        "severity": "INFO",
+        "service": "api-gateway",
+        "message": "All replicas healthy \u2014 handling increased load"
+      }
+    ],
+    "expected_alert": false,
+    "reason": "Expected traffic increase with auto-scaling responding appropriately",
+    "category": "false_positive"
+  }
+]

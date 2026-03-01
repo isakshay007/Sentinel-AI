@@ -1,0 +1,68 @@
+[
+  {
+    "id": "am-001",
+    "name": "Borderline metrics \u2014 just below threshold",
+    "description": "Metrics are elevated but just below critical thresholds.",
+    "metrics": {
+      "service": "user-service",
+      "cpu_percent": 73.0,
+      "memory_percent": 79.0,
+      "response_time_ms": 900.0,
+      "error_rate": 0.045,
+      "gc_pause_ms": 190.0
+    },
+    "logs": [
+      {
+        "severity": "WARN",
+        "service": "user-service",
+        "message": "Memory usage at 79% \u2014 approaching warning threshold (80%)"
+      },
+      {
+        "severity": "WARN",
+        "service": "user-service",
+        "message": "Response time elevated: 900ms exceeds p95 threshold of 500ms"
+      }
+    ],
+    "expected_alert": false,
+    "reason": "Elevated but below critical thresholds \u2014 should warn but not alert",
+    "category": "ambiguous"
+  },
+  {
+    "id": "am-002",
+    "name": "Single error spike that resolved",
+    "description": "Brief error spike that self-resolved within 2 minutes.",
+    "metrics": {
+      "service": "payment-service",
+      "cpu_percent": 35.0,
+      "memory_percent": 50.0,
+      "response_time_ms": 200.0,
+      "error_rate": 0.005,
+      "gc_pause_ms": 10.0
+    },
+    "logs": [
+      {
+        "severity": "ERROR",
+        "service": "payment-service",
+        "message": "ConnectionRefusedError: postgres-primary:5432 \u2014 connection refused"
+      },
+      {
+        "severity": "ERROR",
+        "service": "payment-service",
+        "message": "Transaction rollback: connection lost \u2014 affected 3 rows"
+      },
+      {
+        "severity": "INFO",
+        "service": "payment-service",
+        "message": "Connection to postgres-primary restored \u2014 pool refilled"
+      },
+      {
+        "severity": "INFO",
+        "service": "payment-service",
+        "message": "Error rate back to normal: 0.5%"
+      }
+    ],
+    "expected_alert": false,
+    "reason": "Transient error that self-resolved \u2014 current metrics are healthy",
+    "category": "ambiguous"
+  }
+]

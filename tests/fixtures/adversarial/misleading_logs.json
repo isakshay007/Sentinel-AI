@@ -1,0 +1,57 @@
+[
+  {
+    "id": "ml-001",
+    "name": "Error in test suite output",
+    "description": "Log messages containing 'error' and 'failure' but they're from test suite output, not real errors.",
+    "logs": [
+      {
+        "severity": "INFO",
+        "service": "user-service",
+        "message": "Running integration test suite: test_error_handling"
+      },
+      {
+        "severity": "INFO",
+        "service": "user-service",
+        "message": "Test passed: test_connection_error_recovery \u2014 verified error handling works correctly"
+      },
+      {
+        "severity": "INFO",
+        "service": "user-service",
+        "message": "Test passed: test_timeout_failure_retry \u2014 confirmed retry on failure"
+      },
+      {
+        "severity": "INFO",
+        "service": "user-service",
+        "message": "All 47 tests passed, 0 failures, 0 errors"
+      }
+    ],
+    "expected_alert": false,
+    "reason": "These are test results describing error HANDLING, not actual errors",
+    "category": "misleading_logs"
+  },
+  {
+    "id": "ml-002",
+    "name": "Historical error reference in log",
+    "description": "Log messages referencing past errors that have been resolved.",
+    "logs": [
+      {
+        "severity": "INFO",
+        "service": "payment-service",
+        "message": "Error rate recovered: was 15% at 14:30, now 0.1% after hotfix deployment"
+      },
+      {
+        "severity": "INFO",
+        "service": "payment-service",
+        "message": "Previous OOM error resolved \u2014 memory stable at 45% after restart"
+      },
+      {
+        "severity": "INFO",
+        "service": "payment-service",
+        "message": "Connection timeout issues from yesterday confirmed fixed in v3.8.14"
+      }
+    ],
+    "expected_alert": false,
+    "reason": "These reference PAST errors that are already resolved",
+    "category": "misleading_logs"
+  }
+]

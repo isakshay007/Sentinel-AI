@@ -93,7 +93,9 @@ class MCPToolCaller:
 # =============================================================================
 
 def get_groq_llm(temperature: float = 0.1) -> ChatGroq:
-    load_dotenv()
+    from pathlib import Path
+    env_path = Path(__file__).parent.parent / ".env"
+    load_dotenv(dotenv_path=env_path)
     api_key = os.getenv("GROQ_API_KEY")
     return ChatGroq(
         model="llama-3.1-8b-instant",

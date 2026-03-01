@@ -1,14 +1,16 @@
-from langchain_ollama import ChatOllama
+from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, SystemMessage
+from dotenv import load_dotenv
 
-def get_llm(model: str = "llama3.1:8b", temperature: float = 0.1):
-    return ChatOllama(
+load_dotenv()
+
+def get_llm(model: str = "llama-3.1-8b-instant", temperature: float = 0.1):
+    return ChatGroq(
         model=model,
         temperature=temperature,
-        base_url="http://localhost:11434"
     )
 
-def quick_prompt(prompt: str, system: str = None, model: str = "llama3.1:8b") -> str:
+def quick_prompt(prompt: str, system: str = None, model: str = "llama-3.1-8b-instant") -> str:
     llm = get_llm(model)
     messages = []
     if system:

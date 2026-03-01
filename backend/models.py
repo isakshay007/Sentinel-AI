@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, Float, DateTime, JSON, Integer, Text, Enum
 from datetime import datetime, timezone
 import uuid
-from database import Base
+from backend.database import Base
 
 class Incident(Base):
     __tablename__ = "incidents"

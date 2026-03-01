@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-03-01T13:17:12.108473+00:00",
+  "model": "groq/llama-3.1-8b-instant",
+  "results": {
+    "api_timeout": {
+      "scores": {
+        "tool_correctness_watcher": 1.0,
+        "tool_correctness_diagnostician": 1.0,
+        "diagnosis_quality": 0.2,
+        "detection_quality": 0.9,
+        "plan_quality": 0.2
+      },
+      "watcher_alert": true,
+      "watcher_confidence": 0.9,
+      "diagnosis_root_cause": "A memory leak is occurring due to unclosed HTTP client responses, causing high response times and error rates.",
+      "diagnosis_confidence": 0.8
+    }
+  }
+}

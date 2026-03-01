@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-03-01T03:55:26.009282+00:00",
+  "scenarios": [
+    "memory_leak",
+    "bad_deployment",
+    "api_timeout"
+  ],
+  "services": [
+    "api-gateway",
+    "user-service",
+    "payment-service",
+    "inventory-service"
+  ]
+}

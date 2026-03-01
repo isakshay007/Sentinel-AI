@@ -11,8 +11,8 @@
   "deployments_count": 1,
   "metrics": [
     {
-      "id": "8ce0738d-db41-441a-b2a3-0eeacb1df107",
-      "timestamp": "2026-03-01T03:04:53.439409+00:00",
+      "id": "fb2f1e1f-0578-4129-88da-fb1e28dd99db",
+      "timestamp": "2026-03-01T17:30:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.2,
       "memory_percent": 32.26,
@@ -26,8 +26,8 @@
       "gc_pause_ms": 28.0
     },
     {
-      "id": "0e10e1d8-119b-41a6-8652-237996115ad6",
-      "timestamp": "2026-03-01T03:05:53.439409+00:00",
+      "id": "0966d531-49a7-4020-b6c1-71b43d16f0ef",
+      "timestamp": "2026-03-01T17:31:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.39,
       "memory_percent": 45.51,
@@ -41,8 +41,8 @@
       "gc_pause_ms": 9.1
     },
     {
-      "id": "da76670e-c961-4386-8610-46190c2c99f7",
-      "timestamp": "2026-03-01T03:06:53.439409+00:00",
+      "id": "86d2a19a-96f4-4a7a-9f33-c12a13bc3f8b",
+      "timestamp": "2026-03-01T17:32:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.47,
       "memory_percent": 40.9,
@@ -56,8 +56,8 @@
       "gc_pause_ms": 26.6
     },
     {
-      "id": "258e8da6-3932-4b0e-8f54-cd067eb9fe23",
-      "timestamp": "2026-03-01T03:07:53.439409+00:00",
+      "id": "6356184e-baf7-4535-bf87-c75dbcffe0b0",
+      "timestamp": "2026-03-01T17:33:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 9.96,
       "memory_percent": 43.25,
@@ -71,8 +71,8 @@
       "gc_pause_ms": 26.3
     },
     {
-      "id": "3e956345-2304-48e3-b1c3-59ab31198c6d",
-      "timestamp": "2026-03-01T03:08:53.439409+00:00",
+      "id": "4c1e5f9c-3b6a-4eef-b704-1de1c6cf3e57",
+      "timestamp": "2026-03-01T17:34:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.14,
       "memory_percent": 35.48,
@@ -86,8 +86,8 @@
       "gc_pause_ms": 29.7
     },
     {
-      "id": "d8ef9ff5-7bf2-40da-b152-853b9ff40c3a",
-      "timestamp": "2026-03-01T03:09:53.439409+00:00",
+      "id": "a3bd0165-5647-4861-9ee9-4d660777ab54",
+      "timestamp": "2026-03-01T17:35:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 9.53,
       "memory_percent": 42.02,
@@ -101,8 +101,8 @@
       "gc_pause_ms": 8.5
     },
     {
-      "id": "1d4a0962-ebe9-4023-801f-34f840d5462f",
-      "timestamp": "2026-03-01T03:10:53.439409+00:00",
+      "id": "d7367df0-bbf5-4114-a739-a26dd7ff950d",
+      "timestamp": "2026-03-01T17:36:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.17,
       "memory_percent": 40.73,
@@ -116,8 +116,8 @@
       "gc_pause_ms": 27.7
     },
     {
-      "id": "14a62b8d-8adc-46d3-8111-1b39449ae62f",
-      "timestamp": "2026-03-01T03:11:53.439409+00:00",
+      "id": "aa90eac1-9bd3-4854-8540-85bff7a837b0",
+      "timestamp": "2026-03-01T17:37:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 9.72,
       "memory_percent": 37.32,
@@ -131,8 +131,8 @@
       "gc_pause_ms": 21.4
     },
     {
-      "id": "a8efcb64-90e4-4f10-86e1-50445af44a9f",
-      "timestamp": "2026-03-01T03:12:53.439409+00:00",
+      "id": "97eb481b-223c-4856-b04b-96dc4f2990fa",
+      "timestamp": "2026-03-01T17:38:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 9.69,
       "memory_percent": 41.36,
@@ -146,8 +146,8 @@
       "gc_pause_ms": 16.8
     },
     {
-      "id": "818d33c6-9bce-44ba-90b8-74fc6c3ebbf6",
-      "timestamp": "2026-03-01T03:13:53.439409+00:00",
+      "id": "23d8065c-a6b4-47d6-b6f1-98bf5dd0df77",
+      "timestamp": "2026-03-01T17:39:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 9.58,
       "memory_percent": 42.67,
@@ -161,8 +161,8 @@
       "gc_pause_ms": 9.5
     },
     {
-      "id": "c39b50d6-2c05-4266-8e38-8a098130a702",
-      "timestamp": "2026-03-01T03:14:53.439409+00:00",
+      "id": "0e636e47-4bac-4b0e-8add-a8baa89f3185",
+      "timestamp": "2026-03-01T17:40:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 9.9,
       "memory_percent": 43.72,
@@ -176,8 +176,8 @@
       "gc_pause_ms": 20.8
     },
     {
-      "id": "170733a9-0d90-4b95-88f6-6ecc2139e652",
-      "timestamp": "2026-03-01T03:15:53.439409+00:00",
+      "id": "c931503b-bd10-4196-be80-a1bb32a05f2f",
+      "timestamp": "2026-03-01T17:41:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 9.84,
       "memory_percent": 29.15,
@@ -191,8 +191,8 @@
       "gc_pause_ms": 22.3
     },
     {
-      "id": "efacb78c-80d4-462e-8ec2-a6318fc70530",
-      "timestamp": "2026-03-01T03:16:53.439409+00:00",
+      "id": "0b067722-ff97-42fa-b384-79924f6e0e0f",
+      "timestamp": "2026-03-01T17:42:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.4,
       "memory_percent": 37.33,
@@ -206,8 +206,8 @@
       "gc_pause_ms": 13.6
     },
     {
-      "id": "02bee527-0c44-4838-a9ab-6f6c16eb0571",
-      "timestamp": "2026-03-01T03:17:53.439409+00:00",
+      "id": "5d432fbd-be5a-4109-a3e3-3b8804f0ec9c",
+      "timestamp": "2026-03-01T17:43:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.14,
       "memory_percent": 38.59,
@@ -221,8 +221,8 @@
       "gc_pause_ms": 14.4
     },
     {
-      "id": "a8d80724-3f14-4c2b-8bdd-d6e4cffa13fa",
-      "timestamp": "2026-03-01T03:18:53.439409+00:00",
+      "id": "c1c0d4a9-f8af-466a-93bf-e2f122df4e63",
+      "timestamp": "2026-03-01T17:44:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.19,
       "memory_percent": 33.95,
@@ -236,8 +236,8 @@
       "gc_pause_ms": 10.1
     },
     {
-      "id": "33f13bdc-f27f-48df-834f-2febd539abac",
-      "timestamp": "2026-03-01T03:19:53.439409+00:00",
+      "id": "ac8a8992-50fd-4e27-bfb0-43931f291f2d",
+      "timestamp": "2026-03-01T17:45:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.11,
       "memory_percent": 41.92,
@@ -251,8 +251,8 @@
       "gc_pause_ms": 17.4
     },
     {
-      "id": "4461afd1-4a00-475a-8339-cfaccd9aeabc",
-      "timestamp": "2026-03-01T03:20:53.439409+00:00",
+      "id": "1a37fd04-0ae3-4059-afc2-d8df8fd7d2a0",
+      "timestamp": "2026-03-01T17:46:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 9.61,
       "memory_percent": 44.32,
@@ -266,8 +266,8 @@
       "gc_pause_ms": 7.2
     },
     {
-      "id": "8b74db44-93f1-4037-80e9-f8c0ec6208a9",
-      "timestamp": "2026-03-01T03:21:53.439409+00:00",
+      "id": "9cffb931-bf92-4212-9913-a1d0b18c3db1",
+      "timestamp": "2026-03-01T17:47:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.35,
       "memory_percent": 44.04,
@@ -281,8 +281,8 @@
       "gc_pause_ms": 26.9
     },
     {
-      "id": "e71ae705-4837-48ae-b643-8bdc66c64f70",
-      "timestamp": "2026-03-01T03:22:53.439409+00:00",
+      "id": "355b6024-994c-4527-b763-b933ade6cf5d",
+      "timestamp": "2026-03-01T17:48:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.23,
       "memory_percent": 32.14,
@@ -296,8 +296,8 @@
       "gc_pause_ms": 11.7
     },
     {
-      "id": "879dca79-d601-4208-83e2-3167b8c0a43e",
-      "timestamp": "2026-03-01T03:23:53.439409+00:00",
+      "id": "9afcf3f8-fe24-4364-a998-daeeb0d59a8a",
+      "timestamp": "2026-03-01T17:49:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.34,
       "memory_percent": 40.29,
@@ -311,8 +311,8 @@
       "gc_pause_ms": 29.5
     },
     {
-      "id": "6cc10209-e9a0-45f4-844d-1f3d33e2048f",
-      "timestamp": "2026-03-01T03:24:53.439409+00:00",
+      "id": "bfeefde8-4037-42c6-a068-b728597a1d51",
+      "timestamp": "2026-03-01T17:50:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 9.61,
       "memory_percent": 42.82,
@@ -326,8 +326,8 @@
       "gc_pause_ms": 28.0
     },
     {
-      "id": "ef60029f-0d44-4c19-b7c6-fdadd4647b18",
-      "timestamp": "2026-03-01T03:25:53.439409+00:00",
+      "id": "90e79175-3204-4756-93c8-5ed3e14598b0",
+      "timestamp": "2026-03-01T17:51:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 9.6,
       "memory_percent": 45.05,
@@ -341,8 +341,8 @@
       "gc_pause_ms": 22.5
     },
     {
-      "id": "040dc372-b599-4c2a-b469-bb611091869a",
-      "timestamp": "2026-03-01T03:26:53.439409+00:00",
+      "id": "4588fa0a-4ca1-4391-8f5e-6f2e36919ae9",
+      "timestamp": "2026-03-01T17:52:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.37,
       "memory_percent": 28.89,
@@ -356,8 +356,8 @@
       "gc_pause_ms": 26.3
     },
     {
-      "id": "379c16d7-81a0-48e9-bc9a-d8bfb6ed3ea8",
-      "timestamp": "2026-03-01T03:27:53.439409+00:00",
+      "id": "5aed4053-6370-4ece-a3ac-088616a4bb1c",
+      "timestamp": "2026-03-01T17:53:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 9.62,
       "memory_percent": 36.88,
@@ -371,8 +371,8 @@
       "gc_pause_ms": 16.2
     },
     {
-      "id": "5f62a70b-2e34-4e09-9621-1c2f01b9958a",
-      "timestamp": "2026-03-01T03:28:53.439409+00:00",
+      "id": "0e504177-1974-4807-9d13-c4fb135c792f",
+      "timestamp": "2026-03-01T17:54:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.45,
       "memory_percent": 39.02,
@@ -386,8 +386,8 @@
       "gc_pause_ms": 21.8
     },
     {
-      "id": "f02a1dfd-77c8-4b56-8853-72231a5d3042",
-      "timestamp": "2026-03-01T03:29:53.439409+00:00",
+      "id": "d249b56b-d5fa-4aed-9c5d-77ab1a857336",
+      "timestamp": "2026-03-01T17:55:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.33,
       "memory_percent": 38.5,
@@ -401,8 +401,8 @@
       "gc_pause_ms": 13.5
     },
     {
-      "id": "b0fe7f9d-65ef-48f1-8022-7b9289729900",
-      "timestamp": "2026-03-01T03:30:53.439409+00:00",
+      "id": "d4286c77-8505-4a33-9cfe-3dd1f1c6c96a",
+      "timestamp": "2026-03-01T17:56:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 9.89,
       "memory_percent": 35.98,
@@ -416,8 +416,8 @@
       "gc_pause_ms": 28.3
     },
     {
-      "id": "3ce1ffff-5a25-4a73-aa8c-50d4b514b80d",
-      "timestamp": "2026-03-01T03:31:53.439409+00:00",
+      "id": "a8e1fafb-b258-4feb-a410-47cd2a44ca89",
+      "timestamp": "2026-03-01T17:57:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.46,
       "memory_percent": 34.37,
@@ -431,8 +431,8 @@
       "gc_pause_ms": 21.3
     },
     {
-      "id": "47ef7e19-7995-493c-8b26-a345401a83e1",
-      "timestamp": "2026-03-01T03:32:53.439409+00:00",
+      "id": "b97f2c9c-8f9c-48d0-93e6-b35817e3d079",
+      "timestamp": "2026-03-01T17:58:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 11.03,
       "memory_percent": 38.21,
@@ -446,8 +446,8 @@
       "gc_pause_ms": 25.2
     },
     {
-      "id": "ca023257-4740-4a4d-90b6-f5ac559eaa0a",
-      "timestamp": "2026-03-01T03:33:53.439409+00:00",
+      "id": "fb6675b1-f166-47ae-886f-404c07391ad6",
+      "timestamp": "2026-03-01T17:59:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.64,
       "memory_percent": 32.95,
@@ -461,8 +461,8 @@
       "gc_pause_ms": 9.7
     },
     {
-      "id": "9239fa3a-8520-4e2d-923b-111fbafe258d",
-      "timestamp": "2026-03-01T03:34:53.439409+00:00",
+      "id": "874c72be-f2c4-412c-813a-45fad307afcc",
+      "timestamp": "2026-03-01T18:00:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.49,
       "memory_percent": 38.1,
@@ -476,8 +476,8 @@
       "gc_pause_ms": 11.1
     },
     {
-      "id": "0195ea66-d903-4f6d-a67b-b5fff6448de5",
-      "timestamp": "2026-03-01T03:35:53.439409+00:00",
+      "id": "92dfcb91-a0bd-46c9-9047-bdcbbdc44dac",
+      "timestamp": "2026-03-01T18:01:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.46,
       "memory_percent": 40.32,
@@ -491,8 +491,8 @@
       "gc_pause_ms": 8.0
     },
     {
-      "id": "272f05cc-0d03-4f35-add1-8e051a22efd4",
-      "timestamp": "2026-03-01T03:36:53.439409+00:00",
+      "id": "6a5a58e9-16f1-4c26-a11d-0ac32b080c16",
+      "timestamp": "2026-03-01T18:02:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 10.05,
       "memory_percent": 41.12,
@@ -506,8 +506,8 @@
       "gc_pause_ms": 16.5
     },
     {
-      "id": "6f335f9e-1d63-4d97-9697-2e9969375030",
-      "timestamp": "2026-03-01T03:37:53.439409+00:00",
+      "id": "9516537f-b2d9-447a-b9a2-dfbfb5b86bfe",
+      "timestamp": "2026-03-01T18:03:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 11.47,
       "memory_percent": 33.61,
@@ -521,8 +521,8 @@
       "gc_pause_ms": 16.3
     },
     {
-      "id": "ead623b0-d482-4567-aeba-d7e704167dde",
-      "timestamp": "2026-03-01T03:38:53.439409+00:00",
+      "id": "06b8a1d7-c788-4eb0-9934-ab37d5b9f67c",
+      "timestamp": "2026-03-01T18:04:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 12.2,
       "memory_percent": 35.49,
@@ -536,8 +536,8 @@
       "gc_pause_ms": 26.4
     },
     {
-      "id": "52fab4f1-5411-4035-8502-d3997cd9d3ec",
-      "timestamp": "2026-03-01T03:39:53.439409+00:00",
+      "id": "f5e9ae27-9e7f-4967-bc16-90c2f1179b7c",
+      "timestamp": "2026-03-01T18:05:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 13.98,
       "memory_percent": 37.95,
@@ -551,8 +551,8 @@
       "gc_pause_ms": 23.4
     },
     {
-      "id": "1c45a577-5457-43a1-92f2-25f9eff259fa",
-      "timestamp": "2026-03-01T03:40:53.439409+00:00",
+      "id": "4f98e1c7-d065-4534-9ccd-115eacc49523",
+      "timestamp": "2026-03-01T18:06:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 15.37,
       "memory_percent": 44.65,
@@ -566,8 +566,8 @@
       "gc_pause_ms": 22.6
     },
     {
-      "id": "8d06c444-fb90-4183-9998-df91fcf622b8",
-      "timestamp": "2026-03-01T03:41:53.439409+00:00",
+      "id": "0a909502-72b3-4e43-8af8-9658b6f580f4",
+      "timestamp": "2026-03-01T18:07:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 16.51,
       "memory_percent": 45.4,
@@ -581,8 +581,8 @@
       "gc_pause_ms": 17.9
     },
     {
-      "id": "dfc5a14f-63cb-4e09-bd7f-63f43ca25b31",
-      "timestamp": "2026-03-01T03:42:53.439409+00:00",
+      "id": "b6602398-0e40-4f32-a090-8b5b84f13151",
+      "timestamp": "2026-03-01T18:08:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 18.29,
       "memory_percent": 41.46,
@@ -596,8 +596,8 @@
       "gc_pause_ms": 9.5
     },
     {
-      "id": "30706d8d-6f34-4824-a831-2d9d7988146b",
-      "timestamp": "2026-03-01T03:43:53.439409+00:00",
+      "id": "d3d69361-c8aa-41c8-97f0-e493efe62c0d",
+      "timestamp": "2026-03-01T18:09:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 18.38,
       "memory_percent": 30.55,
@@ -611,8 +611,8 @@
       "gc_pause_ms": 7.9
     },
     {
-      "id": "6029a82e-9db0-4584-aa28-d91d6575a72e",
-      "timestamp": "2026-03-01T03:44:53.439409+00:00",
+      "id": "fdf76416-b7c2-43bf-ab8c-612a472967d1",
+      "timestamp": "2026-03-01T18:10:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 20.46,
       "memory_percent": 33.85,
@@ -626,8 +626,8 @@
       "gc_pause_ms": 28.3
     },
     {
-      "id": "a221b5b4-6b9d-4f67-a1b0-1b84b002f90b",
-      "timestamp": "2026-03-01T03:45:53.439409+00:00",
+      "id": "664e56e1-c586-41a5-857a-ad09b38779e3",
+      "timestamp": "2026-03-01T18:11:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 22.54,
       "memory_percent": 38.75,
@@ -641,8 +641,8 @@
       "gc_pause_ms": 9.6
     },
     {
-      "id": "4fa6a340-52bb-4e35-ba5c-2781c603f158",
-      "timestamp": "2026-03-01T03:46:53.439409+00:00",
+      "id": "bb57d86d-5033-420c-96ca-19afd2ab47d5",
+      "timestamp": "2026-03-01T18:12:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 23.27,
       "memory_percent": 35.82,
@@ -656,8 +656,8 @@
       "gc_pause_ms": 10.9
     },
     {
-      "id": "2fb6e020-b29b-400b-a3c4-b836f16911c5",
-      "timestamp": "2026-03-01T03:47:53.439409+00:00",
+      "id": "7ca03f83-7782-4a57-b093-9600d757cf4b",
+      "timestamp": "2026-03-01T18:13:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 24.85,
       "memory_percent": 36.72,
@@ -671,8 +671,8 @@
       "gc_pause_ms": 10.0
     },
     {
-      "id": "2d3f19cd-27f4-4d57-9a58-03fa66d83e85",
-      "timestamp": "2026-03-01T03:48:53.439409+00:00",
+      "id": "2899c8df-27ed-43b0-af57-b2c5e093a06e",
+      "timestamp": "2026-03-01T18:14:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 26.31,
       "memory_percent": 29.13,
@@ -686,8 +686,8 @@
       "gc_pause_ms": 7.6
     },
     {
-      "id": "0eb362ab-35a6-4690-8c6f-dade4f02fa76",
-      "timestamp": "2026-03-01T03:49:53.439409+00:00",
+      "id": "d42ff1a6-8ad9-454d-a50a-ac5172a37a3a",
+      "timestamp": "2026-03-01T18:15:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 27.47,
       "memory_percent": 29.2,
@@ -701,8 +701,8 @@
       "gc_pause_ms": 24.9
     },
     {
-      "id": "cc00f816-9e82-43f6-9231-d3bc6d9c7c7c",
-      "timestamp": "2026-03-01T03:50:53.439409+00:00",
+      "id": "709a88b2-bc13-4ec6-a09a-0ad8bad26167",
+      "timestamp": "2026-03-01T18:16:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 28.48,
       "memory_percent": 33.69,
@@ -716,8 +716,8 @@
       "gc_pause_ms": 10.9
     },
     {
-      "id": "f211243a-c2a8-43b4-bc51-17a86c29e4c0",
-      "timestamp": "2026-03-01T03:51:53.439409+00:00",
+      "id": "1d938520-a923-4702-aeba-60637938447c",
+      "timestamp": "2026-03-01T18:17:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 29.64,
       "memory_percent": 40.96,
@@ -731,8 +731,8 @@
       "gc_pause_ms": 21.0
     },
     {
-      "id": "3123791e-fa03-42bd-8d8f-b26ed11b61c8",
-      "timestamp": "2026-03-01T03:52:53.439409+00:00",
+      "id": "19494dff-7b59-48f6-92c0-c0ed6b6e9bb3",
+      "timestamp": "2026-03-01T18:18:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 28.62,
       "memory_percent": 40.51,
@@ -746,8 +746,8 @@
       "gc_pause_ms": 11.6
     },
     {
-      "id": "3a1cf339-5ceb-4f8d-a6ca-ddfc39620928",
-      "timestamp": "2026-03-01T03:53:53.439409+00:00",
+      "id": "863ef4db-5f89-43de-833f-bb813d31a80e",
+      "timestamp": "2026-03-01T18:19:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 30.93,
       "memory_percent": 38.19,
@@ -761,8 +761,8 @@
       "gc_pause_ms": 5.9
     },
     {
-      "id": "1a632def-8edd-48f1-912f-229b8be72411",
-      "timestamp": "2026-03-01T03:54:53.439409+00:00",
+      "id": "0bcc3216-dbde-4f01-b045-d55862c5a93d",
+      "timestamp": "2026-03-01T18:20:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 28.57,
       "memory_percent": 33.32,
@@ -776,8 +776,8 @@
       "gc_pause_ms": 16.3
     },
     {
-      "id": "d719536d-ccf6-493d-a049-2c3f49c84bec",
-      "timestamp": "2026-03-01T03:55:53.439409+00:00",
+      "id": "5959b769-1bd3-4970-86c1-1b482adb7e44",
+      "timestamp": "2026-03-01T18:21:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 28.69,
       "memory_percent": 38.42,
@@ -791,8 +791,8 @@
       "gc_pause_ms": 11.9
     },
     {
-      "id": "cae4e2b7-7f7c-4b6c-8705-6a0858d9187e",
-      "timestamp": "2026-03-01T03:56:53.439409+00:00",
+      "id": "9746d6bd-f9b7-43f9-a539-fe5aed1f9cf8",
+      "timestamp": "2026-03-01T18:22:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 29.86,
       "memory_percent": 44.76,
@@ -806,8 +806,8 @@
       "gc_pause_ms": 25.7
     },
     {
-      "id": "1d8f2534-4476-4b21-9a6f-581b70056131",
-      "timestamp": "2026-03-01T03:57:53.439409+00:00",
+      "id": "ba168e2f-99cc-426a-9421-ba5212040d79",
+      "timestamp": "2026-03-01T18:23:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 29.28,
       "memory_percent": 44.34,
@@ -821,8 +821,8 @@
       "gc_pause_ms": 26.2
     },
     {
-      "id": "e0603255-e9c5-436a-b168-80a7f4b7ec9d",
-      "timestamp": "2026-03-01T03:58:53.439409+00:00",
+      "id": "5d500ef9-e41f-41d3-afdf-055c72a50fce",
+      "timestamp": "2026-03-01T18:24:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 28.67,
       "memory_percent": 38.13,
@@ -836,8 +836,8 @@
       "gc_pause_ms": 28.2
     },
     {
-      "id": "97b60ee1-c7a7-4632-ad81-fcf848790d63",
-      "timestamp": "2026-03-01T03:59:53.439409+00:00",
+      "id": "461dfe00-ad98-4673-ad66-1bc919de4338",
+      "timestamp": "2026-03-01T18:25:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 29.0,
       "memory_percent": 34.57,
@@ -851,8 +851,8 @@
       "gc_pause_ms": 18.4
     },
     {
-      "id": "d7b88934-cfc6-4ab4-afff-b904c8ad51bc",
-      "timestamp": "2026-03-01T04:00:53.439409+00:00",
+      "id": "00bfa31b-65b9-4d0a-8a42-4dc0d46118f8",
+      "timestamp": "2026-03-01T18:26:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 29.68,
       "memory_percent": 37.82,
@@ -866,8 +866,8 @@
       "gc_pause_ms": 7.2
     },
     {
-      "id": "6a8a6d8c-421c-4482-b807-4fb0d9c27049",
-      "timestamp": "2026-03-01T04:01:53.439409+00:00",
+      "id": "8ef7692e-2b0a-4c3f-a686-1ba6fc064f17",
+      "timestamp": "2026-03-01T18:27:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 29.65,
       "memory_percent": 38.24,
@@ -881,8 +881,8 @@
       "gc_pause_ms": 29.3
     },
     {
-      "id": "ee2f38e0-fe5e-4e0b-8575-f9ec7bb9e353",
-      "timestamp": "2026-03-01T04:02:53.439409+00:00",
+      "id": "331e68af-2046-4b36-b9ed-5358e90ef5fd",
+      "timestamp": "2026-03-01T18:28:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 30.03,
       "memory_percent": 46.29,
@@ -896,8 +896,8 @@
       "gc_pause_ms": 20.3
     },
     {
-      "id": "35edab7e-13ed-4e0e-a7ef-9b7b7786e1e7",
-      "timestamp": "2026-03-01T04:03:53.439409+00:00",
+      "id": "4be810ce-1c8b-4150-a199-d0c44b69808d",
+      "timestamp": "2026-03-01T18:29:43.132076+00:00",
       "service": "payment-service",
       "cpu_percent": 30.22,
       "memory_percent": 34.56,
@@ -913,395 +913,395 @@
   ],
   "logs": [
     {
-      "id": "e4c947e1-879f-4f3a-96fc-b7f440bae54c",
-      "timestamp": "2026-03-01T03:30:53.439409+00:00",
+      "id": "3d88b40e-1a0f-4e5c-82c2-3fe5fd7abe05",
+      "timestamp": "2026-03-01T17:56:43.132076+00:00",
       "service": "payment-service",
       "severity": "INFO",
       "message": "TLS certificate valid \u2014 expires in 118 days",
-      "trace_id": "dac69aa46cbc",
+      "trace_id": "4814a8d4b4d9",
       "source_file": "middleware.py",
       "line_number": 127
     },
     {
-      "id": "7cac2f5d-4b3f-44e0-a1af-6ee1de702b43",
-      "timestamp": "2026-03-01T03:32:53.439409+00:00",
+      "id": "cde5e1ba-bd33-4625-91d1-12e87e6e7bb9",
+      "timestamp": "2026-03-01T17:58:43.132076+00:00",
       "service": "payment-service",
       "severity": "INFO",
       "message": "Config reloaded from /etc/sentinel/payment-service.yaml",
-      "trace_id": "2d40997648b8",
+      "trace_id": "358eb35cad20",
       "source_file": "middleware.py",
       "line_number": 417
     },
     {
-      "id": "ad43bdc8-49ef-4603-996b-26ae229217b3",
-      "timestamp": "2026-03-01T03:33:53.439409+00:00",
+      "id": "ae1b5876-021c-410f-a3df-0cfe1230922b",
+      "timestamp": "2026-03-01T17:59:43.132076+00:00",
       "service": "payment-service",
       "severity": "INFO",
-      "message": "Request 29575f1d0f9a processed successfully by CacheLayer",
-      "trace_id": "56de6c698657",
+      "message": "Request 40f00524c50e processed successfully by CacheLayer",
+      "trace_id": "adcad20cc076",
       "source_file": "server.py",
       "line_number": 78
     },
     {
-      "id": "42abe79d-b6f3-4809-ab10-b2d85fe77502",
-      "timestamp": "2026-03-01T03:34:53.439409+00:00",
+      "id": "1d9a1f0a-1e94-4690-97ad-f60629cda71f",
+      "timestamp": "2026-03-01T18:00:43.132076+00:00",
       "service": "payment-service",
       "severity": "INFO",
       "message": "TLS certificate valid \u2014 expires in 352 days",
-      "trace_id": "3758e5295212",
+      "trace_id": "178c6e6f1a60",
       "source_file": "health.py",
       "line_number": 228
     },
     {
-      "id": "d4169fed-2066-4c35-8d81-187e42d33239",
-      "timestamp": "2026-03-01T03:35:53.439409+00:00",
+      "id": "c4bcc0be-5730-4001-812d-da30ae51695b",
+      "timestamp": "2026-03-01T18:01:43.132076+00:00",
       "service": "payment-service",
       "severity": "INFO",
-      "message": "Request af43dba37a25 processed successfully by InventoryManager",
-      "trace_id": "4e4de7887c16",
+      "message": "Request f97fa37dc05f processed successfully by InventoryManager",
+      "trace_id": "46c57761dafb",
       "source_file": "middleware.py",
       "line_number": 78
     },
     {
-      "id": "d39b1145-b5eb-48fd-be98-f6655977682b",
-      "timestamp": "2026-03-01T03:37:53.439409+00:00",
+      "id": "727d7bc5-8de8-4680-be8e-16be46f89660",
+      "timestamp": "2026-03-01T18:03:43.132076+00:00",
       "service": "payment-service",
       "severity": "INFO",
       "message": "Config reloaded from /etc/sentinel/payment-service.yaml",
-      "trace_id": "93edda6d383a",
+      "trace_id": "0f3bb135ec9b",
       "source_file": "cache.py",
       "line_number": 354
     },
     {
-      "id": "701859e9-6c28-470b-b5ef-c756f4e9883b",
-      "timestamp": "2026-03-01T03:40:53.439409+00:00",
+      "id": "760224c3-8c22-47d6-9d3d-29e94e8c749c",
+      "timestamp": "2026-03-01T18:06:43.132076+00:00",
       "service": "api-gateway",
       "severity": "ERROR",
       "message": "Unhandled exception in request pipeline: KeyError: unexpected null value",
-      "trace_id": "f1c32cde260e",
+      "trace_id": "de854dcffb53",
       "source_file": "connection.py",
       "line_number": 342
     },
     {
-      "id": "71315afa-9884-44f8-9827-70685fbae5ee",
-      "timestamp": "2026-03-01T03:42:53.439409+00:00",
+      "id": "7d24162c-d84d-4918-a43d-ccae5751b598",
+      "timestamp": "2026-03-01T18:08:43.132076+00:00",
       "service": "payment-service",
       "severity": "WARN",
       "message": "Connection pool utilization at 68% (16/50)",
-      "trace_id": "1f550070141a",
+      "trace_id": "427343cde19e",
       "source_file": "monitor.py",
       "line_number": 165
     },
     {
-      "id": "83c20fee-6118-4d83-a793-fc5b1fecb66c",
-      "timestamp": "2026-03-01T03:43:53.439409+00:00",
+      "id": "ae4004cb-d0b9-462c-87b1-c766554b0131",
+      "timestamp": "2026-03-01T18:09:43.132076+00:00",
       "service": "payment-service",
       "severity": "WARN",
       "message": "Rate limit approaching: 83/100 requests in current window",
-      "trace_id": "8411d8e6a57e",
+      "trace_id": "2e5be71e56ba",
       "source_file": "pool.py",
       "line_number": 261
     },
     {
-      "id": "5fe2e64d-7c53-435a-ad0f-0830935caf05",
-      "timestamp": "2026-03-01T03:44:53.439409+00:00",
+      "id": "f62935ad-d28d-41da-9d5a-18559e9a1988",
+      "timestamp": "2026-03-01T18:10:43.132076+00:00",
       "service": "payment-service",
       "severity": "ERROR",
-      "message": "HTTP 500 Internal Server Error on POST /api/v2/users \u2014 trace_id=e8d673595353",
-      "trace_id": "f57411903c92",
+      "message": "HTTP 500 Internal Server Error on POST /api/v2/users \u2014 trace_id=a54982ce3b4b",
+      "trace_id": "7444cdce5769",
       "source_file": "handler.py",
       "line_number": 306
     },
     {
-      "id": "45c9b5f6-45a2-4edd-93b1-db93f316b6c1",
-      "timestamp": "2026-03-01T03:44:53.439409+00:00",
+      "id": "34bb8976-3288-4ce4-bac7-bef4ade740f4",
+      "timestamp": "2026-03-01T18:10:43.132076+00:00",
       "service": "api-gateway",
       "severity": "ERROR",
       "message": "Transaction rollback: connection timeout \u2014 affected 250 rows",
-      "trace_id": "920f5fe615ba",
+      "trace_id": "0616e73c4364",
       "source_file": "handler.py",
       "line_number": 303
     },
     {
-      "id": "a2848e36-2b53-4728-b8ce-d13522c658d8",
-      "timestamp": "2026-03-01T03:45:53.439409+00:00",
+      "id": "cbed998a-9b61-44d3-b13a-13813cc68388",
+      "timestamp": "2026-03-01T18:11:43.132076+00:00",
       "service": "payment-service",
       "severity": "WARN",
       "message": "Slow query detected: SELECT * FROM users took 31ms",
-      "trace_id": "3073520ae6e4",
+      "trace_id": "62b06a0347c5",
       "source_file": "monitor.py",
       "line_number": 26
     },
     {
-      "id": "77a039f8-f9c7-4fd4-a2ab-1184890ffb25",
-      "timestamp": "2026-03-01T03:46:53.439409+00:00",
+      "id": "92298e4f-2bbb-4508-93b3-ead3a38fd454",
+      "timestamp": "2026-03-01T18:12:43.132076+00:00",
       "service": "payment-service",
       "severity": "WARN",
       "message": "Slow query detected: SELECT * FROM audit_log took 13ms",
-      "trace_id": "688b3fd05777",
+      "trace_id": "b03ffc9cf5dc",
       "source_file": "circuit_breaker.py",
       "line_number": 306
     },
     {
-      "id": "d9ca6fa4-9500-440c-9a1a-61172d8dc77f",
-      "timestamp": "2026-03-01T03:47:53.439409+00:00",
+      "id": "0b9a4bbd-6f65-4de7-86ed-0db374892e69",
+      "timestamp": "2026-03-01T18:13:43.132076+00:00",
       "service": "payment-service",
       "severity": "ERROR",
       "message": "Unhandled exception in request pipeline: ValueError: unexpected null value",
-      "trace_id": "7a01ab85cdc2",
+      "trace_id": "1b9e7367145c",
       "source_file": "handler.py",
       "line_number": 499
     },
     {
-      "id": "fbaeb314-6e39-4cb4-88bb-9c4267d32722",
-      "timestamp": "2026-03-01T03:48:53.439409+00:00",
+      "id": "37f4bd67-0e01-46e4-90d4-adeda7b599c9",
+      "timestamp": "2026-03-01T18:14:43.132076+00:00",
       "service": "payment-service",
       "severity": "WARN",
       "message": "Response time elevated: 4054ms exceeds p95 threshold of 500ms",
-      "trace_id": "2149f862ff1e",
+      "trace_id": "097f8b870d1f",
       "source_file": "monitor.py",
       "line_number": 372
     },
     {
-      "id": "139a33df-b4d2-436d-ab28-83b0c1b2f7ed",
-      "timestamp": "2026-03-01T03:49:53.439409+00:00",
+      "id": "04b3baa1-646a-4272-95ad-2fc7ed1a49ae",
+      "timestamp": "2026-03-01T18:15:43.132076+00:00",
       "service": "payment-service",
       "severity": "WARN",
       "message": "Request queue depth: 5 \u2014 above normal baseline of 10",
-      "trace_id": "c1182516397f",
+      "trace_id": "955653cfbaf9",
       "source_file": "monitor.py",
       "line_number": 272
     },
     {
-      "id": "a387434d-9948-40eb-808a-8a4ab163cd8b",
-      "timestamp": "2026-03-01T03:49:53.439409+00:00",
+      "id": "645c3ecc-a0bf-4d96-8b9a-19edf9fb87dc",
+      "timestamp": "2026-03-01T18:15:43.132076+00:00",
       "service": "payment-service",
       "severity": "ERROR",
       "message": "Version mismatch: expected schema v10, got v9",
-      "trace_id": "050a2af57e11",
+      "trace_id": "18a825dffb09",
       "source_file": "handler.py",
       "line_number": 149
     },
     {
-      "id": "0b596520-a626-4787-8096-2d84a0487f93",
-      "timestamp": "2026-03-01T03:50:53.439409+00:00",
+      "id": "513d712c-eeea-4501-9390-9c4ad8b2358e",
+      "timestamp": "2026-03-01T18:16:43.132076+00:00",
       "service": "payment-service",
       "severity": "ERROR",
       "message": "ConnectionPoolExhausted: all 50 connections in use, 23 waiting",
-      "trace_id": "e832538d3c1d",
+      "trace_id": "c03f38660310",
       "source_file": "connection.py",
       "line_number": 55
     },
     {
-      "id": "4da1b2fb-dc37-42d8-94dd-950c132444f3",
-      "timestamp": "2026-03-01T03:51:53.439409+00:00",
+      "id": "a01734dd-7859-4d8e-ae42-a60c8e0c019f",
+      "timestamp": "2026-03-01T18:17:43.132076+00:00",
       "service": "payment-service",
       "severity": "ERROR",
       "message": "Container restart: exit code 137 \u2014 back-off restarting",
-      "trace_id": "c899cd18acf6",
+      "trace_id": "88c3c8bc0437",
       "source_file": "transaction.py",
       "line_number": 305
     },
     {
-      "id": "32243ff2-f87e-4d33-8af3-6f2415262715",
-      "timestamp": "2026-03-01T03:52:53.439409+00:00",
+      "id": "9172be4f-5278-48d3-8bee-cd497273ddbd",
+      "timestamp": "2026-03-01T18:18:43.132076+00:00",
       "service": "payment-service",
       "severity": "WARN",
       "message": "Slow query detected: SELECT * FROM audit_log took 45ms",
-      "trace_id": "a8eaa36095e4",
+      "trace_id": "f0fe9520f005",
       "source_file": "gc.py",
       "line_number": 223
     },
     {
-      "id": "2d7cfd7d-d334-4055-b317-06e0a88f6885",
-      "timestamp": "2026-03-01T03:52:53.439409+00:00",
+      "id": "674c0466-ad5a-47ca-9818-2f7be8780ca2",
+      "timestamp": "2026-03-01T18:18:43.132076+00:00",
       "service": "payment-service",
       "severity": "ERROR",
       "message": "Memory allocation failed: cannot allocate 89MB, only 13MB available",
-      "trace_id": "ceecece129b0",
+      "trace_id": "c97b4b502a86",
       "source_file": "connection.py",
       "line_number": 269
     },
     {
-      "id": "3b3f9e5f-1c8d-480a-89b0-49c58a774908",
-      "timestamp": "2026-03-01T03:53:53.439409+00:00",
+      "id": "8c1679a2-927a-4a7c-88fc-aa4c4e31f578",
+      "timestamp": "2026-03-01T18:19:43.132076+00:00",
       "service": "payment-service",
       "severity": "ERROR",
-      "message": "Heap dump written to /tmp/heapdump-20260301_040453.hprof (635MB)",
-      "trace_id": "c51a64cf6c43",
+      "message": "Heap dump written to /tmp/heapdump-20260301_183043.hprof (635MB)",
+      "trace_id": "1d43788dfbb7",
       "source_file": "deploy.py",
       "line_number": 306
     },
     {
-      "id": "00275cb3-85da-4dd0-bd9a-254182cef10c",
-      "timestamp": "2026-03-01T03:53:53.439409+00:00",
+      "id": "0c1d08cc-8fba-473f-a93a-6b1b6c957c81",
+      "timestamp": "2026-03-01T18:19:43.132076+00:00",
       "service": "api-gateway",
       "severity": "ERROR",
       "message": "Container restart: exit code 143 \u2014 back-off restarting",
-      "trace_id": "9e9b0efe3594",
+      "trace_id": "e7e9f37e6fd2",
       "source_file": "connection.py",
       "line_number": 464
     },
     {
-      "id": "0c0cffd4-924e-4e67-92ae-92463851aa6c",
-      "timestamp": "2026-03-01T03:54:53.439409+00:00",
+      "id": "d54e2e96-c37c-4568-8564-7b252124b4c2",
+      "timestamp": "2026-03-01T18:20:43.132076+00:00",
       "service": "payment-service",
       "severity": "ERROR",
       "message": "Readiness probe failed: HTTP GET /health returned 503 (attempt 1/10)",
-      "trace_id": "3e9ef475a07d",
+      "trace_id": "3e44648ad761",
       "source_file": "connection.py",
       "line_number": 29
     },
     {
-      "id": "5bf417b5-5f73-4a1f-92bd-35bbbc9bac05",
-      "timestamp": "2026-03-01T03:55:53.439409+00:00",
+      "id": "d8d48cec-3c8a-42c4-8356-e8030363091c",
+      "timestamp": "2026-03-01T18:21:43.132076+00:00",
       "service": "payment-service",
       "severity": "WARN",
       "message": "Rate limit approaching: 84/100 requests in current window",
-      "trace_id": "3c3b93fb72be",
+      "trace_id": "9978b4ba9c10",
       "source_file": "pool.py",
       "line_number": 392
     },
     {
-      "id": "bcdec0d8-b410-4b37-9d7f-413ff8817b79",
-      "timestamp": "2026-03-01T03:55:53.439409+00:00",
+      "id": "891959f0-6443-4989-baca-f3da7e860492",
+      "timestamp": "2026-03-01T18:21:43.132076+00:00",
       "service": "payment-service",
       "severity": "ERROR",
       "message": "Unhandled exception in request pipeline: KeyError: unexpected null value",
-      "trace_id": "50d6f78571d5",
+      "trace_id": "a27235f05653",
       "source_file": "handler.py",
       "line_number": 493
     },
     {
-      "id": "2d4534bd-26cf-41d2-952d-d644e58e0d1c",
-      "timestamp": "2026-03-01T03:55:53.439409+00:00",
+      "id": "404f1e83-14b4-4640-9a1e-2acfb6064128",
+      "timestamp": "2026-03-01T18:21:43.132076+00:00",
       "service": "api-gateway",
       "severity": "ERROR",
       "message": "Container restart: exit code 137 \u2014 back-off restarting",
-      "trace_id": "35a22d4d569c",
+      "trace_id": "4057484ce297",
       "source_file": "connection.py",
       "line_number": 236
     },
     {
-      "id": "d2b4292c-f739-406a-992d-f31ab373b6ba",
-      "timestamp": "2026-03-01T03:56:53.439409+00:00",
+      "id": "83cffde3-e582-4e7c-a39c-4dc19ed266d9",
+      "timestamp": "2026-03-01T18:22:43.132076+00:00",
       "service": "payment-service",
       "severity": "WARN",
       "message": "Connection pool utilization at 56% (15/50)",
-      "trace_id": "2186ecdffba9",
+      "trace_id": "af767773f8a1",
       "source_file": "monitor.py",
       "line_number": 480
     },
     {
-      "id": "331657c4-fbbf-43c0-8150-347accdb7708",
-      "timestamp": "2026-03-01T03:56:53.439409+00:00",
+      "id": "e07a395a-ebed-4bfb-9665-430a7ba39a0d",
+      "timestamp": "2026-03-01T18:22:43.132076+00:00",
       "service": "payment-service",
       "severity": "ERROR",
       "message": "ConnectionRefusedError: postgres-primary:6379 \u2014 connection refused",
-      "trace_id": "fe78024970bf",
+      "trace_id": "56d7436fffd6",
       "source_file": "transaction.py",
       "line_number": 491
     },
     {
-      "id": "cc8e0c05-80ec-48b7-8df4-1965c2a20539",
-      "timestamp": "2026-03-01T03:56:53.439409+00:00",
+      "id": "d8581f70-aa71-4cfe-a068-c244d2c1bdf3",
+      "timestamp": "2026-03-01T18:22:43.132076+00:00",
       "service": "api-gateway",
       "severity": "ERROR",
-      "message": "Heap dump written to /tmp/heapdump-20260301_040453.hprof (1380MB)",
-      "trace_id": "042d2d347d6d",
+      "message": "Heap dump written to /tmp/heapdump-20260301_183043.hprof (1380MB)",
+      "trace_id": "5a41918b80fd",
       "source_file": "deploy.py",
       "line_number": 390
     },
     {
-      "id": "612a6f56-b863-40b7-bb4c-7a111abe979d",
-      "timestamp": "2026-03-01T03:57:53.439409+00:00",
+      "id": "7368f0dd-8bc7-4e05-a1a5-c7f16c3a586a",
+      "timestamp": "2026-03-01T18:23:43.132076+00:00",
       "service": "payment-service",
       "severity": "ERROR",
       "message": "ConnectionPoolExhausted: all 50 connections in use, 17 waiting",
-      "trace_id": "cdfe356acc3f",
+      "trace_id": "3b4a7737afbc",
       "source_file": "deploy.py",
       "line_number": 99
     },
     {
-      "id": "9f951f5f-7c34-4097-a988-162dbc57f5b7",
-      "timestamp": "2026-03-01T03:59:53.439409+00:00",
+      "id": "862a8d49-e375-4db2-ab42-604719667bac",
+      "timestamp": "2026-03-01T18:25:43.132076+00:00",
       "service": "payment-service",
       "severity": "WARN",
       "message": "Request queue depth: 9 \u2014 above normal baseline of 10",
-      "trace_id": "3d879e5c87f3",
+      "trace_id": "9bb4d487d5ca",
       "source_file": "circuit_breaker.py",
       "line_number": 497
     },
     {
-      "id": "aaac1b12-e71a-4724-9c1d-4dc11ac0d66a",
-      "timestamp": "2026-03-01T03:59:53.439409+00:00",
+      "id": "656af819-71fe-4b88-bde9-f7207c94e17f",
+      "timestamp": "2026-03-01T18:25:43.132076+00:00",
       "service": "payment-service",
       "severity": "ERROR",
       "message": "Memory allocation failed: cannot allocate 209MB, only 40MB available",
-      "trace_id": "ef9d3b02bc74",
+      "trace_id": "fbc6a4b41d81",
       "source_file": "transaction.py",
       "line_number": 296
     },
     {
-      "id": "6d1d14f6-4392-442a-9ffe-3c7416e03831",
-      "timestamp": "2026-03-01T04:00:53.439409+00:00",
+      "id": "5c20b13f-8049-4937-b0d4-a11999ac8a3d",
+      "timestamp": "2026-03-01T18:26:43.132076+00:00",
       "service": "payment-service",
       "severity": "ERROR",
-      "message": "Heap dump written to /tmp/heapdump-20260301_040453.hprof (990MB)",
-      "trace_id": "0e4a22d0520e",
+      "message": "Heap dump written to /tmp/heapdump-20260301_183043.hprof (990MB)",
+      "trace_id": "36c5ea60e28f",
       "source_file": "handler.py",
       "line_number": 425
     },
     {
-      "id": "19061939-b27d-423f-bc2d-4afcd28ec237",
-      "timestamp": "2026-03-01T04:01:53.439409+00:00",
+      "id": "f28d1169-b312-413e-a56f-fa969b4fcc50",
+      "timestamp": "2026-03-01T18:27:43.132076+00:00",
       "service": "payment-service",
       "severity": "ERROR",
-      "message": "Heap dump written to /tmp/heapdump-20260301_040453.hprof (1329MB)",
-      "trace_id": "f34f335a9440",
+      "message": "Heap dump written to /tmp/heapdump-20260301_183043.hprof (1329MB)",
+      "trace_id": "9f7b42a7b94b",
       "source_file": "transaction.py",
       "line_number": 490
     },
     {
-      "id": "fed4a602-d48b-4c10-8b14-a1229cd6b370",
-      "timestamp": "2026-03-01T04:02:53.439409+00:00",
+      "id": "b97abd7e-2eb0-4f7d-ab70-2de78c247639",
+      "timestamp": "2026-03-01T18:28:43.132076+00:00",
       "service": "payment-service",
       "severity": "ERROR",
       "message": "NullPointerException in OrderService.process() at line 119",
-      "trace_id": "e79a7e7dbc6f",
+      "trace_id": "d9cf0577323f",
       "source_file": "deploy.py",
       "line_number": 339
     },
     {
-      "id": "dc8bac45-2159-4dee-85fa-bfdfe72fcdfc",
-      "timestamp": "2026-03-01T04:02:53.439409+00:00",
+      "id": "20becb26-9676-4438-a6e3-a974eb9133c3",
+      "timestamp": "2026-03-01T18:28:43.132076+00:00",
       "service": "api-gateway",
       "severity": "ERROR",
       "message": "Migration failed: 20260115_5_add_index \u2014 read ETIMEDOUT",
-      "trace_id": "fb023fcf7790",
+      "trace_id": "740e2b93a2c0",
       "source_file": "transaction.py",
       "line_number": 333
     },
     {
-      "id": "8be3427e-2be4-44b2-9371-27a678964d50",
-      "timestamp": "2026-03-01T04:03:53.439409+00:00",
+      "id": "fbb259c5-2826-4b7c-8834-2748f9f41cd1",
+      "timestamp": "2026-03-01T18:29:43.132076+00:00",
       "service": "payment-service",
       "severity": "ERROR",
       "message": "NullPointerException in InventoryManager.process() at line 298",
-      "trace_id": "7eca3df72940",
+      "trace_id": "32b82df69aea",
       "source_file": "connection.py",
       "line_number": 448
     }
   ],
   "deployments": [
     {
-      "id": "cb2681f3-57e9-4b29-a38f-b35cd275f1de",
-      "timestamp": "2026-03-01T03:32:53.439409+00:00",
+      "id": "c6fc52ec-6c49-4f9f-b342-8dda52e126ac",
+      "timestamp": "2026-03-01T17:58:43.132076+00:00",
       "service": "payment-service",
       "version": "v3.8.13",
       "previous_version": "v3.8.12",
       "deployer": "maria.santos",
-      "commit_sha": "cc845e5",
+      "commit_sha": "79b16aa",
       "commit_message": "refactor: migrate to async database driver",
       "status": "success",
       "rollback_available": true,

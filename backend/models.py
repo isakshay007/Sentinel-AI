@@ -35,6 +35,34 @@ class EvalResult(Base):
     details = Column(JSON, default=dict)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
+class Approval(Base):
+    """Persisted approval requests. Source of truth for approval history (#5, #11)."""
+    __tablename__ = "approvals"
+    id = Column(String, primary_key=True)
+    incident_id = Column(String, nullable=True)
+    agent_name = Column(String, nullable=False)
+    action = Column(String, nullable=False)
+    tool = Column(String, nullable=False)
+    tool_args = Column(JSON, default=dict)
+    risk_level = Column(String, default="risky")
+    service = Column(String, nullable=True)
+    status = Column(String, default="pending")  # pending, approved, rejected
+    requested_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    decided_at = Column(DateTime, nullable=True)
+    decided_by = Column(String, nullable=True)
+    reason = Column(Text, nullable=True)
+
+
+class IncidentEvent(Base):
+    """Single event store for lifecycle transitions (#9, #19)."""
+    __tablename__ = "incident_events"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    incident_id = Column(String, nullable=True)
+    event_type = Column(String, nullable=False)  # status_transition, approval, tool_call
+    payload = Column(JSON, default=dict)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
 class AuditLog(Base):
     __tablename__ = "audit_logs"
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))

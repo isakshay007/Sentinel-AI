@@ -1,10 +1,23 @@
 venv/
+.venv/
 __pycache__/
 *.pyc
+*.pyo
 .env
+.env.local
+.env.*.local
 *.egg-info/
 dist/
 build/
 node_modules/
 .DS_Store
 postgres_data/
+
+# Data and generated
+data/
+evaluation/results/
+*.log
+
+# Frontend (if not in subdir .gitignore)
+frontend/.next/
+frontend/out/

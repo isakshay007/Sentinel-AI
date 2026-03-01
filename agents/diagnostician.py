@@ -616,15 +616,22 @@ async def watcher_to_diagnostician(service: str, scenario: str = None) -> dict:
     """Run Watcher, then feed results into Diagnostician."""
     from agents.watcher import run_watcher
 
-    print(f"\n  Phase 1: Running Watcher for {service}...")
+    print("\n==============================")
+    print("WATCHER PHASE START")
+    print("==============================")
+    print(f"Service: {service} | Scenario: {scenario or 'N/A'}")
     watcher_result = await run_watcher(service, scenario)
 
     if not watcher_result.get("should_alert"):
         print(f"  Watcher did not detect an incident. Skipping diagnosis.")
         return {"watcher": watcher_result, "diagnostician": None}
 
-    print(f"  Watcher detected: {watcher_result.get('summary', '?')}")
-    print(f"\n  Phase 2: Running Diagnostician...")
+    incident_id = watcher_result.get("incident_id", "N/A")
+    print(f"  Incident ID: {incident_id}")
+    print(f"  Watcher summary: {watcher_result.get('summary', '?')[:80]}")
+    print("\n==============================")
+    print("DIAGNOSTICIAN PHASE START")
+    print("==============================")
 
     diag_result = await run_diagnostician(
         incident_id=watcher_result.get("incident_id", str(uuid.uuid4())),

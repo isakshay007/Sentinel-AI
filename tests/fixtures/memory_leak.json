@@ -11,8 +11,8 @@
   "deployments_count": 0,
   "metrics": [
     {
-      "id": "5411a6bb-73cc-43df-8685-86e78d83b8eb",
-      "timestamp": "2026-03-01T03:04:53.395282+00:00",
+      "id": "7df1c1a5-6f77-4081-9ca1-cd2bf7526f35",
+      "timestamp": "2026-03-01T17:30:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 19.2,
       "memory_percent": 40.96,
@@ -26,8 +26,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "0b6cf8f1-3ed4-4fd5-879e-15493ea46f7e",
-      "timestamp": "2026-03-01T03:05:53.395282+00:00",
+      "id": "cf73dc12-65c6-4971-bf8d-a2d8ff076f67",
+      "timestamp": "2026-03-01T17:31:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 19.33,
       "memory_percent": 39.42,
@@ -41,8 +41,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "e24bbad4-976f-4f0c-8894-e43b0d07a12e",
-      "timestamp": "2026-03-01T03:06:53.395282+00:00",
+      "id": "07582b5a-73a1-48ed-9448-059568ebfe33",
+      "timestamp": "2026-03-01T17:32:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 19.44,
       "memory_percent": 39.3,
@@ -56,8 +56,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "a8056ca6-f653-4f4b-b485-6815a3869c52",
-      "timestamp": "2026-03-01T03:07:53.395282+00:00",
+      "id": "4e6f1c08-1924-499c-af86-5a4cce34f36b",
+      "timestamp": "2026-03-01T17:33:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 19.53,
       "memory_percent": 40.0,
@@ -71,8 +71,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "79f44396-fad2-4d67-90e9-f4d9dce24ad2",
-      "timestamp": "2026-03-01T03:08:53.395282+00:00",
+      "id": "89d48270-a8ff-40fe-af38-f807ede030bc",
+      "timestamp": "2026-03-01T17:34:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 19.44,
       "memory_percent": 38.28,
@@ -86,8 +86,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "9289543f-c072-4c35-8651-7dec78f8fa83",
-      "timestamp": "2026-03-01T03:09:53.395282+00:00",
+      "id": "da677e6b-1b00-41cb-b1e1-4e93cc11a6eb",
+      "timestamp": "2026-03-01T17:35:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 20.73,
       "memory_percent": 41.61,
@@ -101,8 +101,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "d2e98c6b-d741-4e18-ae4b-756c91c69e84",
-      "timestamp": "2026-03-01T03:10:53.395282+00:00",
+      "id": "e87c0198-b028-4711-8dd2-9330e96cc46e",
+      "timestamp": "2026-03-01T17:36:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 19.38,
       "memory_percent": 38.87,
@@ -116,8 +116,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "0062451c-a14e-4d72-a4ea-ecfebc280427",
-      "timestamp": "2026-03-01T03:11:53.395282+00:00",
+      "id": "6e518305-df5c-4461-b79b-aa264c5e778b",
+      "timestamp": "2026-03-01T17:37:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 19.14,
       "memory_percent": 38.27,
@@ -131,8 +131,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "c65b0f38-e80f-4c54-970d-f07eef721e47",
-      "timestamp": "2026-03-01T03:12:53.395282+00:00",
+      "id": "7b037a11-81e5-4cdd-8994-6872274f77c3",
+      "timestamp": "2026-03-01T17:38:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 20.34,
       "memory_percent": 39.26,
@@ -146,8 +146,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "fe9e7007-29a8-4355-86a1-3156e5310ccf",
-      "timestamp": "2026-03-01T03:13:53.395282+00:00",
+      "id": "f48fd305-6087-41e4-9502-7ba4c87b688f",
+      "timestamp": "2026-03-01T17:39:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 19.32,
       "memory_percent": 39.77,
@@ -161,8 +161,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "37663b26-381e-44fe-af83-1a6b049a7087",
-      "timestamp": "2026-03-01T03:14:53.395282+00:00",
+      "id": "c0727068-1262-461e-a9ca-2acfc7230971",
+      "timestamp": "2026-03-01T17:40:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 19.73,
       "memory_percent": 41.73,
@@ -176,8 +176,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "ee4e32c1-841d-4a39-af36-03da1b5697d2",
-      "timestamp": "2026-03-01T03:15:53.395282+00:00",
+      "id": "f20d2e68-8b5e-48e6-8173-eb21e20cce3b",
+      "timestamp": "2026-03-01T17:41:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 19.47,
       "memory_percent": 38.65,
@@ -191,8 +191,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "fcad9b15-1c98-45d9-9acd-7c5644b5b622",
-      "timestamp": "2026-03-01T03:16:53.395282+00:00",
+      "id": "6bc82d2f-28e8-4eed-931d-ec5efe0bf799",
+      "timestamp": "2026-03-01T17:42:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 19.77,
       "memory_percent": 38.15,
@@ -206,8 +206,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "65d5595e-3fe4-4667-9002-d9efb0b6614b",
-      "timestamp": "2026-03-01T03:17:53.395282+00:00",
+      "id": "01fad951-06ea-4ad7-99a4-3d49e2e3c044",
+      "timestamp": "2026-03-01T17:43:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 20.33,
       "memory_percent": 39.52,
@@ -221,8 +221,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "1a7f6f75-3d1a-43cf-a660-58c8e7ead4b9",
-      "timestamp": "2026-03-01T03:18:53.395282+00:00",
+      "id": "97133ee1-37fc-42c7-9769-4bb37629cd79",
+      "timestamp": "2026-03-01T17:44:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 20.34,
       "memory_percent": 41.95,
@@ -236,8 +236,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "e5221c13-9100-41be-a2ff-93e8b8ada20b",
-      "timestamp": "2026-03-01T03:19:53.395282+00:00",
+      "id": "6962a9b9-970d-4bd5-9a58-20c359f436ba",
+      "timestamp": "2026-03-01T17:45:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 19.52,
       "memory_percent": 38.99,
@@ -251,8 +251,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "9517d3f6-85f8-4fff-91dd-8476c4d0b94b",
-      "timestamp": "2026-03-01T03:20:53.395282+00:00",
+      "id": "023b55e9-40ae-41fc-93c0-93accdaafe7e",
+      "timestamp": "2026-03-01T17:46:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 19.46,
       "memory_percent": 40.78,
@@ -266,8 +266,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "d63fc86f-d402-416e-8328-8f6c0efb67df",
-      "timestamp": "2026-03-01T03:21:53.395282+00:00",
+      "id": "10fbf873-1642-4f26-baeb-1b988aaea886",
+      "timestamp": "2026-03-01T17:47:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 20.53,
       "memory_percent": 39.52,
@@ -281,8 +281,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "0da2fdcf-6d62-4ea2-85ec-0b4947379a6e",
-      "timestamp": "2026-03-01T03:22:53.395282+00:00",
+      "id": "71729340-39c0-4735-8a70-a31596731338",
+      "timestamp": "2026-03-01T17:48:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 19.87,
       "memory_percent": 38.12,
@@ -296,8 +296,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "d0987a78-0278-4cea-8cf4-691b033e7150",
-      "timestamp": "2026-03-01T03:23:53.395282+00:00",
+      "id": "cf0969c3-dde7-41d4-b71b-d9e80ef1abc2",
+      "timestamp": "2026-03-01T17:49:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 20.29,
       "memory_percent": 38.54,
@@ -311,8 +311,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "30e085e6-2871-4202-b9d2-1c86919fcf8a",
-      "timestamp": "2026-03-01T03:24:53.395282+00:00",
+      "id": "5fff0676-f9bf-4a03-b77d-a75e956f544b",
+      "timestamp": "2026-03-01T17:50:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 19.2,
       "memory_percent": 41.09,
@@ -326,8 +326,8 @@
       "gc_pause_ms": 5.0
     },
     {
-      "id": "f4b97c01-af50-40c5-b8d0-5116d8f25d90",
-      "timestamp": "2026-03-01T03:25:53.395282+00:00",
+      "id": "9125a5f1-110d-4e4c-96b6-8927ab60df45",
+      "timestamp": "2026-03-01T17:51:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 22.92,
       "memory_percent": 40.65,
@@ -341,8 +341,8 @@
       "gc_pause_ms": 37.0
     },
     {
-      "id": "4837e3c9-dec9-4a6b-95f7-c4ee5b092701",
-      "timestamp": "2026-03-01T03:26:53.395282+00:00",
+      "id": "accad3d8-bd5a-4ded-a224-50cde32f70a5",
+      "timestamp": "2026-03-01T17:52:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 25.48,
       "memory_percent": 45.26,
@@ -356,8 +356,8 @@
       "gc_pause_ms": 69.0
     },
     {
-      "id": "08b56f24-63fa-40a9-837a-a1d1d92d4510",
-      "timestamp": "2026-03-01T03:27:53.395282+00:00",
+      "id": "abdf6775-bbc3-4f26-b8c7-12d3c55238a3",
+      "timestamp": "2026-03-01T17:53:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 25.34,
       "memory_percent": 45.69,
@@ -371,8 +371,8 @@
       "gc_pause_ms": 101.0
     },
     {
-      "id": "b6f50aa5-a547-4c38-814a-b6bc3a52ebcb",
-      "timestamp": "2026-03-01T03:28:53.395282+00:00",
+      "id": "10daeab2-8d66-45d8-b227-f47dc9ccc071",
+      "timestamp": "2026-03-01T17:54:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 29.72,
       "memory_percent": 48.21,
@@ -386,8 +386,8 @@
       "gc_pause_ms": 133.0
     },
     {
-      "id": "024675d0-74ff-4abe-ae58-4ce6c894f615",
-      "timestamp": "2026-03-01T03:29:53.395282+00:00",
+      "id": "751cc85e-a9fa-4291-a19c-57613171a79f",
+      "timestamp": "2026-03-01T17:55:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 30.63,
       "memory_percent": 50.65,
@@ -401,8 +401,8 @@
       "gc_pause_ms": 165.0
     },
     {
-      "id": "74b993b7-68de-44aa-afbe-3fc87910addd",
-      "timestamp": "2026-03-01T03:30:53.395282+00:00",
+      "id": "b10ab542-19e8-401e-bbb3-36b9a7bd4612",
+      "timestamp": "2026-03-01T17:56:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 33.06,
       "memory_percent": 52.85,
@@ -416,8 +416,8 @@
       "gc_pause_ms": 197.0
     },
     {
-      "id": "a937f610-d6ce-4b51-bf17-1ce62e3aa9d1",
-      "timestamp": "2026-03-01T03:31:53.395282+00:00",
+      "id": "42568ea2-fea9-4e3a-801b-6aab8cc21277",
+      "timestamp": "2026-03-01T17:57:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 36.99,
       "memory_percent": 57.35,
@@ -431,8 +431,8 @@
       "gc_pause_ms": 229.0
     },
     {
-      "id": "a0f1bf7f-b2ad-4f57-a944-668c4d8c1616",
-      "timestamp": "2026-03-01T03:32:53.395282+00:00",
+      "id": "092938e4-3be4-463c-9732-de7eebbf81bf",
+      "timestamp": "2026-03-01T17:58:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 38.98,
       "memory_percent": 56.4,
@@ -446,8 +446,8 @@
       "gc_pause_ms": 261.0
     },
     {
-      "id": "7ceae0b7-9ae6-46fa-8c97-2506d8574e35",
-      "timestamp": "2026-03-01T03:33:53.395282+00:00",
+      "id": "8c8aa889-a88e-4006-82a7-c6e2f83baf78",
+      "timestamp": "2026-03-01T17:59:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 38.67,
       "memory_percent": 60.59,
@@ -461,8 +461,8 @@
       "gc_pause_ms": 293.0
     },
     {
-      "id": "1280e356-ea42-457e-910e-4671546802b0",
-      "timestamp": "2026-03-01T03:34:53.395282+00:00",
+      "id": "269b2da9-5c3c-437b-88c6-4fc564cc5045",
+      "timestamp": "2026-03-01T18:00:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 42.45,
       "memory_percent": 62.66,
@@ -476,8 +476,8 @@
       "gc_pause_ms": 325.0
     },
     {
-      "id": "3ac88147-b631-4acf-95e1-497243ffbc6a",
-      "timestamp": "2026-03-01T03:35:53.395282+00:00",
+      "id": "8441b9f4-6345-466f-a022-54e4a5f4a39d",
+      "timestamp": "2026-03-01T18:01:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 42.38,
       "memory_percent": 67.78,
@@ -491,8 +491,8 @@
       "gc_pause_ms": 357.0
     },
     {
-      "id": "a945a941-17bb-44bf-aabe-3eecacdf9efd",
-      "timestamp": "2026-03-01T03:36:53.395282+00:00",
+      "id": "0cb19a65-c0ea-45db-b06e-eca6552d35af",
+      "timestamp": "2026-03-01T18:02:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 46.67,
       "memory_percent": 67.07,
@@ -506,8 +506,8 @@
       "gc_pause_ms": 389.0
     },
     {
-      "id": "6971e857-4a9b-4375-a615-d2ed7be32b1a",
-      "timestamp": "2026-03-01T03:37:53.395282+00:00",
+      "id": "efda8dcb-341d-45af-87a5-44e2327f9b6b",
+      "timestamp": "2026-03-01T18:03:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 48.35,
       "memory_percent": 70.25,
@@ -521,8 +521,8 @@
       "gc_pause_ms": 421.0
     },
     {
-      "id": "3345bb20-4565-4753-89c3-b4116d093536",
-      "timestamp": "2026-03-01T03:38:53.395282+00:00",
+      "id": "1f327ea1-40ea-4202-8510-7cfd8a795c35",
+      "timestamp": "2026-03-01T18:04:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 48.99,
       "memory_percent": 71.97,
@@ -536,8 +536,8 @@
       "gc_pause_ms": 453.0
     },
     {
-      "id": "7079cfbb-ca81-4719-941d-0b1dff106a6f",
-      "timestamp": "2026-03-01T03:39:53.395282+00:00",
+      "id": "5ca71453-7dc5-4dcb-ad62-cb3327007da3",
+      "timestamp": "2026-03-01T18:05:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 52.24,
       "memory_percent": 76.9,
@@ -551,8 +551,8 @@
       "gc_pause_ms": 485.0
     },
     {
-      "id": "3fc22ffb-e15e-45a4-a7af-34669c4e4e69",
-      "timestamp": "2026-03-01T03:40:53.395282+00:00",
+      "id": "f0442471-3636-48bc-a153-a5349c0b09bd",
+      "timestamp": "2026-03-01T18:06:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 53.91,
       "memory_percent": 73.9,
@@ -566,8 +566,8 @@
       "gc_pause_ms": 517.0
     },
     {
-      "id": "da88fd6e-2562-42ed-9cea-d0d55b905576",
-      "timestamp": "2026-03-01T03:41:53.395282+00:00",
+      "id": "cced1db9-78c4-4761-9dfb-69da46a3620a",
+      "timestamp": "2026-03-01T18:07:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 57.39,
       "memory_percent": 78.54,
@@ -581,8 +581,8 @@
       "gc_pause_ms": 549.0
     },
     {
-      "id": "8fc27302-ab58-4523-b22a-ffade9c67fa6",
-      "timestamp": "2026-03-01T03:42:53.395282+00:00",
+      "id": "35d4db82-fedf-4480-b739-9dee1b0070de",
+      "timestamp": "2026-03-01T18:08:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 59.27,
       "memory_percent": 78.39,
@@ -596,8 +596,8 @@
       "gc_pause_ms": 581.0
     },
     {
-      "id": "fac5ab73-a6fb-4212-a51f-19feedf35cef",
-      "timestamp": "2026-03-01T03:43:53.395282+00:00",
+      "id": "629a5f2c-43d6-48eb-8bec-9ede729ecc53",
+      "timestamp": "2026-03-01T18:09:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 60.59,
       "memory_percent": 81.24,
@@ -611,8 +611,8 @@
       "gc_pause_ms": 613.0
     },
     {
-      "id": "0d25a6a1-d24b-4b0a-bf74-51004d2875ff",
-      "timestamp": "2026-03-01T03:44:53.395282+00:00",
+      "id": "920c4125-79d3-430a-b857-f0e118d5913d",
+      "timestamp": "2026-03-01T18:10:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 63.01,
       "memory_percent": 85.52,
@@ -626,8 +626,8 @@
       "gc_pause_ms": 645.0
     },
     {
-      "id": "0814670b-90cc-4105-8545-58a6e74a051d",
-      "timestamp": "2026-03-01T03:45:53.395282+00:00",
+      "id": "790ce061-2dd7-4f6f-a451-e39164905d7e",
+      "timestamp": "2026-03-01T18:11:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 65.08,
       "memory_percent": 85.26,
@@ -641,8 +641,8 @@
       "gc_pause_ms": 677.0
     },
     {
-      "id": "25d49218-7101-4897-9246-4d8de38fe89d",
-      "timestamp": "2026-03-01T03:46:53.395282+00:00",
+      "id": "136da2c8-bf7b-4726-b145-0174943ba3c7",
+      "timestamp": "2026-03-01T18:12:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 69.38,
       "memory_percent": 92.8,
@@ -656,8 +656,8 @@
       "gc_pause_ms": 709.0
     },
     {
-      "id": "22853f84-0de7-4893-874d-6dfdf38be3ae",
-      "timestamp": "2026-03-01T03:47:53.395282+00:00",
+      "id": "e1546134-dc6f-4d56-a53e-412451b4cb92",
+      "timestamp": "2026-03-01T18:13:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 68.89,
       "memory_percent": 90.43,
@@ -671,8 +671,8 @@
       "gc_pause_ms": 741.0
     },
     {
-      "id": "6f1a5a48-c734-4d38-856c-19befb529b6a",
-      "timestamp": "2026-03-01T03:48:53.395282+00:00",
+      "id": "af571a1b-8af1-4a00-9e44-9a07caf320a5",
+      "timestamp": "2026-03-01T18:14:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 69.69,
       "memory_percent": 94.95,
@@ -686,8 +686,8 @@
       "gc_pause_ms": 773.0
     },
     {
-      "id": "1cfc0cc6-cd03-4760-8b19-40461320f0d5",
-      "timestamp": "2026-03-01T03:49:53.395282+00:00",
+      "id": "1d5483fa-2cfc-4905-9b6e-b7247d11de0a",
+      "timestamp": "2026-03-01T18:15:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 62.24,
       "memory_percent": 89.49,
@@ -701,8 +701,8 @@
       "gc_pause_ms": 645.0
     },
     {
-      "id": "ba0ec499-43f1-47a8-b2d9-77d3aa210a1e",
-      "timestamp": "2026-03-01T03:50:53.395282+00:00",
+      "id": "cc33cd8e-4fa4-4ec7-adbf-3890ca30bbb8",
+      "timestamp": "2026-03-01T18:16:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 66.0,
       "memory_percent": 91.73,
@@ -716,8 +716,8 @@
       "gc_pause_ms": 677.0
     },
     {
-      "id": "bd43990a-58bd-4c64-acb9-99efc84636b5",
-      "timestamp": "2026-03-01T03:51:53.395282+00:00",
+      "id": "6359582f-6d81-46f8-a524-bf6220563019",
+      "timestamp": "2026-03-01T18:17:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 65.62,
       "memory_percent": 89.94,
@@ -731,8 +731,8 @@
       "gc_pause_ms": 709.0
     },
     {
-      "id": "bd6fffd5-9b26-4828-b754-4833a251bc0e",
-      "timestamp": "2026-03-01T03:52:53.395282+00:00",
+      "id": "c5206731-b977-4763-ac0c-a3d392696f48",
+      "timestamp": "2026-03-01T18:18:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 70.53,
       "memory_percent": 92.01,
@@ -746,8 +746,8 @@
       "gc_pause_ms": 741.0
     },
     {
-      "id": "3488a360-b67b-4355-96bb-c69aa72f241f",
-      "timestamp": "2026-03-01T03:53:53.395282+00:00",
+      "id": "27dd168c-88f7-46f6-92e8-c8397c0569a6",
+      "timestamp": "2026-03-01T18:19:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 72.32,
       "memory_percent": 94.93,
@@ -761,8 +761,8 @@
       "gc_pause_ms": 773.0
     },
     {
-      "id": "2057f55a-6691-4d3c-8803-7b2cfeacaac1",
-      "timestamp": "2026-03-01T03:54:53.395282+00:00",
+      "id": "931809b8-7a87-4947-afb8-a476d2eaabcd",
+      "timestamp": "2026-03-01T18:20:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 77.25,
       "memory_percent": 99.5,
@@ -776,8 +776,8 @@
       "gc_pause_ms": 805.0
     },
     {
-      "id": "26b09910-34e4-4142-8237-5c8c362fbc4c",
-      "timestamp": "2026-03-01T03:55:53.395282+00:00",
+      "id": "db07d315-9b18-4c92-b0d0-2fd74b2a1f48",
+      "timestamp": "2026-03-01T18:21:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 77.35,
       "memory_percent": 99.5,
@@ -791,8 +791,8 @@
       "gc_pause_ms": 805.0
     },
     {
-      "id": "7af13045-2b50-4211-9852-d8235034f3eb",
-      "timestamp": "2026-03-01T03:56:53.395282+00:00",
+      "id": "b0791e99-26c2-45ee-9b63-2a2506a25346",
+      "timestamp": "2026-03-01T18:22:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 75.5,
       "memory_percent": 97.86,
@@ -806,8 +806,8 @@
       "gc_pause_ms": 805.0
     },
     {
-      "id": "57c16954-52dc-4bf4-832d-dc78212d1141",
-      "timestamp": "2026-03-01T03:57:53.395282+00:00",
+      "id": "0c09e8cc-393c-4595-b761-313b4fc7493e",
+      "timestamp": "2026-03-01T18:23:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 75.07,
       "memory_percent": 99.5,
@@ -821,8 +821,8 @@
       "gc_pause_ms": 805.0
     },
     {
-      "id": "92da5c6d-b600-48e2-b81b-b7273b4b407a",
-      "timestamp": "2026-03-01T03:58:53.395282+00:00",
+      "id": "7f17a381-8b56-4140-9cd8-4492a473e2b4",
+      "timestamp": "2026-03-01T18:24:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 77.6,
       "memory_percent": 93.67,
@@ -836,8 +836,8 @@
       "gc_pause_ms": 805.0
     },
     {
-      "id": "084143f9-b514-4482-bcaa-f2ff3dd0e363",
-      "timestamp": "2026-03-01T03:59:53.395282+00:00",
+      "id": "d88f55c6-e3aa-4452-8e1f-b7dd515d38a1",
+      "timestamp": "2026-03-01T18:25:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 73.76,
       "memory_percent": 99.5,
@@ -851,8 +851,8 @@
       "gc_pause_ms": 805.0
     },
     {
-      "id": "49cf3a3b-8d46-4320-beaf-100d6e048497",
-      "timestamp": "2026-03-01T04:00:53.395282+00:00",
+      "id": "b620c2f8-0369-4dc7-8a20-77931479fbc8",
+      "timestamp": "2026-03-01T18:26:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 72.75,
       "memory_percent": 99.5,
@@ -866,8 +866,8 @@
       "gc_pause_ms": 805.0
     },
     {
-      "id": "bbdd0bd2-24ce-4f89-bb15-7e8ad86b8f3a",
-      "timestamp": "2026-03-01T04:01:53.395282+00:00",
+      "id": "e94f0c72-c11c-4043-894a-d936688fb2b0",
+      "timestamp": "2026-03-01T18:27:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 72.57,
       "memory_percent": 93.47,
@@ -881,8 +881,8 @@
       "gc_pause_ms": 805.0
     },
     {
-      "id": "996116bd-9f12-4db0-97f6-1b78abd34863",
-      "timestamp": "2026-03-01T04:02:53.395282+00:00",
+      "id": "7012c794-28d0-471e-b8b3-e02986169f34",
+      "timestamp": "2026-03-01T18:28:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 77.32,
       "memory_percent": 99.09,
@@ -896,8 +896,8 @@
       "gc_pause_ms": 805.0
     },
     {
-      "id": "66ce4d24-dce1-4ecd-8169-98d5f17fbf22",
-      "timestamp": "2026-03-01T04:03:53.395282+00:00",
+      "id": "34b09aa7-4d0c-470d-b43d-a772af53911e",
+      "timestamp": "2026-03-01T18:29:43.124316+00:00",
       "service": "user-service",
       "cpu_percent": 78.0,
       "memory_percent": 99.5,
@@ -913,682 +913,682 @@
   ],
   "logs": [
     {
-      "id": "47a42860-f9c1-4f8a-9843-ac435a2d0ba5",
-      "timestamp": "2026-03-01T03:04:53.395282+00:00",
+      "id": "4ea53cc0-ae1f-4435-a364-8d742070dc06",
+      "timestamp": "2026-03-01T17:30:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "Database query executed in 10ms \u2014 221 rows returned",
-      "trace_id": "c3baa9549060",
+      "trace_id": "3da25042257a",
       "source_file": "server.py",
       "line_number": 457
     },
     {
-      "id": "8baf5805-93b9-47ed-85f2-30f53cfed63a",
-      "timestamp": "2026-03-01T03:06:53.395282+00:00",
+      "id": "96308af6-79d3-4a18-9d3f-3975ac875dff",
+      "timestamp": "2026-03-01T17:32:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "Config reloaded from /etc/sentinel/user-service.yaml",
-      "trace_id": "c2e344bece79",
+      "trace_id": "a2cef189e746",
       "source_file": "health.py",
       "line_number": 77
     },
     {
-      "id": "68d5feff-0572-4a12-8d1d-4dc7e982914a",
-      "timestamp": "2026-03-01T03:07:53.395282+00:00",
+      "id": "8590520d-78db-442f-8251-7ff5c491ad29",
+      "timestamp": "2026-03-01T17:33:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "Config reloaded from /etc/sentinel/user-service.yaml",
-      "trace_id": "2ead63203486",
+      "trace_id": "4c830e399977",
       "source_file": "cache.py",
       "line_number": 81
     },
     {
-      "id": "862b8bcd-4f29-4af7-a223-d7dabe4973e9",
-      "timestamp": "2026-03-01T03:08:53.395282+00:00",
+      "id": "b7b4f243-e6b2-495f-a03c-72ee6bdbe9de",
+      "timestamp": "2026-03-01T17:34:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "Config reloaded from /etc/sentinel/user-service.yaml",
-      "trace_id": "b6763cf71bcf",
+      "trace_id": "c53ef18f2428",
       "source_file": "server.py",
       "line_number": 67
     },
     {
-      "id": "4910bcbf-065f-40ca-858c-4c1887499bbd",
-      "timestamp": "2026-03-01T03:12:53.395282+00:00",
+      "id": "3e93bbaa-d7d5-45e9-aff0-88d6272842e2",
+      "timestamp": "2026-03-01T17:38:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "POST /api/v2/auth/token completed in 139ms \u2014 200 OK",
-      "trace_id": "61f6413ccda1",
+      "trace_id": "4e4ea6ca867c",
       "source_file": "cache.py",
       "line_number": 444
     },
     {
-      "id": "74adc08a-db90-4bfe-b408-1485267e8914",
-      "timestamp": "2026-03-01T03:16:53.395282+00:00",
+      "id": "6423eb8c-8e2c-47ed-8aa3-f290e86aff4a",
+      "timestamp": "2026-03-01T17:42:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "Health check passed \u2014 uptime 410h, connections 39/50",
-      "trace_id": "9b830e8bf076",
+      "trace_id": "0a4c2168aac2",
       "source_file": "health.py",
       "line_number": 361
     },
     {
-      "id": "88d6fb98-9c4f-4dee-81fa-17441a53ba88",
-      "timestamp": "2026-03-01T03:17:53.395282+00:00",
+      "id": "84b2dc9f-5fc5-46a3-aaee-ff133af3888c",
+      "timestamp": "2026-03-01T17:43:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "Metrics flush: 469 datapoints written to buffer",
-      "trace_id": "4a36cb653625",
+      "trace_id": "ff93d75eba61",
       "source_file": "cache.py",
       "line_number": 45
     },
     {
-      "id": "7c105488-66f0-4a78-9961-215c60d761d4",
-      "timestamp": "2026-03-01T03:23:53.395282+00:00",
+      "id": "7af255cb-c214-4bfb-b71d-9410944ada2c",
+      "timestamp": "2026-03-01T17:49:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "Metrics flush: 479 datapoints written to buffer",
-      "trace_id": "5f70a03b7a2e",
+      "trace_id": "1a81baee8e1e",
       "source_file": "cache.py",
       "line_number": 223
     },
     {
-      "id": "e3af1635-1dd7-45df-92dd-d5c3cf8ccbd8",
-      "timestamp": "2026-03-01T03:25:53.395282+00:00",
+      "id": "5a56e7c3-a9f9-416b-b8d4-080d40e4ab8e",
+      "timestamp": "2026-03-01T17:51:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "TLS certificate valid \u2014 expires in 202 days",
-      "trace_id": "8d0b12a121de",
+      "trace_id": "a233e4dbdde4",
       "source_file": "server.py",
       "line_number": 67
     },
     {
-      "id": "ce9d1d20-b385-4e6e-8afb-6c567f3abf73",
-      "timestamp": "2026-03-01T03:25:53.395282+00:00",
+      "id": "65c748ce-8c86-4392-bba8-063b9f8ba5f8",
+      "timestamp": "2026-03-01T17:51:43.124316+00:00",
       "service": "user-service",
       "severity": "WARN",
       "message": "Rate limit approaching: 90/100 requests in current window",
-      "trace_id": "b95f63b3be58",
+      "trace_id": "f818655f6ba3",
       "source_file": "monitor.py",
       "line_number": 382
     },
     {
-      "id": "ae08d3a7-0a00-4364-aee8-8bfbd4397060",
-      "timestamp": "2026-03-01T03:26:53.395282+00:00",
+      "id": "6a58ba7a-947a-49a8-bdf1-c084ffc8b117",
+      "timestamp": "2026-03-01T17:52:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "POST /api/v2/payments/charge completed in 152ms \u2014 200 OK",
-      "trace_id": "22f3ee1189ea",
+      "trace_id": "fe3520a8d513",
       "source_file": "middleware.py",
       "line_number": 302
     },
     {
-      "id": "3897c74f-ac03-4bbf-8c13-b86de5ad3621",
-      "timestamp": "2026-03-01T03:26:53.395282+00:00",
+      "id": "3c175e8b-6caa-4868-b8f6-c9f32b9bf28f",
+      "timestamp": "2026-03-01T17:52:43.124316+00:00",
       "service": "user-service",
       "severity": "WARN",
       "message": "Request queue depth: 4 \u2014 above normal baseline of 10",
-      "trace_id": "0f4dce5e967b",
+      "trace_id": "c495e3d5f5cf",
       "source_file": "gc.py",
       "line_number": 244
     },
     {
-      "id": "e0e30439-1f82-4d84-811f-b4901c28da74",
-      "timestamp": "2026-03-01T03:27:53.395282+00:00",
+      "id": "98e72901-2d14-41a6-a305-edfb58d61f6d",
+      "timestamp": "2026-03-01T17:53:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "Connection pool stats: active=36, idle=3, max=50",
-      "trace_id": "430957340e41",
+      "trace_id": "19ae550e5dab",
       "source_file": "cache.py",
       "line_number": 409
     },
     {
-      "id": "90d5e290-1f0b-4d65-a286-339d589b721c",
-      "timestamp": "2026-03-01T03:27:53.395282+00:00",
+      "id": "aae44869-b833-4082-9306-0db9a41e8c49",
+      "timestamp": "2026-03-01T17:53:43.124316+00:00",
       "service": "user-service",
       "severity": "WARN",
       "message": "Rate limit approaching: 95/100 requests in current window",
-      "trace_id": "aa6d8caff751",
+      "trace_id": "4c8b0607eab5",
       "source_file": "monitor.py",
       "line_number": 161
     },
     {
-      "id": "d0604470-092d-4b29-a0a8-6974297ca7b3",
-      "timestamp": "2026-03-01T03:28:53.395282+00:00",
+      "id": "56bdc7f2-8c39-4188-91db-4ca418ebe54b",
+      "timestamp": "2026-03-01T17:54:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "Metrics flush: 292 datapoints written to buffer",
-      "trace_id": "8bcd258288fa",
+      "trace_id": "71d974825e9f",
       "source_file": "health.py",
       "line_number": 193
     },
     {
-      "id": "01f1e105-8e00-4a83-909e-31e32ca0d43e",
-      "timestamp": "2026-03-01T03:29:53.395282+00:00",
+      "id": "45604478-a19d-486a-a48e-976f742337ce",
+      "timestamp": "2026-03-01T17:55:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "Config reloaded from /etc/sentinel/user-service.yaml",
-      "trace_id": "aa0a15ce56d5",
+      "trace_id": "7b15d6bcf3e5",
       "source_file": "middleware.py",
       "line_number": 57
     },
     {
-      "id": "9ff00609-045e-4b4f-9a89-fd74379fcd25",
-      "timestamp": "2026-03-01T03:30:53.395282+00:00",
+      "id": "5a8e240c-c94d-49f1-abd6-a4525159a90f",
+      "timestamp": "2026-03-01T17:56:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "GC completed \u2014 freed 100MB in 19ms (gen 2)",
-      "trace_id": "1d0ed44a6bdb",
+      "trace_id": "e1442c8e672c",
       "source_file": "health.py",
       "line_number": 445
     },
     {
-      "id": "ececd9d7-1433-4da1-9bba-59d4ffbf47a4",
-      "timestamp": "2026-03-01T03:30:53.395282+00:00",
+      "id": "5fe18280-8afd-4633-b319-96280dd4d3b9",
+      "timestamp": "2026-03-01T17:56:43.124316+00:00",
       "service": "user-service",
       "severity": "WARN",
       "message": "Circuit breaker HALF-OPEN for user-service \u2014 testing with probe request",
-      "trace_id": "61d39f0b4ada",
+      "trace_id": "9d4d76bc35bb",
       "source_file": "gc.py",
       "line_number": 79
     },
     {
-      "id": "f30ff970-a163-4775-9aea-caaffe7012c3",
-      "timestamp": "2026-03-01T03:31:53.395282+00:00",
+      "id": "6b1a7e88-8d36-48b7-a38e-e5516c819796",
+      "timestamp": "2026-03-01T17:57:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "Metrics flush: 253 datapoints written to buffer",
-      "trace_id": "1e7ad71ea557",
+      "trace_id": "288b3f348ba7",
       "source_file": "server.py",
       "line_number": 161
     },
     {
-      "id": "4a2c0eea-c3e6-4b3e-81af-68d9a021f41a",
-      "timestamp": "2026-03-01T03:32:53.395282+00:00",
+      "id": "a677f11e-030b-487b-8e6d-2237345589fd",
+      "timestamp": "2026-03-01T17:58:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "GC completed \u2014 freed 178MB in 38ms (gen 1)",
-      "trace_id": "b2c3eabf5e0c",
+      "trace_id": "2a37de4b8f9d",
       "source_file": "cache.py",
       "line_number": 70
     },
     {
-      "id": "4d8b636e-414d-4220-8dc8-7aabeb245c56",
-      "timestamp": "2026-03-01T03:33:53.395282+00:00",
+      "id": "a3277033-3e57-4b02-90ff-cbc0af3b516b",
+      "timestamp": "2026-03-01T17:59:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "Metrics flush: 350 datapoints written to buffer",
-      "trace_id": "8e28f2e6dc44",
+      "trace_id": "c271d3c1faf0",
       "source_file": "server.py",
       "line_number": 410
     },
     {
-      "id": "b3b9549a-0941-4f8f-aa3c-57480c61e589",
-      "timestamp": "2026-03-01T03:33:53.395282+00:00",
+      "id": "00a37212-853e-425e-949e-2a5ba2bacea7",
+      "timestamp": "2026-03-01T17:59:43.124316+00:00",
       "service": "user-service",
       "severity": "WARN",
       "message": "Request queue depth: 7 \u2014 above normal baseline of 10",
-      "trace_id": "da69d1058a91",
+      "trace_id": "1699926cd7e0",
       "source_file": "pool.py",
       "line_number": 406
     },
     {
-      "id": "b81713a0-8d00-4929-bb29-1e66e8a44313",
-      "timestamp": "2026-03-01T03:34:53.395282+00:00",
+      "id": "2f1c260e-683d-4247-9666-ab2e706e8bc3",
+      "timestamp": "2026-03-01T18:00:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
       "message": "Metrics flush: 53 datapoints written to buffer",
-      "trace_id": "f2aa25fe7008",
+      "trace_id": "4d20c6a9ce2d",
       "source_file": "cache.py",
       "line_number": 30
     },
     {
-      "id": "f3646647-7b5d-430a-a969-17e09c90eb8c",
-      "timestamp": "2026-03-01T03:35:53.395282+00:00",
+      "id": "01946b4f-b0b9-4d58-9cfe-53c67e5a89f3",
+      "timestamp": "2026-03-01T18:01:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
-      "message": "Request e11850d72625 processed successfully by RequestHandler",
-      "trace_id": "0ee84b1f5725",
+      "message": "Request 2f017ddd7254 processed successfully by RequestHandler",
+      "trace_id": "63595154d0ff",
       "source_file": "health.py",
       "line_number": 279
     },
     {
-      "id": "c8b93982-24c5-46b8-b802-d82d0e86cf52",
-      "timestamp": "2026-03-01T03:35:53.395282+00:00",
+      "id": "68fb9e44-b22a-45cd-b17d-7970cf64365d",
+      "timestamp": "2026-03-01T18:01:43.124316+00:00",
       "service": "user-service",
       "severity": "WARN",
       "message": "Circuit breaker HALF-OPEN for stripe-client \u2014 testing with probe request",
-      "trace_id": "b4993a766f31",
+      "trace_id": "784f3e23e149",
       "source_file": "circuit_breaker.py",
       "line_number": 367
     },
     {
-      "id": "dbdc8aa8-8c87-4998-8573-2d69174a98c5",
-      "timestamp": "2026-03-01T03:36:53.395282+00:00",
+      "id": "a8bae6aa-e96c-4501-970f-cc73c17ae579",
+      "timestamp": "2026-03-01T18:02:43.124316+00:00",
       "service": "user-service",
       "severity": "INFO",
-      "message": "Request 8f4a4f09cad1 processed successfully by CacheLayer",
-      "trace_id": "6cfbb3bac0d9",
+      "message": "Request e236b57a86ff processed successfully by CacheLayer",
+      "trace_id": "12a422b813fb",
       "source_file": "middleware.py",
       "line_number": 325
     },
     {
-      "id": "f5b9791a-79a0-4973-9be6-fcf20edab594",
-      "timestamp": "2026-03-01T03:36:53.395282+00:00",
+      "id": "8255e0af-a9a2-46b8-a02b-a2a7482800bf",
+      "timestamp": "2026-03-01T18:02:43.124316+00:00",
       "service": "user-service",
       "severity": "WARN",
       "message": "Connection pool utilization at 68% (20/50)",
-      "trace_id": "97433e060382",
+      "trace_id": "c46aa1e3ca73",
       "source_file": "monitor.py",
       "line_number": 384
     },
     {
-      "id": "171529bd-7b29-4a61-a896-69b7eb7d5bf3",
-      "timestamp": "2026-03-01T03:37:53.395282+00:00",
+      "id": "e7bfe7bf-fc45-4734-97bd-c72a927783fe",
+      "timestamp": "2026-03-01T18:03:43.124316+00:00",
       "service": "user-service",
       "severity": "WARN",
       "message": "Retry attempt 1/3 for redis-cache \u2014 connection timeout",
-      "trace_id": "111a2691cf0a",
+      "trace_id": "6662950e8473",
       "source_file": "monitor.py",
       "line_number": 76
     },
     {
-      "id": "035864c9-1ba8-4d2b-a124-89c4a678985e",
-      "timestamp": "2026-03-01T03:38:53.395282+00:00",
+      "id": "f75e8c70-ef44-46c2-be3a-6757e09473e0",
+      "timestamp": "2026-03-01T18:04:43.124316+00:00",
       "service": "user-service",
       "severity": "WARN",
       "message": "Request queue depth: 6 \u2014 above normal baseline of 10",
-      "trace_id": "6d23df1890b6",
+      "trace_id": "b13e2bd1076b",
       "source_file": "circuit_breaker.py",
       "line_number": 283
     },
     {
-      "id": "39d39a4a-6dc3-4557-a63e-821caa13d236",
-      "timestamp": "2026-03-01T03:40:53.395282+00:00",
+      "id": "af7a5317-aa9a-4af3-84ba-e55058cc70c9",
+      "timestamp": "2026-03-01T18:06:43.124316+00:00",
       "service": "user-service",
       "severity": "WARN",
       "message": "Circuit breaker HALF-OPEN for redis-cache \u2014 testing with probe request",
-      "trace_id": "b375102292cb",
+      "trace_id": "80bb847d831e",
       "source_file": "pool.py",
       "line_number": 291
     },
     {
-      "id": "9df5c41a-c2e6-4f96-83f9-543dc4ff7a96",
-      "timestamp": "2026-03-01T03:42:53.395282+00:00",
+      "id": "64bdb415-4b84-426e-8f37-9c1940475e32",
+      "timestamp": "2026-03-01T18:08:43.124316+00:00",
       "service": "user-service",
       "severity": "WARN",
       "message": "GC pause: 41ms \u2014 exceeds 200ms budget",
-      "trace_id": "273dbc856724",
+      "trace_id": "e5199192f0d1",
       "source_file": "pool.py",
       "line_number": 413
     },
     {
-      "id": "20e634ce-d1ec-4006-83c7-b8063b842253",
-      "timestamp": "2026-03-01T03:43:53.395282+00:00",
+      "id": "f1c3a175-f4f7-4194-85f4-14815c03ae55",
+      "timestamp": "2026-03-01T18:09:43.124316+00:00",
       "service": "user-service",
       "severity": "WARN",
       "message": "Retry attempt 2/3 for postgres-primary \u2014 socket hang up",
-      "trace_id": "00cd9b197bf9",
+      "trace_id": "a45f1597a073",
       "source_file": "gc.py",
       "line_number": 267
     },
     {
-      "id": "2978d22b-e3eb-480d-a09d-b3237fd52977",
-      "timestamp": "2026-03-01T03:44:53.395282+00:00",
+      "id": "218acbb0-4084-4c17-9019-0b84e00466fc",
+      "timestamp": "2026-03-01T18:10:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "TimeoutError: user-service did not respond within 10s",
-      "trace_id": "0bcc7814d719",
+      "trace_id": "3add25f074e4",
       "source_file": "deploy.py",
       "line_number": 207
     },
     {
-      "id": "c851ae00-b551-4309-872b-eea36fd65149",
-      "timestamp": "2026-03-01T03:44:53.395282+00:00",
+      "id": "4a059d1f-aac7-4fae-a3f7-87cb2a1ffe82",
+      "timestamp": "2026-03-01T18:10:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "OOM kill: process 6456 (gunicorn) used 1815MB, limit 2048MB",
-      "trace_id": "a443c63c699f",
+      "trace_id": "f3e3a9cea8da",
       "source_file": "transaction.py",
       "line_number": 279
     },
     {
-      "id": "c2f58397-996e-4dd7-bbef-68122339adf5",
-      "timestamp": "2026-03-01T03:45:53.395282+00:00",
+      "id": "16cb82dd-05ea-444e-8880-d996147aac60",
+      "timestamp": "2026-03-01T18:11:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "Version mismatch: expected schema v20, got v8",
-      "trace_id": "68aaee93c1b5",
+      "trace_id": "c4dff70e5ac7",
       "source_file": "deploy.py",
       "line_number": 180
     },
     {
-      "id": "486254a2-c028-430d-9750-aa615f6768be",
-      "timestamp": "2026-03-01T03:46:53.395282+00:00",
+      "id": "3211ab53-a39c-4f2f-a085-dcdd64387e0c",
+      "timestamp": "2026-03-01T18:12:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
-      "message": "HTTP 500 Internal Server Error on POST /api/v2/inventory/reserve \u2014 trace_id=ad014fabeb44",
-      "trace_id": "42776540129e",
+      "message": "HTTP 500 Internal Server Error on POST /api/v2/inventory/reserve \u2014 trace_id=907239a7a2d0",
+      "trace_id": "f524275f4c8c",
       "source_file": "handler.py",
       "line_number": 231
     },
     {
-      "id": "c2b3edba-2c64-434a-8766-79ee7df8c3b3",
-      "timestamp": "2026-03-01T03:46:53.395282+00:00",
+      "id": "91374e74-8e70-42a6-818b-fb2e67429830",
+      "timestamp": "2026-03-01T18:12:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "Readiness probe failed: HTTP GET /health returned 503 (attempt 2/10)",
-      "trace_id": "ba2ddede4817",
+      "trace_id": "2ccc4edcf27e",
       "source_file": "connection.py",
       "line_number": 455
     },
     {
-      "id": "8db7c7cb-da68-4517-b677-ab4a2500ef2b",
-      "timestamp": "2026-03-01T03:47:53.395282+00:00",
+      "id": "30d91b2a-5a85-4e2a-ae24-e1de6ba5019d",
+      "timestamp": "2026-03-01T18:13:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "Migration failed: 20260115_2_add_index \u2014 connection timeout",
-      "trace_id": "4e7bc18c987c",
+      "trace_id": "84832f823d35",
       "source_file": "connection.py",
       "line_number": 88
     },
     {
-      "id": "4062dcb5-abd0-434b-93a8-c82e636be9ce",
-      "timestamp": "2026-03-01T03:47:53.395282+00:00",
+      "id": "60d7b0ef-d5ff-4c15-9aa9-c76f501190e7",
+      "timestamp": "2026-03-01T18:13:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "Version mismatch: expected schema v17, got v9",
-      "trace_id": "274bbfe167fb",
+      "trace_id": "9ebf0ef702bb",
       "source_file": "deploy.py",
       "line_number": 364
     },
     {
-      "id": "c17595f8-717b-43ac-9ce4-cf9599c5413a",
-      "timestamp": "2026-03-01T03:48:53.395282+00:00",
+      "id": "682b652d-b8f3-4da3-be94-880f2aefd296",
+      "timestamp": "2026-03-01T18:14:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "Memory allocation failed: cannot allocate 50MB, only 49MB available",
-      "trace_id": "f89cd25d97a8",
+      "trace_id": "db5608b9cb6f",
       "source_file": "handler.py",
       "line_number": 143
     },
     {
-      "id": "acd351a6-d247-4a57-9a5a-abb67e2913b4",
-      "timestamp": "2026-03-01T03:48:53.395282+00:00",
+      "id": "b47ce587-6d1f-425f-8d84-28c168bfab59",
+      "timestamp": "2026-03-01T18:14:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "java.lang.OutOfMemoryError: Java heap space \u2014 allocated 1877MB/2048MB",
-      "trace_id": "9a9bc5761c30",
+      "trace_id": "414f3f286cd0",
       "source_file": "transaction.py",
       "line_number": 376
     },
     {
-      "id": "03a8e2a5-7910-422c-849e-4797811f4014",
-      "timestamp": "2026-03-01T03:49:53.395282+00:00",
+      "id": "f6111a8c-cf5c-418e-b1c4-3155bc9270f4",
+      "timestamp": "2026-03-01T18:15:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "SSL handshake failed with stripe-client: certificate has expired",
-      "trace_id": "d863333f5b57",
+      "trace_id": "3b96e09e1b62",
       "source_file": "deploy.py",
       "line_number": 258
     },
     {
-      "id": "b7d7fe41-840a-4132-8e64-92926e847cfa",
-      "timestamp": "2026-03-01T03:50:53.395282+00:00",
+      "id": "79c423d9-db5e-4eca-9b35-638eeae49838",
+      "timestamp": "2026-03-01T18:16:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "Memory allocation failed: cannot allocate 253MB, only 155MB available",
-      "trace_id": "a496b63d13df",
+      "trace_id": "89861912bc8b",
       "source_file": "connection.py",
       "line_number": 451
     },
     {
-      "id": "8fc865a9-ced4-45fb-865e-d6d96a4250b1",
-      "timestamp": "2026-03-01T03:50:53.395282+00:00",
+      "id": "d6364a34-335b-4a39-86ad-858c600e3e1f",
+      "timestamp": "2026-03-01T18:16:43.124316+00:00",
       "service": "api-gateway",
       "severity": "ERROR",
       "message": "ConnectionRefusedError: user-service:8081 \u2014 connection refused",
-      "trace_id": "32ac35aea974",
+      "trace_id": "673ef232dbc5",
       "source_file": "transaction.py",
       "line_number": 370
     },
     {
-      "id": "240506d2-aff3-4e11-98ab-3f552af709a9",
-      "timestamp": "2026-03-01T03:51:53.395282+00:00",
+      "id": "d1717bbc-fd15-46af-8d30-fa9da40d2cc3",
+      "timestamp": "2026-03-01T18:17:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "NullPointerException in RequestHandler.process() at line 306",
-      "trace_id": "e233faeb9abf",
+      "trace_id": "6a969e744456",
       "source_file": "transaction.py",
       "line_number": 329
     },
     {
-      "id": "0364387c-d136-46b4-8354-eacd3138820e",
-      "timestamp": "2026-03-01T03:52:53.395282+00:00",
+      "id": "b163b9cf-ba9a-4613-9d7b-8bd62971aaef",
+      "timestamp": "2026-03-01T18:18:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
-      "message": "HTTP 500 Internal Server Error on PUT /api/v2/users/profile \u2014 trace_id=46b2de933899",
-      "trace_id": "08295eafebb5",
+      "message": "HTTP 500 Internal Server Error on PUT /api/v2/users/profile \u2014 trace_id=12a4e0d85f13",
+      "trace_id": "28914f9a7dd3",
       "source_file": "connection.py",
       "line_number": 312
     },
     {
-      "id": "379ff181-3f5b-488a-9f2d-bbbe42dc1b59",
-      "timestamp": "2026-03-01T03:53:53.395282+00:00",
+      "id": "969fa705-61ac-404a-bdf9-360ccda5d41a",
+      "timestamp": "2026-03-01T18:19:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "SSL handshake failed with postgres-primary: certificate has expired",
-      "trace_id": "6d6900c7c37c",
+      "trace_id": "7baa5f4e4491",
       "source_file": "handler.py",
       "line_number": 392
     },
     {
-      "id": "e7aec584-b063-467d-bad6-5318059ae845",
-      "timestamp": "2026-03-01T03:53:53.395282+00:00",
+      "id": "d6c5eb78-febd-483a-b5c6-eb602eac9b66",
+      "timestamp": "2026-03-01T18:19:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "SSL handshake failed with postgres-primary: certificate has expired",
-      "trace_id": "fc35868b63fc",
+      "trace_id": "60094e222355",
       "source_file": "deploy.py",
       "line_number": 74
     },
     {
-      "id": "7d88d503-f158-475a-9c88-483695deae8e",
-      "timestamp": "2026-03-01T03:53:53.395282+00:00",
+      "id": "22e541ef-1c22-4893-ac60-a9cc2e6ddf7c",
+      "timestamp": "2026-03-01T18:19:43.124316+00:00",
       "service": "api-gateway",
       "severity": "ERROR",
-      "message": "HTTP 500 Internal Server Error on DELETE /api/v2/auth/token \u2014 trace_id=675c80c32299",
-      "trace_id": "fc3cfd8c8dad",
+      "message": "HTTP 500 Internal Server Error on DELETE /api/v2/auth/token \u2014 trace_id=78dea0b18b1b",
+      "trace_id": "7134de6f191d",
       "source_file": "transaction.py",
       "line_number": 42
     },
     {
-      "id": "dadee873-c6c8-408b-bd69-3a25649a7ce7",
-      "timestamp": "2026-03-01T03:54:53.395282+00:00",
+      "id": "2706b8c5-f9b0-42de-b722-389f81a0a17e",
+      "timestamp": "2026-03-01T18:20:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "SSL handshake failed with inventory-service: certificate has expired",
-      "trace_id": "1a1603460266",
+      "trace_id": "2250608241c0",
       "source_file": "handler.py",
       "line_number": 364
     },
     {
-      "id": "1a91320f-d5f9-4241-8d16-adc436d2cb9a",
-      "timestamp": "2026-03-01T03:54:53.395282+00:00",
+      "id": "a63ec421-f1e8-410a-b812-5e434e90534b",
+      "timestamp": "2026-03-01T18:20:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "OOM kill: process 6882 (java) used 2037MB, limit 2048MB",
-      "trace_id": "8c13fa9618d5",
+      "trace_id": "4ea898c1d70b",
       "source_file": "deploy.py",
       "line_number": 105
     },
     {
-      "id": "ff2bb56c-d4dd-4742-9422-bbcc89e95921",
-      "timestamp": "2026-03-01T03:54:53.395282+00:00",
+      "id": "9e957be4-23ca-45a6-9814-23e67dec6617",
+      "timestamp": "2026-03-01T18:20:43.124316+00:00",
       "service": "api-gateway",
       "severity": "ERROR",
       "message": "OOM kill: process 5055 (python3) used 1826MB, limit 2048MB",
-      "trace_id": "25b46fb5500d",
+      "trace_id": "7d18736a07ac",
       "source_file": "transaction.py",
       "line_number": 460
     },
     {
-      "id": "4f1930f4-98d5-4f0f-a1cc-7acb535f73b0",
-      "timestamp": "2026-03-01T03:55:53.395282+00:00",
+      "id": "dc6ac7ee-4b9d-4661-b9b7-32163df69c25",
+      "timestamp": "2026-03-01T18:21:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "Transaction rollback: read ETIMEDOUT \u2014 affected 330 rows",
-      "trace_id": "db3292ce7888",
+      "trace_id": "a2b83f1c0bb7",
       "source_file": "deploy.py",
       "line_number": 131
     },
     {
-      "id": "788b482f-2fcd-488e-9ee5-a5ebbb82305c",
-      "timestamp": "2026-03-01T03:56:53.395282+00:00",
+      "id": "9a88f31f-0faf-46a6-98f8-dc123958c49d",
+      "timestamp": "2026-03-01T18:22:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "java.lang.OutOfMemoryError: Java heap space \u2014 allocated 1909MB/2048MB",
-      "trace_id": "7849725d7e97",
+      "trace_id": "7844bd6f9518",
       "source_file": "connection.py",
       "line_number": 264
     },
     {
-      "id": "6ea19148-e848-48d9-a878-86577e0ebdea",
-      "timestamp": "2026-03-01T03:56:53.395282+00:00",
+      "id": "a9e2880c-2b84-42f9-8cd6-2a9f3a232826",
+      "timestamp": "2026-03-01T18:22:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "Readiness probe failed: HTTP GET /health returned 503 (attempt 2/10)",
-      "trace_id": "e43fb0797d0a",
+      "trace_id": "e989edbd49a6",
       "source_file": "transaction.py",
       "line_number": 418
     },
     {
-      "id": "02ca2568-6d56-490d-b499-ba7328c344b5",
-      "timestamp": "2026-03-01T03:57:53.395282+00:00",
+      "id": "b497e7db-af61-44b1-a390-09438c8676e2",
+      "timestamp": "2026-03-01T18:23:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "SSL handshake failed with postgres-primary: certificate has expired",
-      "trace_id": "2ab2145c1784",
+      "trace_id": "6204d7f21b53",
       "source_file": "transaction.py",
       "line_number": 220
     },
     {
-      "id": "2d551d7c-0a19-4f7f-aa18-4c4cbb582d18",
-      "timestamp": "2026-03-01T03:58:53.395282+00:00",
+      "id": "5bd66601-d3b5-4e41-8f45-c6626c392ea2",
+      "timestamp": "2026-03-01T18:24:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "java.lang.OutOfMemoryError: Java heap space \u2014 allocated 1916MB/2048MB",
-      "trace_id": "6d3a325aeaea",
+      "trace_id": "00ee28e2c859",
       "source_file": "transaction.py",
       "line_number": 216
     },
     {
-      "id": "dec9e17a-e9ec-4482-9ee9-071b96782c21",
-      "timestamp": "2026-03-01T03:58:53.395282+00:00",
+      "id": "c5943c34-d9af-4368-822f-80cb319c9e53",
+      "timestamp": "2026-03-01T18:24:43.124316+00:00",
       "service": "api-gateway",
       "severity": "ERROR",
-      "message": "Heap dump written to /tmp/heapdump-20260301_040453.hprof (705MB)",
-      "trace_id": "99a987e654f7",
+      "message": "Heap dump written to /tmp/heapdump-20260301_183043.hprof (705MB)",
+      "trace_id": "75487a7ca1e7",
       "source_file": "deploy.py",
       "line_number": 32
     },
     {
-      "id": "162a2eec-1829-4da8-867a-9e84d0c338b6",
-      "timestamp": "2026-03-01T03:59:53.395282+00:00",
+      "id": "3fb79994-d1ee-4296-96a2-a65c9b769e18",
+      "timestamp": "2026-03-01T18:25:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "Readiness probe failed: HTTP GET /health returned 503 (attempt 1/10)",
-      "trace_id": "dcdee55c17d4",
+      "trace_id": "541a3a14120a",
       "source_file": "connection.py",
       "line_number": 250
     },
     {
-      "id": "cdea6cdd-67b2-48cf-b4a6-f84af763a8c3",
-      "timestamp": "2026-03-01T03:59:53.395282+00:00",
+      "id": "9878982a-92f1-4f5f-981d-de0e548c9edf",
+      "timestamp": "2026-03-01T18:25:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "Readiness probe failed: HTTP GET /health returned 503 (attempt 3/10)",
-      "trace_id": "b97df35b2281",
+      "trace_id": "d515e898c57f",
       "source_file": "connection.py",
       "line_number": 86
     },
     {
-      "id": "af5f84ed-0d3e-4023-99e9-af79ce32d6b3",
-      "timestamp": "2026-03-01T03:59:53.395282+00:00",
+      "id": "74e55300-648c-496f-a2c5-0bda9541bff3",
+      "timestamp": "2026-03-01T18:25:43.124316+00:00",
       "service": "api-gateway",
       "severity": "ERROR",
       "message": "Version mismatch: expected schema v19, got v6",
-      "trace_id": "44c32e9212a9",
+      "trace_id": "63f5498f9c8e",
       "source_file": "deploy.py",
       "line_number": 230
     },
     {
-      "id": "a54f4801-5734-4a8f-b881-21f3dd95397b",
-      "timestamp": "2026-03-01T04:00:53.395282+00:00",
+      "id": "75f66c72-e327-405f-841a-e94ef89d61ed",
+      "timestamp": "2026-03-01T18:26:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "Migration failed: 20260115_1_add_index \u2014 socket hang up",
-      "trace_id": "c7219cb650da",
+      "trace_id": "673eddfb09fd",
       "source_file": "transaction.py",
       "line_number": 310
     },
     {
-      "id": "d460aeec-67ea-4ba3-9d85-63dfbfdc4de6",
-      "timestamp": "2026-03-01T04:01:53.395282+00:00",
+      "id": "32a9fe55-a8db-4585-8e36-8e9c75602657",
+      "timestamp": "2026-03-01T18:27:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "TimeoutError: stripe-client did not respond within 30s",
-      "trace_id": "df8241b40514",
+      "trace_id": "231f203fc7ea",
       "source_file": "handler.py",
       "line_number": 379
     },
     {
-      "id": "02756359-2f52-4b60-b50d-846b9fda1d5b",
-      "timestamp": "2026-03-01T04:02:53.395282+00:00",
+      "id": "3b154e70-2101-484a-947a-0aa69b83ab3b",
+      "timestamp": "2026-03-01T18:28:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
-      "message": "HTTP 500 Internal Server Error on POST /api/v2/users/profile \u2014 trace_id=d488d15a4ace",
-      "trace_id": "3dd04363458d",
+      "message": "HTTP 500 Internal Server Error on POST /api/v2/users/profile \u2014 trace_id=c79abe118216",
+      "trace_id": "ecf262035000",
       "source_file": "transaction.py",
       "line_number": 73
     },
     {
-      "id": "22514179-f129-4db0-a39b-dbd0e67c39f0",
-      "timestamp": "2026-03-01T04:02:53.395282+00:00",
+      "id": "2ba7f845-283c-4b89-8394-62e0dfa88a40",
+      "timestamp": "2026-03-01T18:28:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "SSL handshake failed with payment-service: certificate has expired",
-      "trace_id": "ad0f1978e3bb",
+      "trace_id": "d39d67f6d2f5",
       "source_file": "handler.py",
       "line_number": 33
     },
     {
-      "id": "2fa838bb-102e-419f-b842-06fa3a401ba8",
-      "timestamp": "2026-03-01T04:02:53.395282+00:00",
+      "id": "a35879fe-523a-41da-a5cf-fd47a39ec0de",
+      "timestamp": "2026-03-01T18:28:43.124316+00:00",
       "service": "api-gateway",
       "severity": "ERROR",
       "message": "NullPointerException in ConnectionPool.process() at line 333",
-      "trace_id": "dde2b6f2591a",
+      "trace_id": "8a93b926ed35",
       "source_file": "connection.py",
       "line_number": 263
     },
     {
-      "id": "460dcba2-56f4-4a53-9804-bd25b591fd8a",
-      "timestamp": "2026-03-01T04:03:53.395282+00:00",
+      "id": "e09989d1-ae80-496f-94de-d8d2bde5450e",
+      "timestamp": "2026-03-01T18:29:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "TimeoutError: postgres-primary did not respond within 10s",
-      "trace_id": "146fb784410b",
+      "trace_id": "6bf576637604",
       "source_file": "deploy.py",
       "line_number": 39
     },
     {
-      "id": "5cb15f19-81b6-43e4-873e-20462e7e0daa",
-      "timestamp": "2026-03-01T04:03:53.395282+00:00",
+      "id": "0536fe4f-d373-4426-aba6-5018c953f55d",
+      "timestamp": "2026-03-01T18:29:43.124316+00:00",
       "service": "user-service",
       "severity": "ERROR",
       "message": "Container restart: exit code 137 \u2014 back-off restarting",
-      "trace_id": "5b3a0d621c54",
+      "trace_id": "e44d44709d7b",
       "source_file": "handler.py",
       "line_number": 283
     }

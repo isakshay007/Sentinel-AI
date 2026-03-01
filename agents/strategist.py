@@ -514,7 +514,6 @@ async def full_pipeline(service: str, scenario: str = None) -> dict:
     """Run the complete incident response pipeline."""
     from agents.diagnostician import watcher_to_diagnostician
 
-    print(f"\n  Phase 1-2: Running Watcher → Diagnostician...")
     wd_result = await watcher_to_diagnostician(service, scenario)
 
     watcher = wd_result.get("watcher", {})
@@ -524,8 +523,12 @@ async def full_pipeline(service: str, scenario: str = None) -> dict:
         print(f"  No diagnosis produced. Stopping pipeline.")
         return {"watcher": watcher, "diagnostician": diag, "strategist": None}
 
+    incident_id = watcher.get("incident_id", "N/A")
     print(f"  Diagnosis: {diag.get('root_cause', '?')[:80]}")
-    print(f"\n  Phase 3: Running Strategist...")
+    print("\n==============================")
+    print("STRATEGIST PHASE START")
+    print("==============================")
+    print(f"Incident ID: {incident_id}")
 
     strat_result = await run_strategist(
         incident_id=watcher.get("incident_id", str(uuid.uuid4())),

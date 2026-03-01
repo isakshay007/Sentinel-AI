@@ -32,19 +32,34 @@ def persist_watcher_result(result: dict, service: str, scenario: str = None) -> 
 
         # Save incident if alert triggered
         if result.get("should_alert") and result.get("incident_id"):
+            metrics_data = result.get("metrics", {}) or {}
+            metrics_snap = metrics_data.get("metrics", {}) or {}
+            metadata = {
+                "detected_by": "watcher_agent",
+                "service": service,
+                "scenario": scenario,
+                "confidence": result.get("confidence"),
+                "tool_calls_count": len(result.get("tool_calls", [])),
+                "ticket_id": result.get("ticket_result", {}).get("ticket", {}).get("id"),
+                "health_status": metrics_data.get("health_status"),
+                "metrics_snapshot": {
+                    "cpu_percent": metrics_snap.get("cpu_percent"),
+                    "memory_percent": metrics_snap.get("memory_percent"),
+                    "response_time_ms": metrics_snap.get("response_time_ms"),
+                    "error_rate": metrics_snap.get("error_rate"),
+                    "gc_pause_ms": metrics_snap.get("gc_pause_ms"),
+                },
+                "warnings": metrics_data.get("warnings", []),
+            }
+            incident_id_val = result["incident_id"]
+            summary = result.get("summary", "Anomaly detected")
             incident = Incident(
-                id=result["incident_id"],
-                title=f"[Watcher] {result.get('summary', 'Anomaly detected')}",
+                id=incident_id_val,
+                title=f"[Watcher] {summary} (#{incident_id_val[:8]})",
                 severity=result.get("severity", "medium"),
                 status="open",
-                metadata_={
-                    "detected_by": "watcher_agent",
-                    "service": service,
-                    "scenario": scenario,
-                    "confidence": result.get("confidence"),
-                    "tool_calls_count": len(result.get("tool_calls", [])),
-                    "ticket_id": result.get("ticket_result", {}).get("ticket", {}).get("id"),
-                },
+                root_cause=result.get("summary"),
+                metadata_=metadata,
             )
             db.add(incident)
 

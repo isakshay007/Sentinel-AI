@@ -52,8 +52,9 @@ def seed_database(gen: MockDataGenerator):
             db.add(incident)
             db.flush()  # Get the ID
 
-            # Log the seeding action
+            # Log the seeding action (#3: link to incident)
             audit = AuditLog(
+                incident_id=incident.id,
                 agent_name="seed_script",
                 action="seed_scenario",
                 tool_name="mock_data_generator",

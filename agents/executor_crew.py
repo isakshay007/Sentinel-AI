@@ -211,6 +211,35 @@ notify_agent = Agent(
 
 
 # =============================================================================
+# SINGLE ACTION EXECUTION — For human-approved actions
+# =============================================================================
+
+_TOOL_SERVER_MAP = {
+    "send_notification": "mcp_servers.alert_server",
+    "create_incident_ticket": "mcp_servers.alert_server",
+    "scale_service": "mcp_servers.infra_server",
+    "restart_service": "mcp_servers.infra_server",
+    "rollback_deployment": "mcp_servers.infra_server",
+    "get_deployment_history": "mcp_servers.infra_server",
+}
+
+
+def execute_single_tool(tool: str, tool_args: dict) -> dict:
+    """
+    Execute a single MCP tool. Used when human approves a pending action.
+    Returns dict with status, result/error.
+    """
+    server = _TOOL_SERVER_MAP.get(tool)
+    if not server:
+        return {"error": f"Unknown tool: {tool}", "status": "failed"}
+    try:
+        result = _call_mcp_sync(server, tool, tool_args)
+        return {"status": "completed", "result": result}
+    except Exception as e:
+        return {"error": str(e), "status": "failed"}
+
+
+# =============================================================================
 # CREW BUILDER — Creates appropriate crew for an incident
 # =============================================================================
 

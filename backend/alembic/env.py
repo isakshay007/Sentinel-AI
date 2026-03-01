@@ -5,10 +5,12 @@ from sqlalchemy import pool
 
 from alembic import context
 
-import sys, os
-sys.path.insert(0, os.path.dirname(__file__) + '/..')
-from database import Base
-import models
+import sys
+import os
+# Add project root so backend.* imports work
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from backend.database import Base
+from backend import models  # noqa: F401 - load all models for autogenerate
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -9,6 +9,7 @@ Graph flow:
 """
 
 import json
+import logging
 import uuid
 import asyncio
 import os
@@ -26,6 +27,8 @@ import sys
 
 load_dotenv()
 
+logger = logging.getLogger(__name__)
+
 
 # =============================================================================
 # STATE SCHEMA
@@ -40,6 +43,7 @@ class StrategistState(TypedDict):
     diagnosis: Optional[dict]
     diagnostician_confidence: float
     watcher_severity: str
+    detection_context: Optional[dict]
 
     # Plans
     plans: list                        # List of remediation plans
@@ -92,6 +96,11 @@ def get_groq_llm(temperature: float = 0.1) -> ChatGroq:
     env_path = Path(__file__).parent.parent / ".env"
     load_dotenv(dotenv_path=env_path)
     api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "GROQ_API_KEY is not set. Create a .env in the repo root (copy .env.example) "
+            "or set GROQ_API_KEY in your environment / docker-compose env_file."
+        )
     return ChatGroq(
         model="llama-3.1-8b-instant",
         temperature=temperature,
@@ -109,6 +118,7 @@ async def generate_plans(state: StrategistState) -> dict:
     diagnosis = state.get("diagnosis", {})
     service = state["service"]
     severity = state.get("watcher_severity", "high")
+    logger.info("[STRATEGIST] Running for service=%s root_cause=%s severity=%s", service, root_cause[:80], severity)
 
     prompt = f"""You are SentinelAI Strategist, an expert at DevOps incident remediation planning.
 
@@ -121,10 +131,9 @@ Diagnosis Details: {json.dumps(diagnosis, indent=2) if diagnosis else 'N/A'}
 Generate exactly 3 remediation plans, ranked from safest to most aggressive.
 Each plan should have concrete, executable actions.
 
-IMPORTANT: Each action must use one of these available MCP tools:
+IMPORTANT: Each action must use only these available MCP tools:
 - restart_service(service, reason) — Risk: risky
 - scale_service(service, replicas, reason) — Risk: safe (up) / risky (down)
-- rollback_deployment(service, target_version, reason) — Risk: dangerous
 - send_notification(channel, message, severity) — Risk: safe
 - create_incident_ticket(title, description, priority) — Risk: safe
 
@@ -181,11 +190,15 @@ Respond with ONLY a JSON object (no other text, no markdown):
         plans = result.get("plans", [])
         recommended = result.get("recommended_plan", "A")
 
+        logger.debug("[STRATEGIST] Generated %d plans", len(plans))
+        for i, plan in enumerate(plans):
+            logger.debug("[STRATEGIST] Plan %d: %s", i, plan.get("name", "unnamed"))
+
         return {
             "plans": plans,
         }
     except Exception as e:
-        # Fallback: generate a basic plan
+        # Fallback: generate a basic plan using only live tools (no rollback)
         fallback_plans = [
             {
                 "name": "Plan A: Conservative — Monitor and Notify",
@@ -243,22 +256,35 @@ Respond with ONLY a JSON object (no other text, no markdown):
                 ],
             },
             {
-                "name": "Plan C: Aggressive — Rollback",
-                "description": "Roll back to last known good version",
+                "name": "Plan C: Aggressive — Scale and Restart Fast",
+                "description": "Rapidly scale and restart the affected service to restore capacity",
                 "estimated_time_minutes": 5,
                 "risk_level": "high",
                 "actions": [
                     {
                         "step": 1,
-                        "action": f"Rollback {service} to previous version",
-                        "tool": "rollback_deployment",
+                        "action": f"Scale {service} to 4 replicas immediately to add capacity",
+                        "tool": "scale_service",
                         "tool_args": {
                             "service": service,
-                            "reason": f"Incident rollback: {root_cause}",
+                            "replicas": 4,
+                            "reason": f"Rapid incident remediation for {root_cause}",
                         },
-                        "risk_level": "dangerous",
+                        "risk_level": "safe",
+                        "requires_approval": False,
+                        "estimated_seconds": 20,
+                    },
+                    {
+                        "step": 2,
+                        "action": f"Restart {service} to clear bad state quickly",
+                        "tool": "restart_service",
+                        "tool_args": {
+                            "service": service,
+                            "reason": f"Rapid incident remediation for {root_cause}",
+                        },
+                        "risk_level": "risky",
                         "requires_approval": True,
-                        "estimated_seconds": 45,
+                        "estimated_seconds": 20,
                     },
                 ],
             },
@@ -274,42 +300,97 @@ async def rank_and_select(state: StrategistState) -> dict:
     plans = state.get("plans", [])
     severity = state.get("watcher_severity", "high")
     confidence = state.get("diagnostician_confidence", 0.5)
+    service = state.get("service", "")
+    root_cause = state.get("root_cause", "")
+    detection_context = state.get("detection_context")
 
     if not plans:
         return {"selected_plan": None, "actions": []}
 
     # Selection logic based on severity and confidence
     if severity == "critical" and confidence >= 0.8:
-        # High confidence critical → moderate plan (fast but not reckless)
         selected_idx = min(1, len(plans) - 1)
     elif severity == "critical":
-        # Lower confidence critical → conservative first
         selected_idx = 0
     elif severity in ("high", "medium"):
-        # High/medium → conservative
         selected_idx = 0
     else:
         selected_idx = 0
 
     selected = plans[selected_idx]
-
-    # Extract and tag all actions
     actions = selected.get("actions", [])
 
-    # Ensure risk tagging is correct
+    # ── GUARDRAIL: Ensure remediation actions are always present ──
+    # The LLM sometimes generates plans with only notifications and no
+    # actual fix.  For real incidents we MUST include infrastructure
+    # remediation actions so the approval / executor flow can proceed.
+    action_tools = [a.get("tool") for a in actions]
+    has_remediation = any(
+        t in action_tools for t in ("restart_service", "scale_service", "flush_cache")
+    )
+
+    if not has_remediation and service:
+        dm = (detection_context or {}).get("detection_metrics", {})
+        detection_status = dm.get("status")
+        root_cause_cat = ""
+        diag = state.get("diagnosis") or {}
+        if isinstance(diag, dict):
+            root_cause_cat = diag.get("root_cause_category", "")
+
+        logger.warning(
+            "[STRATEGIST] No remediation actions in plan — injecting defaults "
+            "for service=%s root_cause=%s detection_status=%s",
+            service, root_cause_cat or root_cause[:60], detection_status,
+        )
+
+        if detection_status != "down":
+            actions.append({
+                "step": len(actions) + 1,
+                "action": f"Scale up {service} to add capacity while investigating",
+                "tool": "scale_service",
+                "tool_args": {
+                    "service": service,
+                    "replicas": 3,
+                    "reason": f"Auto-scale due to {root_cause_cat or 'anomaly'} on {service}",
+                },
+                "risk_level": "safe",
+                "requires_approval": False,
+                "estimated_seconds": 30,
+            })
+
+        actions.append({
+            "step": len(actions) + 1,
+            "action": f"Restart {service} to clear the {root_cause_cat or 'issue'}",
+            "tool": "restart_service",
+            "tool_args": {
+                "service": service,
+                "reason": (
+                    f"Restart to remediate {root_cause_cat or 'detected anomaly'} "
+                    f"— severity: {severity}"
+                ),
+            },
+            "risk_level": "risky",
+            "requires_approval": True,
+            "estimated_seconds": 15,
+        })
+
+        logger.info(
+            "[STRATEGIST] Injected remediation actions for %s: %s",
+            service,
+            [a["tool"] for a in actions if a["tool"] in ("scale_service", "restart_service")],
+        )
+    # ── END GUARDRAIL ────────────────────────────────────────────
+
+    # Ensure risk tagging is correct on all actions (including injected ones)
     for action in actions:
         tool = action.get("tool", "")
-        if tool == "rollback_deployment":
-            action["risk_level"] = "dangerous"
-            action["requires_approval"] = True
-        elif tool == "restart_service":
+        if tool == "restart_service":
             action["risk_level"] = "risky"
             action["requires_approval"] = True
         elif tool in ("send_notification", "create_incident_ticket", "get_on_call_engineer"):
             action["risk_level"] = "safe"
             action["requires_approval"] = False
         elif tool == "scale_service":
-            # Safe if scaling up, risky if down
             replicas = action.get("tool_args", {}).get("replicas", 2)
             action["risk_level"] = "safe" if replicas > 2 else "risky"
             action["requires_approval"] = replicas <= 2
@@ -342,6 +423,8 @@ async def approval_gate(state: StrategistState) -> dict:
                 "approved_at": datetime.now(timezone.utc).isoformat(),
             })
 
+    logger.info("[STRATEGIST] Safe actions (auto-execute): %s", [a.get("tool", "?") for a in approved])
+    logger.info("[STRATEGIST] Risky actions (need approval): %s", [a.get("tool", "?") for a in pending])
     return {
         "approved_actions": approved,
         "pending_actions": pending,
@@ -363,7 +446,6 @@ async def execute_safe_actions(state: StrategistState) -> dict:
         "get_on_call_engineer": "mcp_servers.alert_server",
         "scale_service": "mcp_servers.infra_server",
         "restart_service": "mcp_servers.infra_server",
-        "rollback_deployment": "mcp_servers.infra_server",
         "get_deployment_history": "mcp_servers.infra_server",
         "search_logs": "mcp_servers.logs_server",
         "get_current_metrics": "mcp_servers.metrics_server",
@@ -382,7 +464,9 @@ async def execute_safe_actions(state: StrategistState) -> dict:
             })
             continue
 
+        logger.debug("[STRATEGIST] Auto-executing safe action: tool=%s args=%s", tool, tool_args)
         result = await MCPToolCaller.call_tool(server, tool, tool_args)
+        logger.debug("[STRATEGIST] Safe action result: tool=%s success=%s", tool, result.get("status", "unknown"))
 
         tool_calls.append({
             "tool": tool,
@@ -478,6 +562,7 @@ async def run_strategist(
     diagnostician_confidence: float = 0.8,
     watcher_severity: str = "high",
     scenario: str = None,
+    detection_context: dict = None,
 ) -> dict:
     strategist = build_strategist_graph()
 
@@ -489,6 +574,7 @@ async def run_strategist(
         diagnosis=diagnosis,
         diagnostician_confidence=diagnostician_confidence,
         watcher_severity=watcher_severity,
+        detection_context=detection_context,
         plans=[],
         selected_plan=None,
         actions=[],
@@ -510,11 +596,11 @@ async def run_strategist(
 # FULL PIPELINE: Watcher → Diagnostician → Strategist
 # =============================================================================
 
-async def full_pipeline(service: str, scenario: str = None) -> dict:
+async def full_pipeline(service: str, scenario: str = None, detection_context: dict = None) -> dict:
     """Run the complete incident response pipeline."""
     from agents.diagnostician import watcher_to_diagnostician
 
-    wd_result = await watcher_to_diagnostician(service, scenario)
+    wd_result = await watcher_to_diagnostician(service, scenario, detection_context=detection_context)
 
     watcher = wd_result.get("watcher", {})
     diag = wd_result.get("diagnostician")
@@ -538,6 +624,7 @@ async def full_pipeline(service: str, scenario: str = None) -> dict:
         diagnostician_confidence=diag.get("confidence", 0.5),
         watcher_severity=watcher.get("severity", "high"),
         scenario=scenario,
+        detection_context=detection_context,
     )
 
     return {

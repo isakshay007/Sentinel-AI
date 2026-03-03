@@ -8,6 +8,7 @@ Graph flow:
 """
 
 import json
+import logging
 import uuid
 import asyncio
 import os
@@ -25,6 +26,8 @@ import sys
 
 load_dotenv()
 
+logger = logging.getLogger(__name__)
+
 
 # =============================================================================
 # STATE SCHEMA
@@ -34,6 +37,7 @@ class WatcherState(TypedDict):
     # Input
     service: str
     scenario: Optional[str]
+    detection_context: Optional[dict]
 
     # Collected data
     metrics: Optional[dict]
@@ -90,6 +94,11 @@ def get_groq_llm(temperature: float = 0.1) -> ChatGroq:
     env_path = Path(__file__).parent.parent / ".env"
     load_dotenv(dotenv_path=env_path)
     api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "GROQ_API_KEY is not set. Create a .env in the repo root (copy .env.example) "
+            "or set GROQ_API_KEY in your environment / docker-compose env_file."
+        )
     return ChatGroq(
         model="llama-3.1-8b-instant",
         temperature=temperature,
@@ -104,17 +113,17 @@ def get_groq_llm(temperature: float = 0.1) -> ChatGroq:
 async def collect_metrics(state: WatcherState) -> dict:
     """Node 1: Collect current metrics, history, and anomaly status via MetricsMCP."""
     service = state["service"]
-    scenario = state.get("scenario")
+    logger.info("[WATCHER] Running for service=%s", service)
     tool_calls = state.get("tool_calls", [])
     errors = state.get("errors", [])
 
     # Call 1: Current metrics
+    logger.debug("[WATCHER] Fetching metrics for service=%s", service)
     args = {"service": service}
-    if scenario:
-        args["scenario"] = scenario
     metrics = await MCPToolCaller.call_tool(
         "mcp_servers.metrics_server", "get_current_metrics", args
     )
+    logger.debug("[WATCHER] Metrics result: %s", metrics.get("health_status", "unknown"))
     tool_calls.append({
         "tool": "get_current_metrics", "server": "MetricsMCP",
         "args": args,
@@ -123,8 +132,6 @@ async def collect_metrics(state: WatcherState) -> dict:
 
     # Call 2: Metric history (memory)
     history_args = {"service": service, "metric": "memory_percent", "minutes": 120}
-    if scenario:
-        history_args["scenario"] = scenario
     metric_history = await MCPToolCaller.call_tool(
         "mcp_servers.metrics_server", "get_metric_history", history_args
     )
@@ -135,9 +142,7 @@ async def collect_metrics(state: WatcherState) -> dict:
     })
 
     # Call 3: Anomaly detection
-    anomaly_args = {"service": service, "metric": "memory_percent", "method": "threshold"}
-    if scenario:
-        anomaly_args["scenario"] = scenario
+    anomaly_args = {"service": service, "metric": "memory_percent"}
     anomaly_check = await MCPToolCaller.call_tool(
         "mcp_servers.metrics_server", "detect_anomaly", anomaly_args
     )
@@ -159,6 +164,7 @@ async def collect_metrics(state: WatcherState) -> dict:
 async def collect_logs(state: WatcherState) -> dict:
     """Node 2: Collect recent error logs via LogsMCP."""
     service = state["service"]
+    logger.debug("[WATCHER] Fetching recent errors for service=%s", service)
     tool_calls = state.get("tool_calls", [])
 
     recent_errors_result = await MCPToolCaller.call_tool(
@@ -185,6 +191,7 @@ async def analyze(state: WatcherState) -> dict:
     metric_history = state.get("metric_history", {})
     anomaly_check = state.get("anomaly_check", {})
     recent_errors = state.get("recent_errors", [])
+    detection_context = state.get("detection_context")
 
     # Build context
     metrics_data = metrics.get("metrics", {})
@@ -192,6 +199,27 @@ async def analyze(state: WatcherState) -> dict:
     warnings = metrics.get("warnings", [])
     stats = metric_history.get("statistics", {})
     evidence = anomaly_check.get("evidence", {})
+
+    # Include detection_metrics from watcher_loop's anomaly check
+    # (gives the LLM real Prometheus data even if MetricsMCP returns stale/unknown values)
+    detection_section = ""
+    if detection_context:
+        dm = detection_context.get("detection_metrics", {})
+        anomalies_list = detection_context.get("anomalies", [])
+        worst = detection_context.get("worst_severity", "unknown")
+        detection_section = f"""
+## Anomaly Detection Results (from Prometheus via watcher_loop)
+Status: {dm.get('status', 'unknown')}
+CPU: {dm.get('cpu_percent', '?')}%
+Memory: {dm.get('memory_percent', '?')}%
+Response Time: {dm.get('response_time_ms', '?')}ms
+Error Rate: {dm.get('error_rate', '?')}
+Up: {dm.get('up', '?')}
+
+## Detected Anomalies (threshold breaches)
+{json.dumps(anomalies_list, indent=2)}
+Worst Severity: {worst}
+"""
 
     # Format errors (limit to 10)
     error_lines = []
@@ -204,7 +232,7 @@ async def analyze(state: WatcherState) -> dict:
     prompt = f"""You are SentinelAI Watcher, an expert DevOps monitoring agent.
 Analyze the following telemetry data for service '{state["service"]}' and determine if there is a real incident.
 
-## Current Metrics
+## Current Metrics (from MetricsMCP)
 Health Status: {health_status}
 Warnings: {json.dumps(warnings)}
 CPU: {metrics_data.get('cpu_percent', '?')}%
@@ -213,19 +241,21 @@ Memory Used: {metrics_data.get('memory_used_mb', '?')} / {metrics_data.get('memo
 Response Time: {metrics_data.get('response_time_ms', '?')}ms
 Error Rate: {metrics_data.get('error_rate', '?')}
 GC Pause: {metrics_data.get('gc_pause_ms', '?')}ms
-
+{detection_section}
 ## Metric Trends (last 60 min)
 Trend: {stats.get('trend', 'unknown')}
 Change: {stats.get('change_percent', 0)}%
 Min: {stats.get('min', '?')} -> Max: {stats.get('max', '?')} -> Current: {stats.get('latest', '?')}
 
-## Anomaly Detection
+## MCP Anomaly Detection
 Is Anomalous: {anomaly_check.get('is_anomalous', '?')}
 Severity: {anomaly_check.get('severity', '?')}
 Evidence: {json.dumps(evidence)}
 
 ## Recent Error Logs ({len(recent_errors)} entries)
 {errors_text}
+
+IMPORTANT: If the "Anomaly Detection Results" section shows Status=down or Up=0, or if memory/CPU values exceed thresholds, this IS a real incident. Values of '?' from MetricsMCP may simply mean the service is too degraded to respond — trust the watcher_loop Prometheus data over MetricsMCP when they conflict.
 
 Based on this data, respond with ONLY a JSON object (no other text, no markdown, no code fences):
 {{
@@ -252,19 +282,38 @@ Based on this data, respond with ONLY a JSON object (no other text, no markdown,
 
         analysis = json.loads(clean)
 
+        is_incident = analysis.get("is_incident", False)
+        conf = float(analysis.get("confidence", 0.0))
+        sev = analysis.get("severity", "low")
+        logger.info("[WATCHER] LLM decision: is_incident=%s confidence=%.2f severity=%s", is_incident, conf, sev)
         return {
             "analysis": analysis_text,
-            "should_alert": analysis.get("is_incident", False),
-            "confidence": float(analysis.get("confidence", 0.0)),
-            "severity": analysis.get("severity", "low"),
+            "should_alert": is_incident,
+            "confidence": conf,
+            "severity": sev,
             "summary": analysis.get("summary", "No summary available"),
         }
     except Exception as e:
         # Fallback to rule-based if LLM fails
+        logger.warning("[WATCHER] LLM failed, using rule-based fallback for service=%s", state["service"])
         is_anomalous = anomaly_check.get("is_anomalous", False)
         health = metrics.get("health_status", "unknown")
-        fallback_alert = is_anomalous or health in ("critical", "warning")
 
+        # Check detection_context for authoritative severity
+        dc_worst = (detection_context or {}).get("worst_severity") if detection_context else None
+        dc_status = (detection_context or {}).get("detection_metrics", {}).get("status") if detection_context else None
+
+        if dc_worst == "critical" or dc_status == "down":
+            return {
+                "analysis": f"LLM failed ({e}). Rule-based critical escalation from detection context.",
+                "should_alert": True,
+                "confidence": 0.90,
+                "severity": "critical",
+                "summary": f"Critical anomaly on {state['service']} — rule-based escalation (detection_context worst_severity={dc_worst})",
+                "errors": state.get("errors", []) + [f"LLM error: {str(e)}"],
+            }
+
+        fallback_alert = is_anomalous or health in ("critical", "warning")
         return {
             "analysis": f"LLM analysis failed ({e}). Falling back to rule-based.",
             "should_alert": fallback_alert,
@@ -334,6 +383,7 @@ async def alert(state: WatcherState) -> dict:
         "result_summary": f"delivered_to={notification_result.get('delivered_to', '?')}"
     })
 
+    logger.debug("[WATCHER] Persisting result: incident_created=%s incident_id=%s", True, incident_id)
     return {
         "incident_id": incident_id,
         "ticket_result": ticket_result,
@@ -384,12 +434,94 @@ def build_watcher_graph():
 # RUN
 # =============================================================================
 
-async def run_watcher(service: str, scenario: str = None) -> dict:
+async def run_watcher(service: str, scenario: str = None, detection_context: dict = None) -> dict:
+    # ── Pre-LLM shortcut: service is DOWN ──────────────────────────
+    dm = (detection_context or {}).get("detection_metrics", {})
+    if dm.get("status") == "down":
+        logger.info(
+            "[WATCHER] Service %s is DOWN (up=0) — creating rule-based incident, skipping LLM",
+            service,
+        )
+        incident_id = str(uuid.uuid4())
+        ts = datetime.now(timezone.utc).isoformat()
+        summary = (
+            f"Service {service} is down — container not responding to health checks "
+            f"(up metric = 0)"
+        )
+        tool_calls = []
+
+        ticket_result = await MCPToolCaller.call_tool(
+            "mcp_servers.alert_server",
+            "create_incident_ticket",
+            {
+                "title": f"[Watcher] {summary}",
+                "description": (
+                    f"Automated detection by SentinelAI Watcher Agent.\n\n"
+                    f"Service: {service}\nSeverity: critical\n"
+                    f"Confidence: 95%\nSummary: {summary}\n\n"
+                    f"Detection: Prometheus up metric returned 0."
+                ),
+                "priority": "P1",
+                "service": service,
+                "related_incident_id": incident_id,
+            },
+        )
+        tool_calls.append({
+            "tool": "create_incident_ticket",
+            "server": "AlertMCP",
+            "result_summary": f"ticket={ticket_result.get('ticket', {}).get('id', '?')}",
+        })
+
+        notification_result = await MCPToolCaller.call_tool(
+            "mcp_servers.alert_server",
+            "send_notification",
+            {
+                "channel": "all",
+                "message": f"[ALERT] {summary} | Service: {service} | Severity: critical | Confidence: 95%",
+                "severity": "critical",
+                "service": service,
+                "incident_id": incident_id,
+            },
+        )
+        tool_calls.append({
+            "tool": "send_notification",
+            "server": "AlertMCP",
+            "result_summary": f"delivered_to={notification_result.get('delivered_to', '?')}",
+        })
+
+        logger.debug(
+            "[WATCHER] Persisting result: incident_created=%s incident_id=%s",
+            True,
+            incident_id,
+        )
+        return {
+            "service": service,
+            "scenario": scenario,
+            "detection_context": detection_context,
+            "metrics": None,
+            "metric_history": None,
+            "anomaly_check": None,
+            "recent_errors": None,
+            "analysis": "Service is DOWN (up=0). Rule-based incident — LLM skipped.",
+            "should_alert": True,
+            "confidence": 0.95,
+            "severity": "critical",
+            "summary": summary,
+            "incident_id": incident_id,
+            "notification_result": notification_result,
+            "ticket_result": ticket_result,
+            "tool_calls": tool_calls,
+            "errors": [],
+            "timestamp": ts,
+        }
+
+    # ── Normal graph flow ──────────────────────────────────────────
     watcher = build_watcher_graph()
 
     initial_state = WatcherState(
         service=service,
         scenario=scenario,
+        detection_context=detection_context,
         metrics=None,
         metric_history=None,
         anomaly_check=None,
@@ -426,7 +558,7 @@ if __name__ == "__main__":
         print(f"  Scenario:   {args.scenario}")
     print(f"{'='*55}\n")
 
-    result = asyncio.run(run_watcher(args.service, args.scenario))
+    result = asyncio.run(run_watcher(args.service, args.scenario, detection_context=None))
 
     print(f"\n{'─'*55}")
     print(f"  RESULT")

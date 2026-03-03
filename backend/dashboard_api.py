@@ -13,6 +13,7 @@ from typing import Optional
 from fastapi import APIRouter, Query
 from backend.database import SessionLocal
 from backend.models import Incident, AgentDecision, AuditLog, IncidentEvent
+from backend.prometheus_client import get_all_services_health
 
 router = APIRouter(prefix="/api", tags=["dashboard"])
 logger = logging.getLogger(__name__)
@@ -20,7 +21,6 @@ logger = logging.getLogger(__name__)
 # Paths relative to project root so they work regardless of CWD
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 EVAL_DIR = _PROJECT_ROOT / "evaluation" / "results"
-FIXTURES_DIR = _PROJECT_ROOT / "tests" / "fixtures"
 
 
 # =============================================================================
@@ -346,264 +346,173 @@ def get_safety_report():
         return json.load(f)
 
 
-# =============================================================================
-# SERVICE HEALTH (from mock data)
-# =============================================================================
-
-# Dependency map: service -> list of dependent services (from mock_data_generator.SERVICES)
-# Used for issue #1: dependencies of resolved-incident services are treated as healthy.
-_SERVICE_DEPENDENCIES = {
-    "api-gateway": ["user-service", "payment-service", "inventory-service"],
-    "user-service": ["postgres-primary", "redis-cache"],
-    "payment-service": ["postgres-primary", "stripe-client"],
-    "inventory-service": ["postgres-primary", "redis-cache"],
-}
-
-
-def _get_service_health_data():
-    # Services with resolved incidents (or their dependencies) are healthy (#1, #8)
-    resolved_services = set()
-    incident_services = {}  # service -> metrics_snapshot from incident metadata
-    db = SessionLocal()
-    try:
-        for inc in db.query(Incident).all():
-            svc = (inc.metadata_ or {}).get("service")
-            if svc:
-                svc = str(svc)
-                if inc.status == "resolved":
-                    resolved_services.add(svc)
-                else:
-                    # Use incident metadata for open/investigating (#8)
-                    snap = (inc.metadata_ or {}).get("metrics_snapshot") or {}
-                    if snap and (svc not in incident_services or inc.detected_at):
-                        incident_services[svc] = snap
-    finally:
-        db.close()
-
-    # Dependencies of resolved-incident services are healthy (#1)
-    for svc in list(resolved_services):
-        for dep in _SERVICE_DEPENDENCIES.get(svc, []):
-            resolved_services.add(dep)
-
-    services = []
-    seen_services = set()
-    for scenario_file in FIXTURES_DIR.glob("*.json"):
-        if scenario_file.name.startswith("_"):
-            continue
-        try:
-            with open(scenario_file) as f:
-                data = json.load(f)
-            metrics = data.get("metrics", [])
-            if metrics:
-                # Get last metric per service
-                service_latest = {}
-                for m in metrics:
-                    svc = m.get("service", "unknown")
-                    service_latest[svc] = m
-
-                for svc, m in service_latest.items():
-                    if svc in seen_services:
-                        continue
-                    seen_services.add(svc)
-                    cpu = m.get("cpu_percent", 0)
-                    mem = m.get("memory_percent", 0)
-                    err = m.get("error_rate", 0)
-
-                    if svc in resolved_services:
-                        status = "healthy"
-                    elif cpu > 90 or mem > 92 or err > 0.15:
-                        status = "critical"
-                    elif cpu > 75 or mem > 80 or err > 0.05:
-                        status = "warning"
-                    else:
-                        status = "healthy"
-
-                    services.append({
-                        "name": svc,
-                        "cpu_percent": round(cpu, 1),
-                        "memory_percent": round(mem, 1),
-                        "response_time_ms": round(m.get("response_time_ms", 0), 1),
-                        "error_rate": round(err, 4),
-                        "status": status,
-                    })
-        except Exception:
-            continue
-
-    # Include services from incident metadata when not in fixtures (#8)
-    for svc, m in incident_services.items():
-        if svc in seen_services:
-            continue
-        seen_services.add(svc)
-        cpu = m.get("cpu_percent", 0)
-        mem = m.get("memory_percent", 0)
-        err = m.get("error_rate", 0)
-        if svc in resolved_services:
-            status = "healthy"
-        elif cpu > 90 or mem > 92 or err > 0.15:
-            status = "critical"
-        elif cpu > 75 or mem > 80 or err > 0.05:
-            status = "warning"
-        else:
-            status = "healthy"
-        services.append({
-            "name": svc,
-            "cpu_percent": round(cpu, 1),
-            "memory_percent": round(mem, 1),
-            "response_time_ms": round(m.get("response_time_ms", 0), 1),
-            "error_rate": round(err, 4),
-            "status": status,
-        })
-
-    return {"services": services}
-
-
 @router.get("/service-health")
-def get_service_health():
-    """Service health (legacy path)."""
-    return _get_service_health_data()
+async def get_service_health():
+    """Service health (legacy path). Returns live Prometheus data."""
+    return await get_services_health()
 
 
 @router.get("/services/health")
-def get_services_health():
-    """Service health (design path: /api/services/health). Same response."""
-    return _get_service_health_data()
+async def get_services_health():
+    """
+    Service health (design path: /api/services/health).
+    Uses live Prometheus metrics via backend.prometheus_client.
+    """
+    health_list = await get_all_services_health()
+    services = [
+        {
+            "name": h.get("service", "unknown"),
+            "cpu_percent": round(float(h.get("cpu_percent", 0.0)), 1),
+            "memory_percent": round(float(h.get("memory_percent", 0.0)), 1),
+            "response_time_ms": round(float(h.get("response_time_ms", 0.0)), 1),
+            "error_rate": float(h.get("error_rate", 0.0)),
+            "status": h.get("status", "unknown"),
+        }
+        for h in health_list
+    ]
+    return {"services": services}
 
 
 # =============================================================================
-# TRIGGER SCENARIO (for demo purposes)
+# CHAOS INJECTION + WATCHER STATUS
 # =============================================================================
+
+SERVICE_URLS = {
+    "user-service": "http://user-service:8001",
+    "payment-service": "http://payment-service:8002",
+    "api-gateway": "http://api-gateway:8003",
+}
+
+
+@router.post("/chaos/inject")
+async def inject_fault(body: dict):
+    """
+    Inject a live fault into the running microservices.
+
+    Body:
+      {
+        "target": "user-service" | "payment-service" | "api-gateway" | "redis",
+        "type": "memory_leak" | "cpu_spike" | "network_latency" | "kill_service" | "cache_failure",
+        "intensity": int (e.g. 90),
+        "duration": int seconds (e.g. 120)
+      }
+    """
+    import docker
+    import httpx
+
+    target = body["target"]
+    fault_type = body["type"]
+    intensity = int(body.get("intensity", 90))
+    duration = int(body.get("duration", 120))
+    logger.info("[CHAOS] Injecting fault: target=%s type=%s intensity=%s duration=%s", target, fault_type, intensity, duration)
+
+    result: dict
+
+    if fault_type in ("memory_leak", "cpu_spike", "network_latency"):
+        chaos_endpoint_map = {
+            "memory_leak": f"/chaos/memory?percent={intensity}&duration={duration}",
+            "cpu_spike": f"/chaos/cpu?cores={intensity}&duration={duration}",
+            "network_latency": f"/chaos/latency?intensity={intensity}&duration={duration}",
+        }
+        base = SERVICE_URLS.get(target)
+        if not base:
+            return {"error": f"Unknown service target: {target}"}
+        url = base + chaos_endpoint_map[fault_type]
+        logger.debug("[CHAOS] Calling http://%s%s", target, chaos_endpoint_map[fault_type])
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(url)
+            resp.raise_for_status()
+            logger.debug("[CHAOS] Service response: status=%d body=%s", resp.status_code, resp.text[:200])
+            result = resp.json() if resp.headers.get("content-type", "").startswith("application/json") else {
+                "status": "injecting"
+            }
+    elif fault_type == "kill_service":
+        logger.info("[CHAOS] Stopping container: sentinel-%s", target)
+        d = docker.from_env()
+        d.containers.get(f"sentinel-{target}").stop()
+        result = {"status": "killed", "target": target}
+    elif fault_type == "cache_failure":
+        logger.info("[CHAOS] Stopping container: sentinel-redis")
+        d = docker.from_env()
+        d.containers.get("sentinel-redis").stop()
+        result = {"status": "redis_stopped"}
+    else:
+        return {"error": f"Unknown fault: {fault_type}"}
+
+    # Log to audit
+    db = SessionLocal()
+    try:
+        db.add(
+            AuditLog(
+                agent_name="chaos_injector",
+                action=f"inject_{fault_type}",
+                mcp_server=None,
+                tool_name="chaos_http/docker",
+                input_data=body,
+                output_data=result,
+            )
+        )
+        db.commit()
+    finally:
+        db.close()
+
+    return {
+        "status": "injecting",
+        "fault": fault_type,
+        "target": target,
+        "duration": duration,
+    }
+
+
+@router.post("/chaos/stop")
+async def stop_chaos(body: dict):
+    """
+    Stop chaos on a specific target service by calling its /chaos/stop endpoint.
+    """
+    import httpx
+
+    target = body["target"]
+    logger.info("[CHAOS] Stopping chaos on target=%s", target)
+    base = SERVICE_URLS.get(target)
+    if not base:
+        return {"error": f"Unknown service target: {target}"}
+    url = base + "/chaos/stop"
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(url)
+        resp.raise_for_status()
+        try:
+            return resp.json()
+        except Exception:
+            return {"status": "stopped"}
+
+
+@router.get("/watcher/status")
+async def watcher_status():
+    """
+    Lightweight status endpoint for the always-on watcher loop.
+
+    IMPORTANT: we import the module, not individual globals, so that the latest
+    values set by the background task (e.g. _last_check) are reflected here.
+    """
+    from agents import watcher_loop
+
+    return {
+        "enabled": os.getenv("WATCHER_ENABLED", "1") == "1",
+        "poll_interval_seconds": watcher_loop.POLL_INTERVAL,
+        "services_monitored": watcher_loop.SERVICES,
+        "last_check": watcher_loop._last_check,
+        "anomaly_streaks": watcher_loop._anomaly_streak,
+    }
+
 
 @router.post("/run-scenario/{scenario}")
 async def run_scenario(scenario: str):
-    """Run full pipeline (Watcher → Diagnostician → Strategist), persist to DB, and register pending approvals."""
-    from agents.strategist import full_pipeline
-    from agents.watcher_db import persist_watcher_result
-    from agents.diagnostician_db import persist_diagnostician_result
-    from agents.strategist_db import persist_strategist_result
-    from backend.approval import add_approval_request
-
-    service_map = {
-        "memory_leak": "user-service",
-        "bad_deployment": "payment-service",
-        "api_timeout": "api-gateway",
-    }
-
-    service = service_map.get(scenario)
-    if not service:
-        return {"error": f"Unknown scenario: {scenario}"}
-
-    # Clear approval store before run so each run has only its own approvals (no accumulation)
-    from backend.approval import clear_approval_store
-    clear_approval_store()
-
-    # Run full pipeline once (Watcher → Diagnostician → Strategist)
-    result = await full_pipeline(service, scenario)
-    watcher = result.get("watcher", {})
-    diag = result.get("diagnostician")
-    strat = result.get("strategist")
-
-    # Persist watcher (incident + decision + audits)
-    try:
-        persist_watcher_result(watcher, service, scenario)
-    except Exception as e:
-        return {"error": f"Failed to persist watcher: {e}", "status": "partial"}
-
-    incident_id_for_log = watcher.get("incident_id") or (strat.get("incident_id") if strat else None)
-
-    # Persist diagnostician if we got a diagnosis
-    if diag:
-        try:
-            persist_diagnostician_result(diag)
-        except Exception as e:
-            pass  # continue; watcher data is already saved
-
-    # Persist strategist and register pending actions for approval UI
-    incident_id = watcher.get("incident_id") or (strat.get("incident_id") if strat else None)
-    if strat:
-        try:
-            persist_strategist_result(strat)
-        except Exception as e:
-            pass
-        if incident_id:
-            from backend.incident_service import mark_investigating_if_open, transition_incident_status
-            pending_count = len(strat.get("pending_actions", []))
-            if pending_count == 0:
-                # No risky actions — auto-resolve (fix orphaned incidents per issue #10)
-                transition_incident_status(incident_id, "resolved")
-            else:
-                mark_investigating_if_open(incident_id)
-        for action in strat.get("pending_actions", []):
-            add_approval_request(
-                incident_id=incident_id or "",
-                agent_name="strategist",
-                action=action.get("action", ""),
-                tool=action.get("tool", ""),
-                tool_args=action.get("tool_args", {}),
-                risk_level=action.get("risk_level", "risky"),
-                service=action.get("tool_args", {}).get("service", service),
-                id=action.get("approval_id"),
-            )
-
-    # Pipeline complete - structured log
-    pending_count = len(strat.get("pending_actions", [])) if strat else 0
-    final_status = "N/A"
-    if incident_id_for_log:
-        db = SessionLocal()
-        try:
-            inc = db.query(Incident).filter(Incident.id == incident_id_for_log).first()
-            final_status = inc.status if inc else "N/A"
-        finally:
-            db.close()
-    logger.info(
-        "Pipeline complete: incident_id=%s final_status=%s pending_approvals=%s",
-        incident_id_for_log,
-        final_status,
-        pending_count,
-    )
-
-    # Determinism check: log counts and warn if unexpected
-    if incident_id_for_log:
-        vdb = SessionLocal()
-        try:
-            inc_count = vdb.query(Incident).filter(Incident.id == incident_id_for_log).count()
-            dec_count = vdb.query(AgentDecision).filter(AgentDecision.incident_id == incident_id_for_log).count()
-            audit_count = vdb.query(AuditLog).filter(AuditLog.incident_id == incident_id_for_log).count()
-            if inc_count != 1:
-                logger.warning("Expected 1 incident, found %s", inc_count)
-            if dec_count not in (2, 3):
-                logger.warning("Expected 2-3 agent decisions, found %s", dec_count)
-            logger.info("Verification: 1 incident, %s decisions, %s audit logs", dec_count, audit_count)
-        finally:
-            vdb.close()
-
-    phases = {
-        "watcher": {
-            "alert_triggered": watcher.get("should_alert", False),
-            "confidence": watcher.get("confidence", 0),
-            "summary": watcher.get("summary", ""),
-            "severity": watcher.get("severity", "unknown"),
-        } if watcher else None,
-        "diagnostician": {
-            "root_cause": diag.get("root_cause", ""),
-            "confidence": diag.get("confidence", 0),
-            "diagnosis": diag.get("diagnosis", ""),
-        } if diag else None,
-        "strategist": {
-            "plan": (strat.get("selected_plan") or {}).get("name", "N/A") if strat else "N/A",
-            "approved": len(strat.get("approved_actions", [])) if strat else 0,
-            "pending": len(strat.get("pending_actions", [])) if strat else 0,
-        } if strat else None,
-    }
-
+    """
+    Legacy endpoint kept for backward compatibility but no longer executes the mock
+    scenario pipeline. Returns an error directing users to use live fault injection.
+    """
     return {
-        "status": "completed",
+        "status": "error",
+        "error": "Mock scenarios have been removed. Use /api/chaos/inject for live fault injection instead.",
         "scenario": scenario,
-        "service": service,
-        "incident_id": incident_id,
-        "alert_triggered": watcher.get("should_alert", False),
-        "confidence": watcher.get("confidence", 0),
-        "severity": watcher.get("severity", "unknown"),
-        "summary": watcher.get("summary", ""),
-        "pending_approvals": len(strat.get("pending_actions", [])) if strat else 0,
-        "phases": phases,
     }

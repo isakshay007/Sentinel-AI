@@ -1,17 +1,19 @@
 import logging
 import os
+import asyncio
 
 from fastapi import FastAPI
-
-# Configure logging (uvicorn will override handler; this sets levels)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-)
 from fastapi.middleware.cors import CORSMiddleware
+
 from backend.approval import router as approval_router
 from backend.dashboard_api import router as dashboard_router
 from backend.dev_api import router as dev_router
+
+# Configure logging (uvicorn will override handler; this sets levels)
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s %(name)s %(levelname)s %(message)s",
+)
 
 app = FastAPI(title="SentinelAI", version="0.1.0")
 
@@ -33,6 +35,24 @@ app.include_router(dashboard_router)
 # Dev router only when SENTINEL_DEV_MODE=1 (default: disabled for production)
 if os.getenv("SENTINEL_DEV_MODE", "0") == "1":
     app.include_router(dev_router)
+
+
+@app.on_event("startup")
+async def startup_event() -> None:
+    """Start background watcher loop if enabled."""
+    from agents.watcher_loop import watcher_loop
+
+    if os.getenv("WATCHER_ENABLED", "1") != "1":
+        logging.getLogger(__name__).info("WatcherLoop disabled via WATCHER_ENABLED=0")
+        return
+
+    async def _runner():
+        try:
+            await watcher_loop()
+        except Exception as e:
+            logging.getLogger(__name__).exception("WatcherLoop failed: %s", e)
+
+    asyncio.create_task(_runner())
 
 
 @app.get("/health")

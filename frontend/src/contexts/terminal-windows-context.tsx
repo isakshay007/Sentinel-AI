@@ -59,7 +59,7 @@ export function TerminalWindowsProvider({ children }: { children: React.ReactNod
   }, []);
 
   const openPipelineTerminal = useCallback((scenario: string, service: string) => {
-    const scenarioLabel = { memory_leak: "Memory Leak", bad_deployment: "Bad Deployment", api_timeout: "API Timeout" }[scenario] || scenario;
+    const scenarioLabel = { memory_leak: "Memory Leak", cpu_spike: "CPU Spike", network_latency: "Network Latency", kill_service: "Kill Service", cache_failure: "Cache Failure" }[scenario] || scenario;
     const title = `Pipeline — ${scenarioLabel}`;
     const newId = `term-pipeline-${Date.now()}`;
     setWindows((prev) => [

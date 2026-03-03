@@ -10,6 +10,7 @@ ReAct Loop:
 """
 
 import json
+import logging
 import uuid
 import asyncio
 import os
@@ -27,6 +28,8 @@ from rag.chroma_store import IncidentKnowledgeBase
 import sys
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -97,6 +100,11 @@ def get_groq_llm(temperature: float = 0.1) -> ChatGroq:
     env_path = Path(__file__).parent.parent / ".env"
     load_dotenv(dotenv_path=env_path)
     api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "GROQ_API_KEY is not set. Create a .env in the repo root (copy .env.example) "
+            "or set GROQ_API_KEY in your environment / docker-compose env_file."
+        )
     return ChatGroq(
         model="llama-3.1-8b-instant",
         temperature=temperature,
@@ -110,6 +118,7 @@ def get_groq_llm(temperature: float = 0.1) -> ChatGroq:
 
 async def retrieve_similar(state: DiagnosticianState) -> dict:
     """Node 1: Retrieve similar past incidents from ChromaDB."""
+    logger.info("[DIAGNOSTICIAN] Running for service=%s", state["service"])
     kb = IncidentKnowledgeBase()
     
     # Build query from watcher findings
@@ -214,6 +223,7 @@ Respond with ONLY a JSON object (no other text, no markdown):
 
         result = json.loads(clean)
         hypothesis = result.get("hypothesis", "Unknown")
+        logger.debug("[DIAGNOSTICIAN] Hypothesis: %s", hypothesis)
 
         reasoning_chain = state.get("reasoning_chain", [])
         reasoning_chain.append({
@@ -250,7 +260,6 @@ Respond with ONLY a JSON object (no other text, no markdown):
 async def gather_evidence(state: DiagnosticianState) -> dict:
     """Node 3: Gather evidence to test the hypothesis via MCP tools."""
     service = state["service"]
-    scenario = state.get("scenario")
     hypothesis = state.get("hypothesis", "")
     tool_calls = state.get("tool_calls", [])
     evidence = state.get("evidence", [])
@@ -271,10 +280,12 @@ async def gather_evidence(state: DiagnosticianState) -> dict:
     elif "pool" in hyp_lower or "exhaust" in hyp_lower:
         search_term = "connection"
 
+    logger.debug("[DIAGNOSTICIAN] Gathering evidence: tool=search_logs query=%s", search_term)
     log_result = await MCPToolCaller.call_tool(
         "mcp_servers.logs_server", "search_logs",
         {"query": search_term, "service": service, "minutes_ago": 120, "max_results": 15}
     )
+    logger.debug("[DIAGNOSTICIAN] Evidence result: type=log_search matches=%d", log_result.get("total_matches", 0))
     tool_calls.append({
         "tool": "search_logs", "server": "LogsMCP",
         "args": {"query": search_term, "service": service},
@@ -292,12 +303,12 @@ async def gather_evidence(state: DiagnosticianState) -> dict:
 
     # Evidence 2: Check multiple metrics
     for metric in ["memory_percent", "error_rate", "response_time_ms", "cpu_percent"]:
-        metric_args = {"service": service, "metric": metric, "method": "threshold"}
-        if scenario:
-            metric_args["scenario"] = scenario
+        metric_args = {"service": service, "metric": metric}
+        logger.debug("[DIAGNOSTICIAN] Gathering evidence: tool=detect_anomaly query=%s:%s", service, metric)
         anomaly_result = await MCPToolCaller.call_tool(
             "mcp_servers.metrics_server", "detect_anomaly", metric_args
         )
+        logger.debug("[DIAGNOSTICIAN] Evidence result: type=anomaly_check matches=%s", anomaly_result.get("is_anomalous", "?"))
         tool_calls.append({
             "tool": "detect_anomaly", "server": "MetricsMCP",
             "args": {"service": service, "metric": metric},
@@ -311,20 +322,25 @@ async def gather_evidence(state: DiagnosticianState) -> dict:
             "value": anomaly_result.get("evidence", {}).get("current_value"),
         })
 
-    # Evidence 3: Check deployment history
+    # Evidence 3: Check deployment history / container state
+    logger.debug("[DIAGNOSTICIAN] Gathering evidence: tool=get_deployment_history query=%s", service)
     deploy_result = await MCPToolCaller.call_tool(
         "mcp_servers.infra_server", "get_deployment_history",
-        {"service": service, "limit": 5}
+        {"service": service}
     )
+    deployment_info = deploy_result.get("deployment_info", {}) if isinstance(deploy_result, dict) else {}
     tool_calls.append({
         "tool": "get_deployment_history", "server": "InfraMCP",
         "args": {"service": service},
-        "result_summary": f"{deploy_result.get('total_events', 0)} recent deploys"
+        "result_summary": f"status={deployment_info.get('status', '?')}, restarts={deployment_info.get('restart_count', 0)}"
     })
     evidence.append({
         "type": "deployment_history",
-        "recent_deploys": deploy_result.get("total_events", 0),
-        "current_version": deploy_result.get("current_state", {}).get(service, {}).get("version", "?"),
+        # In live mode we run single-version containers; restarts are not code deploys.
+        "recent_deploys": 0,
+        "current_image": deployment_info.get("current_image", "?"),
+        "status": deployment_info.get("status", "?"),
+        "restart_count": deployment_info.get("restart_count", 0),
     })
 
     reasoning_chain = state.get("reasoning_chain", [])
@@ -477,6 +493,10 @@ Produce a comprehensive diagnosis. Respond with ONLY a JSON object:
 
         diagnosis = json.loads(clean)
 
+        logger.info("[DIAGNOSTICIAN] Root cause: category=%s confidence=%.2f summary=%s",
+                    diagnosis.get("root_cause_category", "?"),
+                    float(diagnosis.get("confidence", 0)),
+                    str(diagnosis.get("root_cause", "?"))[:200])
         reasoning_chain.append({
             "step": "produce_diagnosis",
             "root_cause": diagnosis.get("root_cause", "?"),
@@ -612,7 +632,7 @@ async def run_diagnostician(
 # WATCHER → DIAGNOSTICIAN PIPELINE
 # =============================================================================
 
-async def watcher_to_diagnostician(service: str, scenario: str = None) -> dict:
+async def watcher_to_diagnostician(service: str, scenario: str = None, detection_context: dict = None) -> dict:
     """Run Watcher, then feed results into Diagnostician."""
     from agents.watcher import run_watcher
 
@@ -620,7 +640,7 @@ async def watcher_to_diagnostician(service: str, scenario: str = None) -> dict:
     print("WATCHER PHASE START")
     print("==============================")
     print(f"Service: {service} | Scenario: {scenario or 'N/A'}")
-    watcher_result = await run_watcher(service, scenario)
+    watcher_result = await run_watcher(service, scenario, detection_context=detection_context)
 
     if not watcher_result.get("should_alert"):
         print(f"  Watcher did not detect an incident. Skipping diagnosis.")

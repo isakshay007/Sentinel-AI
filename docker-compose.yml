@@ -1,7 +1,9 @@
 version: "3.8"
+
 services:
   postgres:
     image: postgres:16
+    container_name: sentinel-postgres
     environment:
       POSTGRES_USER: sentinel
       POSTGRES_PASSWORD: sentinel
@@ -10,26 +12,189 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sentinel-net
 
   redis:
     image: redis:7-alpine
+    container_name: sentinel-redis
     ports:
       - "6379:6379"
+    networks:
+      - sentinel-net
+
+  user-service:
+    build:
+      context: ./services/user-service
+    container_name: sentinel-user-service
+    restart: "no"
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    networks:
+      sentinel-net:
+        aliases:
+          - user-service
+
+  payment-service:
+    build:
+      context: ./services/payment-service
+    container_name: sentinel-payment-service
+    restart: "no"
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    networks:
+      sentinel-net:
+        aliases:
+          - payment-service
+
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+    container_name: sentinel-api-gateway
+    restart: "no"
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    networks:
+      sentinel-net:
+        aliases:
+          - api-gateway
 
   backend:
     build:
       context: .
       dockerfile: docker/Dockerfile.backend
-    ports:
-      - "8000:8000"
+    container_name: sentinel-backend
+    restart: unless-stopped
+    env_file:
+      - .env
     depends_on:
       - postgres
       - redis
+      - user-service
+      - payment-service
+      - api-gateway
     environment:
+      # LLM auth (pulled from .env via env_file; listed explicitly for clarity)
+      GROQ_API_KEY: ${GROQ_API_KEY}
       DATABASE_URL: postgresql://sentinel:sentinel@postgres:5432/sentinelai
-      REDIS_URL: redis://redis:6379
+      PROMETHEUS_URL: http://prometheus:9090
+      LOKI_URL: http://loki:3100
+      WATCHER_ENABLED: "1"
+      WATCHER_POLL_INTERVAL: "30"
+      CORS_ORIGINS: "*"
     volumes:
       - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8000:8000"
+    networks:
+      - sentinel-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sentinel-frontend
+    environment:
+      # This value is embedded into the client-side bundle. It MUST be reachable
+      # from the user's browser, so we point it at localhost:8000 on the host.
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    networks:
+      - sentinel-net
+
+  prometheus:
+    image: prom/prometheus:v2.55.0
+    container_name: sentinel-prometheus
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=7d"
+    ports:
+      - "9090:9090"
+    networks:
+      - sentinel-net
+    depends_on:
+      - user-service
+      - payment-service
+      - api-gateway
+      - cadvisor
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: sentinel-cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - sentinel-net
+    ports:
+      - "8080:8080"
+
+  loki:
+    image: grafana/loki:2.9.4
+    container_name: sentinel-loki
+    command: -config.file=/etc/loki/config.yml
+    volumes:
+      - ./monitoring/loki/loki-config.yml:/etc/loki/config.yml:ro
+      - loki_data:/loki
+    ports:
+      - "3100:3100"
+    networks:
+      - sentinel-net
+
+  promtail:
+    image: grafana/promtail:2.9.4
+    container_name: sentinel-promtail
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      - ./monitoring/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/log:/var/log
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - sentinel-net
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:11.0.0
+    container_name: sentinel-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: sentinel
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - grafana_data:/var/lib/grafana
+    networks:
+      - sentinel-net
+    depends_on:
+      - prometheus
+      - loki
+
+networks:
+  sentinel-net:
 
 volumes:
   postgres_data:
+  loki_data:
+  grafana_data:

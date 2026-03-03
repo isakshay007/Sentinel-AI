@@ -124,14 +124,14 @@ SCENARIO_TEST_CASES = {
 
         "executor_expected_tools": [
             ToolCall(name="send_notification"),
-            ToolCall(name="rollback_deployment"),
+            ToolCall(name="restart_service"),
         ],
 
         "expected_root_cause": "Bad deployment v3.8.13 introduced a regression, likely related to the async database driver migration causing incompatibility with connection pool configuration",
         "expected_severity": "critical",
         "expected_category": "bad_deployment",
 
-        "expected_plan_description": "The remediation plan should include notification and rolling back to the previous known-good version v3.8.12. The rollback is a dangerous action requiring approval.",
+        "expected_plan_description": "The remediation plan should include notification and safely restarting the service to recover from the bad deployment. No image rollback should be attempted.",
     },
 
     "api_timeout": {

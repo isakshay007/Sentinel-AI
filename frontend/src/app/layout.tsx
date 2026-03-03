@@ -4,10 +4,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Sidebar } from "@/components/sidebar";
 import { Header } from "@/components/header";
-import { RunScenarioProvider } from "@/contexts/run-scenario-context";
+import { InjectFaultProvider } from "@/contexts/inject-fault-context";
 import { PipelineProvider } from "@/contexts/pipeline-context";
 import { TerminalWindowsProvider } from "@/contexts/terminal-windows-context";
-import { RunScenarioDialog } from "@/components/run-scenario-dialog";
+import { InjectFaultDialog } from "@/components/inject-fault-dialog";
 import { TerminalWindowsHost } from "@/components/terminal-windows-host";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -39,7 +39,7 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <TooltipProvider>
-            <RunScenarioProvider>
+            <InjectFaultProvider>
               <PipelineProvider>
                 <TerminalWindowsProvider>
                   <div className="flex min-h-screen">
@@ -49,12 +49,12 @@ export default function RootLayout({
                       <main className="flex-1 p-8 overflow-auto">{children}</main>
                     </div>
                   </div>
-                  <RunScenarioDialog />
+                  <InjectFaultDialog />
                   <TerminalWindowsHost />
                   <Toaster position="bottom-right" richColors closeButton />
                 </TerminalWindowsProvider>
               </PipelineProvider>
-            </RunScenarioProvider>
+            </InjectFaultProvider>
           </TooltipProvider>
         </ThemeProvider>
       </body>

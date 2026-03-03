@@ -32,7 +32,7 @@ export default function ApprovalsPage() {
     window.addEventListener("approvals-updated", handler);
     window.addEventListener("scenario-completed", handler);
     window.addEventListener("execution-completed", handler);
-    const id = setInterval(fetchApprovals, 10000);
+    const id = setInterval(fetchApprovals, 5000);
     return () => {
       window.removeEventListener("approvals-updated", handler);
       window.removeEventListener("scenario-completed", handler);
@@ -98,7 +98,7 @@ export default function ApprovalsPage() {
               No pending approvals. All clear.
             </p>
             <p className="text-[15px] text-muted-foreground">
-              Run a scenario to generate actions that need approval.
+              Inject a fault to trigger agent responses. Risky actions will appear here for approval.
             </p>
           </CardContent>
         </Card>

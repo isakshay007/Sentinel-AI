@@ -1,13 +1,13 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { Moon, Sun, Play } from "lucide-react";
+import { Moon, Sun, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useRunScenario } from "@/contexts/run-scenario-context";
+import { useInjectFault } from "@/contexts/inject-fault-context";
 
 export function Header() {
   const { theme, setTheme } = useTheme();
-  const { open: openRunScenario } = useRunScenario();
+  const { open } = useInjectFault();
 
   return (
     <header className="h-14 border-b border-[#E5E7EB] dark:border-border flex items-center px-6 bg-white dark:bg-card shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
@@ -27,12 +27,9 @@ export function Header() {
           <Moon className="h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           <span className="sr-only">Toggle theme</span>
         </Button>
-        <Button
-          onClick={openRunScenario}
-          className="bg-black hover:bg-black/90 text-white shrink-0"
-        >
-          <Play className="h-4 w-4 mr-2" />
-          Run Scenario
+        <Button onClick={open} className="bg-black hover:bg-black/90 text-white shrink-0">
+          <Zap className="h-4 w-4 mr-2" />
+          Inject Fault
         </Button>
       </div>
     </header>

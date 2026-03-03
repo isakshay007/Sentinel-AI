@@ -52,7 +52,7 @@ SERVERS = {
             },
             {
                 "tool": "detect_anomaly",
-                "args": {"service": "user-service", "metric": "memory_percent", "method": "threshold"},
+                "args": {"service": "user-service", "metric": "memory_percent"},
                 "description": "Check memory anomaly on user-service"
             },
         ],

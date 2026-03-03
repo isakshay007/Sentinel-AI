@@ -1,0 +1,29 @@
+groups:
+  - name: sentinel_alerts
+    rules:
+      - alert: HighMemory
+        expr: service_memory_percent > 85
+        for: 30s
+        labels:
+          severity: critical
+      - alert: HighCPU
+        expr: service_cpu_percent > 80
+        for: 30s
+        labels:
+          severity: warning
+      - alert: HighErrorRate
+        expr: sum by(service)(rate(http_requests_total{status=~"5.."}[2m])) / sum by(service)(rate(http_requests_total[2m])) > 0.10
+        for: 30s
+        labels:
+          severity: critical
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, sum by(le, service)(rate(http_request_duration_seconds_bucket[2m]))) > 2.0
+        for: 30s
+        labels:
+          severity: warning
+      - alert: ServiceDown
+        expr: up == 0
+        for: 15s
+        labels:
+          severity: critical
+

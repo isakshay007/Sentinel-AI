@@ -36,7 +36,7 @@ export function Sidebar() {
 
   useEffect(() => {
     refreshPending();
-    const id = setInterval(refreshPending, 10000); // 10s poll (reduced during debugging)
+    const id = setInterval(refreshPending, 5000);
     return () => clearInterval(id);
   }, []);
 

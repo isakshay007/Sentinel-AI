@@ -49,10 +49,17 @@ export const api = {
       method: "POST",
       body: JSON.stringify(body || { decided_by: "human_operator", reason: "Rejected by operator" }),
     }),
-  runScenario: (scenario: string) =>
-    fetchApi<RunScenarioResponse>(`/api/run-scenario/${scenario}`, {
+  injectFault: (target: string, type: string, intensity: number, duration: number) =>
+    fetchApi<InjectFaultResponse>("/api/chaos/inject", {
       method: "POST",
+      body: JSON.stringify({ target, type, intensity, duration }),
     }),
+  stopChaos: (target: string) =>
+    fetchApi<{ status: string }>("/api/chaos/stop", {
+      method: "POST",
+      body: JSON.stringify({ target }),
+    }),
+  getWatcherStatus: () => fetchApi<WatcherStatus>("/api/watcher/status"),
 };
 
 // Types for API responses
@@ -199,33 +206,17 @@ export interface ApprovalsResponse {
   approvals: ApprovalRequest[];
 }
 
-export interface RunScenarioResponse {
-  status?: string;
-  error?: string;
-  scenario?: string;
-  service?: string;
-  incident_id?: string;
-  alert_triggered?: boolean;
-  confidence?: number;
-  severity?: string;
-  summary?: string;
-  pending_approvals?: number;
-  phases?: {
-    watcher?: {
-      alert_triggered?: boolean;
-      confidence?: number;
-      summary?: string;
-      severity?: string;
-    };
-    diagnostician?: {
-      root_cause?: string;
-      confidence?: number;
-      diagnosis?: string;
-    };
-    strategist?: {
-      plan?: string;
-      approved?: number;
-      pending?: number;
-    };
-  };
+export interface InjectFaultResponse {
+  status: string;
+  fault: string;
+  target: string;
+  duration: number;
+}
+
+export interface WatcherStatus {
+  enabled: boolean;
+  poll_interval_seconds: number;
+  services_monitored: string[];
+  last_check: string | null;
+  anomaly_streaks: Record<string, number>;
 }

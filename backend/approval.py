@@ -84,6 +84,7 @@ def add_approval_request(
 ) -> ApprovalRequest:
     """Add approval request to DB. Called by Strategist or pipeline API."""
     approval_id = id or str(uuid.uuid4())
+    logger.info("[APPROVAL] Created approval request: id=%s tool=%s service=%s incident_id=%s", approval_id[:12], tool, service, incident_id[:8] if incident_id else "N/A")
     db = SessionLocal()
     try:
         existing = db.query(ApprovalModel).filter(ApprovalModel.id == approval_id).first()
@@ -186,7 +187,7 @@ def list_pending_approvals():
 def approve_action(action_id: str, decision: Optional[ApprovalDecision] = Body(default=None)):
     """Approve a pending action. Triggers Executor, persists audit logs, updates incident status.
     Concurrency control (#13): per-action lock prevents double approval."""
-    logger.info("Approve request received: action_id=%s", action_id)
+    logger.info("[APPROVAL] Approving action: id=%s", action_id)
     req = get_by_id(action_id)
     if not req:
         raise HTTPException(status_code=404, detail=f"Approval {action_id} not found")
@@ -209,7 +210,7 @@ def approve_action(action_id: str, decision: Optional[ApprovalDecision] = Body(d
         )
 
         incident_id = req.incident_id or ""
-        logger.info("Executor phase: action=%s tool=%s incident=%s", req.action, req.tool, incident_id[:8] if incident_id else "N/A")
+        logger.info("[APPROVAL] Approving action: id=%s tool=%s", action_id[:12], req.tool)
 
         # Check BEFORE changing status
         will_resolve = (
@@ -228,6 +229,7 @@ def approve_action(action_id: str, decision: Optional[ApprovalDecision] = Body(d
     incident_resolved = False
 
     try:
+        logger.debug("[APPROVAL] Executing tool=%s args=%s", req.tool, req.tool_args)
         exec_out = execute_single_tool(req.tool, req.tool_args)
         execution_result = exec_out
 
@@ -290,11 +292,13 @@ def approve_action(action_id: str, decision: Optional[ApprovalDecision] = Body(d
             )
         emit_incident_event(incident_id or None, "approval", {"action_id": action_id, "status": "approved", "tool": req.tool})
 
-        logger.info("Execution result: status=%s", exec_out.get("status", "unknown"))
+        logger.info("[APPROVAL] Execution result: tool=%s success=%s", req.tool, exec_out.get("status", "unknown"))
+        if will_resolve and incident_id and exec_out.get("status") == "completed":
+            logger.info("[APPROVAL] All approvals done for incident=%s, marking resolved", incident_id[:12])
 
     except Exception as e:
         execution_result = {"error": str(e), "status": "failed"}
-        logger.exception("Execution failed: %s", e)
+        logger.exception("[APPROVAL] Execution failed: %s", e)
 
     return {
         "status": "approved",

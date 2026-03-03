@@ -104,7 +104,7 @@ export default function IncidentsPage() {
   }, [fetchIncidents]);
 
   useEffect(() => {
-    const id = setInterval(fetchIncidents, 12000);
+    const id = setInterval(fetchIncidents, 5000);
     return () => clearInterval(id);
   }, [fetchIncidents]);
 
@@ -158,7 +158,7 @@ export default function IncidentsPage() {
           {loading ? (
             <p className="text-muted-foreground text-[15px]">Loading...</p>
           ) : incidents.length === 0 ? (
-            <p className="text-muted-foreground text-[15px]">No open incidents. Run a scenario to create new ones, or view All/Resolved for seed data.</p>
+            <p className="text-muted-foreground text-[15px]">No open incidents. Inject a fault to trigger the agent pipeline, or view All/Resolved tabs.</p>
           ) : (
             list
           )}

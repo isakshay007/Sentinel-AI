@@ -1,16 +1,17 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback } from "react";
-import type { RunScenarioResponse } from "@/lib/api";
 
 type PipelineContextType = {
   isRunning: boolean;
   startedAt: number | null;
-  result: RunScenarioResponse | null;
+  // Generic result payload from the last pipeline run (Watcher → Diagnostician → Strategist → Executor).
+  // In live mode this is used only for lightweight status in the UI, so we keep it untyped here.
+  result: unknown;
   service: string | null;
   scenario: string | null;
   startPipeline: (service: string, scenario: string) => void;
-  completePipeline: (result: RunScenarioResponse) => void;
+  completePipeline: (result: unknown) => void;
   resetPipeline: () => void;
 };
 
@@ -19,7 +20,7 @@ const PipelineContext = createContext<PipelineContextType | null>(null);
 export function PipelineProvider({ children }: { children: React.ReactNode }) {
   const [isRunning, setIsRunning] = useState(false);
   const [startedAt, setStartedAt] = useState<number | null>(null);
-  const [result, setResult] = useState<RunScenarioResponse | null>(null);
+  const [result, setResult] = useState<unknown>(null);
   const [service, setService] = useState<string | null>(null);
   const [scenario, setScenario] = useState<string | null>(null);
 
@@ -31,7 +32,7 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
     setScenario(scen);
   }, []);
 
-  const completePipeline = useCallback((res: RunScenarioResponse) => {
+  const completePipeline = useCallback((res: unknown) => {
     setIsRunning(false);
     setResult(res);
   }, []);

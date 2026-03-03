@@ -122,14 +122,6 @@ AGENT_CARDS = {
             Skill(id="restart_service", description="Graceful restart of a service", risk_level="risky"),
         ],
     ),
-    "RollbackAgent": AgentCard(
-        name="RollbackAgent",
-        description="Rolls back deployments to previous known-good versions",
-        url="http://localhost:8003/a2a",
-        skills=[
-            Skill(id="rollback_deployment", description="Roll back to previous version", risk_level="dangerous"),
-        ],
-    ),
     "NotifyAgent": AgentCard(
         name="NotifyAgent",
         description="Sends notifications and creates incident tickets",

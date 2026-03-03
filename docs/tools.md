@@ -26,14 +26,13 @@ and call at runtime via the Model Context Protocol.
 |------|------|-------------|
 | `search_logs` | safe | Search logs by keyword, severity, service, time range |
 | `get_recent_errors` | safe | Get recent ERROR/WARN entries with service breakdown |
-| `get_log_context` | safe | Get surrounding entries for a specific log ID |
 
 ### search_logs
 ```
 Args:
   query: str          — Search term (case-insensitive)
   severity: str?      — INFO, WARN, or ERROR
-  service: str?       — Service name filter
+  service: str        — Service name (required in live mode)
   minutes_ago: int    — Time window (default: 60)
   max_results: int    — Max entries (default: 20)
 
@@ -44,21 +43,11 @@ Returns: { results: [...], total_matches: int, filters: {...} }
 ```
 Args:
   minutes: int          — Time window (default: 30)
-  service: str?         — Service filter
+  service: str          — Service name (required in live mode)
   include_warnings: bool — Include WARN level (default: true)
   max_results: int      — Max entries (default: 50)
 
 Returns: { results: [...], summary: { total_entries, by_service } }
-```
-
-### get_log_context
-```
-Args:
-  log_id: str   — Target log entry ID
-  before: int   — Entries before target (default: 5)
-  after: int    — Entries after target (default: 5)
-
-Returns: { results: [...], target_log_id, context_range }
 ```
 
 ---
@@ -97,10 +86,9 @@ Returns: { series: [{timestamp, value}...], statistics: { min, max,
 Args:
   service: str    — Service name
   metric: str     — Metric to check
-  method: str     — "threshold" or "statistical"
 
 Returns: { is_anomalous: bool, severity: "normal"|"warning"|"critical",
-           evidence: { current_value, thresholds/z_score } }
+           evidence: { current_value, threshold } }
 ```
 
 ---
@@ -109,10 +97,9 @@ Returns: { is_anomalous: bool, severity: "normal"|"warning"|"critical",
 
 | Tool | Risk | Description |
 |------|------|-------------|
-| `restart_service` | **risky** | Graceful restart with connection draining |
+| `restart_service` | **risky** | Restart or start a container |
 | `scale_service` | safe/risky | Scale replicas up (safe) or down (risky) |
-| `rollback_deployment` | **dangerous** | Roll back to previous version |
-| `get_deployment_history` | safe | Recent deployment events |
+| `get_deployment_history` | safe | Container image and restart info |
 
 ### restart_service
 ```
@@ -137,26 +124,12 @@ Returns: { previous_replicas, new_replicas, direction,
            scale_time_seconds, audit_id }
 ```
 
-### rollback_deployment
-```
-🔴 RISK: DANGEROUS — Requires human approval
-
-Args:
-  service: str          — Service to rollback
-  target_version: str?  — Specific version (default: previous)
-  reason: str           — Audit reason
-
-Returns: { from_version, to_version, phases: { pull, deploy, 
-           health_check }, audit_id }
-```
-
 ### get_deployment_history
 ```
 Args:
-  service: str?  — Service filter
-  limit: int     — Max events (default: 10)
+  service: str  — Service name
 
-Returns: { deployments: [...], current_state, action_log }
+Returns: { deployment_info: { current_image, status, started_at, restart_count, recent_deploy, note } }
 ```
 
 ---

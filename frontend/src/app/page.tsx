@@ -1,11 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { api, type DashboardStats, type ServiceHealthResponse, type Incident } from "@/lib/api";
-import { usePipeline } from "@/contexts/pipeline-context";
+import { Button } from "@/components/ui/button";
+import {
+  api,
+  type DashboardStats,
+  type ServiceHealthResponse,
+  type Incident,
+  type WatcherStatus,
+} from "@/lib/api";
 import { useTerminalWindows } from "@/contexts/terminal-windows-context";
 import {
   AlertTriangle,
@@ -17,9 +23,12 @@ import {
   Swords,
   Zap,
   BarChart2,
+  StopCircle,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { toast } from "sonner";
 
 const AGENTS = [
   { id: "watcher", name: "Watcher", icon: Activity, color: "text-blue-500" },
@@ -78,64 +87,143 @@ function KPICard({
 }
 
 export default function DashboardPage() {
-  const { isRunning, result } = usePipeline();
   const { openAgentTerminal } = useTerminalWindows();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [services, setServices] = useState<ServiceHealthResponse | null>(null);
   const [incidents, setIncidents] = useState<Incident[]>([]);
-  const [decisionsByAgent, setDecisionsByAgent] = useState<Record<string, { reasoning: string | null; created_at: string | null }>>({});
+  const [decisionsByAgent, setDecisionsByAgent] = useState<
+    Record<string, { reasoning: string | null; created_at: string | null }>
+  >({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [watcherStatus, setWatcherStatus] = useState<WatcherStatus | null>(null);
+  const [activeFault, setActiveFault] = useState<{
+    target: string;
+    fault: string;
+    duration: number;
+    startedAt: number;
+  } | null>(null);
+  const [stoppingChaos, setStoppingChaos] = useState(false);
 
-  const refreshAll = () => {
-    api.getStats().then(setStats).catch(() => {});
+  const refreshHealth = useCallback(() => {
     api.getServiceHealth().then(setServices).catch(() => {});
     api.getIncidents("open").then((r) => setIncidents(r.incidents)).catch(() => {});
-    api.getAgentDecisions(undefined, 20).then((r) => {
-      const byAgent: Record<string, { reasoning: string | null; created_at: string | null }> = {};
-      for (const d of r.decisions) {
-        if (!byAgent[d.agent_name]) {
-          byAgent[d.agent_name] = { reasoning: d.reasoning, created_at: d.created_at };
-        }
-      }
-      setDecisionsByAgent(byAgent);
-    }).catch(() => {});
-  };
+  }, []);
 
-  useEffect(() => {
-    Promise.all([
-      api.getStats(),
-      api.getServiceHealth(),
-      api.getIncidents("open"),
-      api.getAgentDecisions(undefined, 20),
-    ])
-      .then(([s, h, inc, dec]) => {
-        setStats(s);
-        setServices(h);
-        setIncidents(inc.incidents);
-        const byAgent: Record<string, { reasoning: string | null; created_at: string | null }> = {};
-        for (const d of dec.decisions) {
+  const refreshDecisions = useCallback(() => {
+    api
+      .getAgentDecisions(undefined, 20)
+      .then((r) => {
+        const byAgent: Record<string, { reasoning: string | null; created_at: string | null }> =
+          {};
+        for (const d of r.decisions) {
           if (!byAgent[d.agent_name]) {
             byAgent[d.agent_name] = { reasoning: d.reasoning, created_at: d.created_at };
           }
         }
         setDecisionsByAgent(byAgent);
       })
+      .catch(() => {});
+    api.getWatcherStatus().then(setWatcherStatus).catch(() => {});
+  }, []);
+
+  const refreshStats = useCallback(() => {
+    api.getStats().then(setStats).catch(() => {});
+  }, []);
+
+  const refreshAll = useCallback(() => {
+    refreshHealth();
+    refreshDecisions();
+    refreshStats();
+  }, [refreshHealth, refreshDecisions, refreshStats]);
+
+  // Initial fetch
+  useEffect(() => {
+    Promise.all([
+      api.getStats(),
+      api.getServiceHealth(),
+      api.getIncidents("open"),
+      api.getAgentDecisions(undefined, 20),
+      api.getWatcherStatus(),
+    ])
+      .then(([s, h, inc, dec, watcher]) => {
+        setStats(s);
+        setServices(h);
+        setIncidents(inc.incidents);
+        const byAgent: Record<string, { reasoning: string | null; created_at: string | null }> =
+          {};
+        for (const d of dec.decisions) {
+          if (!byAgent[d.agent_name]) {
+            byAgent[d.agent_name] = { reasoning: d.reasoning, created_at: d.created_at };
+          }
+        }
+        setDecisionsByAgent(byAgent);
+        setWatcherStatus(watcher);
+      })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
 
+  // Polling: health + incidents every 5s, decisions every 10s, stats every 15s
+  useEffect(() => {
+    const healthId = setInterval(refreshHealth, 5000);
+    const decisionsId = setInterval(refreshDecisions, 10000);
+    const statsId = setInterval(refreshStats, 15000);
+    return () => {
+      clearInterval(healthId);
+      clearInterval(decisionsId);
+      clearInterval(statsId);
+    };
+  }, [refreshHealth, refreshDecisions, refreshStats]);
+
+  // Event listeners
   useEffect(() => {
     const handler = () => refreshAll();
+    const faultHandler = (event: Event) => {
+      const e = event as CustomEvent<{
+        target: string;
+        fault: string;
+        duration: number;
+        startedAt: number;
+      }>;
+      setActiveFault(e.detail);
+    };
+
     window.addEventListener("scenario-completed", handler);
     window.addEventListener("execution-completed", handler);
-    const id = setInterval(refreshAll, 15000);
+    window.addEventListener("fault-injected", faultHandler);
     return () => {
       window.removeEventListener("scenario-completed", handler);
       window.removeEventListener("execution-completed", handler);
-      clearInterval(id);
+      window.removeEventListener("fault-injected", faultHandler);
     };
-  }, []);
+  }, [refreshAll]);
+
+  const handleStopChaos = async () => {
+    if (!activeFault) return;
+    setStoppingChaos(true);
+    try {
+      const targets = activeFault.target.includes("+")
+        ? activeFault.target.split("+").map((t) => t.trim())
+        : [activeFault.target];
+
+      for (const target of targets) {
+        if (target === "redis") continue;
+        try {
+          await api.stopChaos(target);
+        } catch {
+          /* some targets may not have a /chaos/stop endpoint */
+        }
+      }
+      setActiveFault(null);
+      toast.success("Chaos stopped");
+      refreshAll();
+    } catch (e) {
+      toast.error(`Failed to stop chaos: ${(e as Error).message}`);
+    } finally {
+      setStoppingChaos(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -148,24 +236,82 @@ export default function DashboardPage() {
   if (error) {
     return (
       <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-5 text-destructive shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-        <p className="font-semibold">API Error</p>
+        <p className="font-semibold">API Unavailable</p>
         <p className="text-[15px] mt-1">{error}</p>
-        <p className="text-[13px] mt-2">Backend should run on port 8000: uvicorn backend.main:app --reload --port 8000</p>
+        <p className="text-[13px] mt-2">
+          Make sure the backend is running on port 8000. Check{" "}
+          <code className="bg-destructive/10 px-1 rounded">docker compose ps</code> or run{" "}
+          <code className="bg-destructive/10 px-1 rounded">
+            uvicorn backend.main:app --port 8000
+          </code>
+        </p>
       </div>
     );
   }
+
+  const activeAnomalyService =
+    watcherStatus &&
+    Object.entries(watcherStatus.anomaly_streaks).find(([, streak]) => streak >= 1)?.[0];
 
   return (
     <div className="space-y-8" style={{ gap: "var(--spacing-section, 32px)" }}>
       <h1 className="text-page-title">Dashboard</h1>
 
+      {/* Watcher status + Active chaos banner */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-4 text-sm">
+          <div className="inline-flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-emerald-800">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>
+              Watcher{" "}
+              {watcherStatus?.enabled ? (
+                <>
+                  active · polling every {watcherStatus.poll_interval_seconds}s · monitoring{" "}
+                  {watcherStatus.services_monitored.length} services
+                </>
+              ) : (
+                "disabled"
+              )}
+            </span>
+            {watcherStatus?.last_check && (
+              <span className="text-xs text-emerald-700">
+                · Last: {new Date(watcherStatus.last_check).toLocaleTimeString()}
+              </span>
+            )}
+            {activeAnomalyService && (
+              <span className="ml-2 text-xs text-amber-700 font-medium">
+                ⚠ Anomaly on <span className="font-mono">{activeAnomalyService}</span>
+              </span>
+            )}
+          </div>
+        </div>
+        {activeFault && (
+          <div className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 flex items-center justify-between gap-2">
+            <span>
+              ⚠️ Active fault: <span className="font-mono font-medium">{activeFault.fault}</span>{" "}
+              on <span className="font-mono font-medium">{activeFault.target}</span>
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-6 text-xs border-amber-400 hover:bg-amber-100"
+              onClick={handleStopChaos}
+              disabled={stoppingChaos}
+            >
+              {stoppingChaos ? (
+                <Loader2 className="h-3 w-3 animate-spin mr-1" />
+              ) : (
+                <StopCircle className="h-3 w-3 mr-1" />
+              )}
+              Stop Chaos
+            </Button>
+          </div>
+        )}
+      </div>
+
       {/* KPI Strip */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-        <KPICard
-          label="Active Incidents"
-          value={stats?.incidents.open ?? 0}
-          icon={AlertTriangle}
-        />
+        <KPICard label="Active Incidents" value={stats?.incidents.open ?? 0} icon={AlertTriangle} />
         <KPICard
           label="Total Incidents"
           value={stats?.incidents.total ?? 0}
@@ -178,14 +324,14 @@ export default function DashboardPage() {
           icon={ClipboardList}
           tooltip="Total agent decisions across all incidents"
         />
-        <KPICard
-          label="Safety"
-          value={`${stats?.safety_score ?? 0}%`}
-          icon={Shield}
-        />
+        <KPICard label="Safety" value={`${stats?.safety_score ?? 0}%`} icon={Shield} />
         <KPICard
           label="Eval"
-          value={typeof stats?.eval_score === "number" ? (stats.eval_score * 100).toFixed(0) + "%" : "—"}
+          value={
+            typeof stats?.eval_score === "number"
+              ? (stats.eval_score * 100).toFixed(0) + "%"
+              : "—"
+          }
           icon={TrendingUp}
         />
       </div>
@@ -199,12 +345,14 @@ export default function DashboardPage() {
             <CardContent className="p-5">
               {incidents.length === 0 ? (
                 <div className="text-muted-foreground text-[15px] space-y-1">
-                  <p>No active incidents</p>
+                  <p>All services healthy. Monitoring 3 services in real-time.</p>
                   {(stats?.incidents.total ?? 0) > 0 && (
                     <p className="text-[13px]">
-                      {stats.incidents.total} resolved in database —{" "}
-                      <Link href="/incidents" className="text-primary hover:underline">View all</Link>
-                      {" "}or run a scenario to create new ones.
+                      {stats?.incidents.total ?? 0} incidents in database —{" "}
+                      <Link href="/incidents" className="text-primary hover:underline">
+                        View all
+                      </Link>
+                      .
                     </p>
                   )}
                 </div>
@@ -219,7 +367,8 @@ export default function DashboardPage() {
                       <div className="min-w-0 flex-1">
                         <p className="font-medium truncate text-[15px]">{inc.title}</p>
                         <p className="text-[13px] text-muted-foreground">
-                          {(inc.metadata as { service?: string })?.service ?? "—"} • {inc.severity}
+                          {(inc.metadata as { service?: string })?.service ?? "—"} •{" "}
+                          {inc.severity}
                         </p>
                       </div>
                       <Badge
@@ -268,14 +417,24 @@ export default function DashboardPage() {
                           {svc.status}
                         </Badge>
                       </div>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-4 gap-2">
                         <div>
                           <p className="text-[13px] text-muted-foreground">CPU</p>
                           <Progress value={Math.min(svc.cpu_percent, 100)} className="h-2" />
+                          <p className="text-[11px] text-muted-foreground mt-0.5">
+                            {svc.cpu_percent.toFixed(1)}%
+                          </p>
                         </div>
                         <div>
                           <p className="text-[13px] text-muted-foreground">Memory</p>
                           <Progress value={Math.min(svc.memory_percent, 100)} className="h-2" />
+                          <p className="text-[11px] text-muted-foreground mt-0.5">
+                            {svc.memory_percent.toFixed(1)}%
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[13px] text-muted-foreground">Latency</p>
+                          <p className="text-[13px]">{svc.response_time_ms.toFixed(0)}ms</p>
                         </div>
                         <div>
                           <p className="text-[13px] text-muted-foreground">Err rate</p>
@@ -286,7 +445,9 @@ export default function DashboardPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground text-[15px]">No service data</p>
+                <p className="text-muted-foreground text-[15px]">
+                  Waiting for service data (first 60s after startup)...
+                </p>
               )}
             </CardContent>
           </Card>
@@ -299,23 +460,9 @@ export default function DashboardPage() {
         <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
           {AGENTS.map((a) => {
             const last = decisionsByAgent[a.id];
-            const phase = result?.phases;
-            let status: "idle" | "working" | "completed" = "idle";
-            if (isRunning) {
-              if (a.id === "watcher") status = "working";
-              else if (a.id === "diagnostician") status = "working";
-              else if (a.id === "strategist") status = "working";
-            } else if (result && !result.error) {
-              if (a.id === "watcher" && phase?.watcher) status = "completed";
-              else if (a.id === "diagnostician" && phase?.diagnostician) status = "completed";
-              else if (a.id === "strategist" && phase?.strategist) status = "completed";
-              else if (last) status = "completed";
-            } else if (last) {
-              status = "completed";
-            }
-            const statusText = status === "working" ? "Working..." : status === "completed" ? "Completed ✓" : "Idle";
-            const dotColor = status === "working" ? "bg-emerald-500 animate-pulse" : status === "completed" ? "bg-emerald-500" : "bg-muted-foreground/50";
-            const lastAction = last ? parseLastAction(last.reasoning) : statusText;
+            const hasActivity = !!last;
+            const lastAction = hasActivity ? parseLastAction(last.reasoning) : "Idle";
+            const dotColor = hasActivity ? "bg-emerald-500" : "bg-muted-foreground/50";
             return (
               <Card
                 key={a.id}
@@ -328,8 +475,13 @@ export default function DashboardPage() {
                     <p className="font-medium text-[15px] truncate">{a.name}</p>
                     <p className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
                       <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor}`} />
-                      <span className="truncate">{status === "working" ? statusText : lastAction}</span>
+                      <span className="truncate">{lastAction}</span>
                     </p>
+                    {last?.created_at && (
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                        {new Date(last.created_at).toLocaleTimeString()}
+                      </p>
+                    )}
                   </div>
                 </CardContent>
               </Card>

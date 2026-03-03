@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from backend.database import SessionLocal
-from backend.models import Incident, IncidentEvent
+from backend.models import Incident, IncidentEvent, Approval as ApprovalModel
 from backend.approval import get_pending
 
 logger = logging.getLogger(__name__)
@@ -51,8 +51,21 @@ def transition_incident_status(
         logger.info("Incident %s transitioned: %s → %s", incident_id, current, new_status)
         if new_status == "resolved":
             inc.resolved_at = datetime.now(timezone.utc)
+            # Fix 5: cancel all pending approvals for this incident
+            stale = (
+                db.query(ApprovalModel)
+                .filter(ApprovalModel.incident_id == incident_id, ApprovalModel.status == "pending")
+                .all()
+            )
+            for row in stale:
+                row.status = "cancelled"
+                row.decided_at = datetime.now(timezone.utc)
+                row.decided_by = "system"
+                row.reason = "Incident resolved — approval expired"
+            if stale:
+                logger.info("Cancelled %d stale approvals for resolved incident %s", len(stale), incident_id[:12])
 
-        # Emit lifecycle event (#9, #19)
+        # Emit lifecycle event
         ev = IncidentEvent(
             incident_id=incident_id,
             event_type="status_transition",

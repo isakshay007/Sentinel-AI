@@ -35,15 +35,14 @@ export const api = {
   getSafetyReport: () => fetchApi<SafetyReportResponse>("/api/safety-report"),
   getServiceHealth: () => fetchApi<ServiceHealthResponse>("/api/services/health"),
   getApprovals: () => fetchApi<ApprovalsResponse>("/api/approvals"),
+  getApprovalHistory: () => fetchApi<ApprovalHistoryResponse>("/api/approvals/history"),
   approve: (actionId: string, body?: { decided_by?: string; reason?: string }) =>
-    fetchApi<{ status: string; incident_resolved?: boolean; incident_id?: string }>(`/api/approve/${actionId}`, {
+    fetchApi<ApproveResult>(`/api/approve/${actionId}`, {
       method: "POST",
       body: JSON.stringify(body ?? { decided_by: "human_operator" }),
     }),
   getIncidentEvents: (incidentId: string) =>
-    fetchApi<{ incident_id: string; events: Array<{ id: string; event_type: string; payload: Record<string, unknown>; created_at: string | null }> }>(
-      `/api/incidents/${incidentId}/events`
-    ),
+    fetchApi<IncidentEventsResponse>(`/api/incidents/${incidentId}/events`),
   reject: (actionId: string, body?: { decided_by?: string; reason?: string }) =>
     fetchApi<{ status: string }>(`/api/reject/${actionId}`, {
       method: "POST",
@@ -62,7 +61,8 @@ export const api = {
   getWatcherStatus: () => fetchApi<WatcherStatus>("/api/watcher/status"),
 };
 
-// Types for API responses
+// ─── Response Types ─────────────────────────────────────────
+
 export interface DashboardStats {
   incidents: { total: number; open: number };
   agents: { total_decisions: number; total_tool_calls: number; active_agents: number };
@@ -87,13 +87,7 @@ export interface IncidentsResponse {
 }
 
 export interface AgentTraceResponse {
-  incident: {
-    id: string;
-    title: string;
-    severity: string;
-    status: string;
-    metadata: Record<string, unknown>;
-  } | null;
+  incident: Incident | null;
   trace: Array<{
     agent_name: string;
     decision_type: string;
@@ -109,7 +103,6 @@ export interface AgentTraceResponse {
     tool_name: string | null;
     timestamp: string | null;
   }>;
-  /** Unified timeline (decisions + audit + lifecycle events) by timestamp */
   timeline?: Array<{
     timestamp: string;
     type: "decision" | "audit" | "event";
@@ -117,18 +110,20 @@ export interface AgentTraceResponse {
   }>;
 }
 
+export interface AgentDecision {
+  id: string;
+  incident_id: string | null;
+  agent_name: string;
+  decision_type: string;
+  reasoning: string;
+  confidence: number | null;
+  tool_calls: unknown[];
+  created_at: string | null;
+}
+
 export interface AgentDecisionsResponse {
   total: number;
-  decisions: Array<{
-    id: string;
-    incident_id: string | null;
-    agent_name: string;
-    decision_type: string;
-    reasoning: string;
-    confidence: number | null;
-    tool_calls: unknown[];
-    created_at: string | null;
-  }>;
+  decisions: AgentDecision[];
 }
 
 export interface AuditLogEntry {
@@ -167,25 +162,24 @@ export interface SafetyReportResponse {
   threshold?: number;
   category_scores?: Record<string, number>;
   guardrails?: {
-    guardrails: Record<
-      string,
-      { status: string; description: string; evidence?: string }
-    >;
+    guardrails: Record<string, { status: string; description: string; evidence?: string }>;
     active: number;
     total: number;
     score: number;
   };
 }
 
+export interface ServiceHealth {
+  name: string;
+  cpu_percent: number;
+  memory_percent: number;
+  response_time_ms: number;
+  error_rate: number;
+  status: string;
+}
+
 export interface ServiceHealthResponse {
-  services: Array<{
-    name: string;
-    cpu_percent: number;
-    memory_percent: number;
-    response_time_ms: number;
-    error_rate: number;
-    status: string;
-  }>;
+  services: ServiceHealth[];
 }
 
 export interface ApprovalRequest {
@@ -199,11 +193,38 @@ export interface ApprovalRequest {
   service: string;
   status: string;
   requested_at: string;
+  decided_at?: string | null;
+  decided_by?: string | null;
+  reason?: string | null;
 }
 
 export interface ApprovalsResponse {
   total_pending: number;
   approvals: ApprovalRequest[];
+}
+
+export interface ApprovalHistoryResponse {
+  total: number;
+  pending: number;
+  approved: number;
+  rejected: number;
+  history: ApprovalRequest[];
+}
+
+export interface ApproveResult {
+  status: string;
+  action_id?: string;
+  action?: string;
+  tool?: string;
+  risk_level?: string;
+  decided_by?: string;
+  message?: string;
+  execution_result?: {
+    status: string;
+    result?: Record<string, unknown>;
+  };
+  incident_resolved?: boolean;
+  incident_id?: string;
 }
 
 export interface InjectFaultResponse {
@@ -219,4 +240,14 @@ export interface WatcherStatus {
   services_monitored: string[];
   last_check: string | null;
   anomaly_streaks: Record<string, number>;
+}
+
+export interface IncidentEventsResponse {
+  incident_id: string;
+  events: Array<{
+    id: string;
+    event_type: string;
+    payload: Record<string, unknown>;
+    created_at: string | null;
+  }>;
 }

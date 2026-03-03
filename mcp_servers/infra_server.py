@@ -70,8 +70,6 @@ def restart_service(service: str, reason: str = "") -> str:
 
     start = time.time()
     status = container.status
-    logger.debug("[INFRA_MCP] Container %s current status=%s", container_name, status)
-
     try:
         action = "start" if status == "exited" else "restart"
         logger.info("[INFRA_MCP] Container %s action=%s (start vs restart)", container_name, action)
@@ -226,8 +224,6 @@ def get_container_status(service: str) -> str:
 
     state = container.attrs.get("State", {})
     health = state.get("Health", {}).get("Status", "unknown")
-    logger.debug("[INFRA_MCP] get_container_status: service=%s status=%s", service, container.status)
-
     return json.dumps(
         {
             "tool": "get_container_status",

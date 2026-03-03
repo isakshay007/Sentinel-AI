@@ -117,13 +117,10 @@ async def collect_metrics(state: WatcherState) -> dict:
     tool_calls = state.get("tool_calls", [])
     errors = state.get("errors", [])
 
-    # Call 1: Current metrics
-    logger.debug("[WATCHER] Fetching metrics for service=%s", service)
     args = {"service": service}
     metrics = await MCPToolCaller.call_tool(
         "mcp_servers.metrics_server", "get_current_metrics", args
     )
-    logger.debug("[WATCHER] Metrics result: %s", metrics.get("health_status", "unknown"))
     tool_calls.append({
         "tool": "get_current_metrics", "server": "MetricsMCP",
         "args": args,
@@ -164,7 +161,6 @@ async def collect_metrics(state: WatcherState) -> dict:
 async def collect_logs(state: WatcherState) -> dict:
     """Node 2: Collect recent error logs via LogsMCP."""
     service = state["service"]
-    logger.debug("[WATCHER] Fetching recent errors for service=%s", service)
     tool_calls = state.get("tool_calls", [])
 
     recent_errors_result = await MCPToolCaller.call_tool(
@@ -333,7 +329,7 @@ async def decide(state: WatcherState) -> dict:
 
 
 async def alert(state: WatcherState) -> dict:
-    """Node 5: Create ticket + send notification via AlertMCP."""
+    """Node 5: Send notification via AlertMCP.  Ticket creation is handled by Strategist."""
     service = state["service"]
     severity = state.get("severity", "medium")
     summary = state.get("summary", "Anomaly detected")
@@ -341,33 +337,7 @@ async def alert(state: WatcherState) -> dict:
     tool_calls = state.get("tool_calls", [])
 
     incident_id = str(uuid.uuid4())
-    priority_map = {"critical": "P1", "high": "P2", "medium": "P3", "low": "P4"}
-    priority = priority_map.get(severity, "P3")
 
-    # Create ticket
-    ticket_result = await MCPToolCaller.call_tool(
-        "mcp_servers.alert_server", "create_incident_ticket",
-        {
-            "title": f"[Watcher] {summary}",
-            "description": (
-                f"Automated detection by SentinelAI Watcher Agent.\n\n"
-                f"Service: {service}\n"
-                f"Severity: {severity}\n"
-                f"Confidence: {confidence:.0%}\n"
-                f"Summary: {summary}\n\n"
-                f"Analysis: {state.get('analysis', 'N/A')}"
-            ),
-            "priority": priority,
-            "service": service,
-            "related_incident_id": incident_id,
-        }
-    )
-    tool_calls.append({
-        "tool": "create_incident_ticket", "server": "AlertMCP",
-        "result_summary": f"ticket={ticket_result.get('ticket', {}).get('id', '?')}"
-    })
-
-    # Send notification
     notification_result = await MCPToolCaller.call_tool(
         "mcp_servers.alert_server", "send_notification",
         {
@@ -383,10 +353,9 @@ async def alert(state: WatcherState) -> dict:
         "result_summary": f"delivered_to={notification_result.get('delivered_to', '?')}"
     })
 
-    logger.debug("[WATCHER] Persisting result: incident_created=%s incident_id=%s", True, incident_id)
     return {
         "incident_id": incident_id,
-        "ticket_result": ticket_result,
+        "ticket_result": {},
         "notification_result": notification_result,
         "tool_calls": tool_calls,
     }
@@ -450,28 +419,6 @@ async def run_watcher(service: str, scenario: str = None, detection_context: dic
         )
         tool_calls = []
 
-        ticket_result = await MCPToolCaller.call_tool(
-            "mcp_servers.alert_server",
-            "create_incident_ticket",
-            {
-                "title": f"[Watcher] {summary}",
-                "description": (
-                    f"Automated detection by SentinelAI Watcher Agent.\n\n"
-                    f"Service: {service}\nSeverity: critical\n"
-                    f"Confidence: 95%\nSummary: {summary}\n\n"
-                    f"Detection: Prometheus up metric returned 0."
-                ),
-                "priority": "P1",
-                "service": service,
-                "related_incident_id": incident_id,
-            },
-        )
-        tool_calls.append({
-            "tool": "create_incident_ticket",
-            "server": "AlertMCP",
-            "result_summary": f"ticket={ticket_result.get('ticket', {}).get('id', '?')}",
-        })
-
         notification_result = await MCPToolCaller.call_tool(
             "mcp_servers.alert_server",
             "send_notification",
@@ -489,11 +436,6 @@ async def run_watcher(service: str, scenario: str = None, detection_context: dic
             "result_summary": f"delivered_to={notification_result.get('delivered_to', '?')}",
         })
 
-        logger.debug(
-            "[WATCHER] Persisting result: incident_created=%s incident_id=%s",
-            True,
-            incident_id,
-        )
         return {
             "service": service,
             "scenario": scenario,
@@ -509,7 +451,7 @@ async def run_watcher(service: str, scenario: str = None, detection_context: dic
             "summary": summary,
             "incident_id": incident_id,
             "notification_result": notification_result,
-            "ticket_result": ticket_result,
+            "ticket_result": {},
             "tool_calls": tool_calls,
             "errors": [],
             "timestamp": ts,

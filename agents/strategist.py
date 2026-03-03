@@ -190,10 +190,6 @@ Respond with ONLY a JSON object (no other text, no markdown):
         plans = result.get("plans", [])
         recommended = result.get("recommended_plan", "A")
 
-        logger.debug("[STRATEGIST] Generated %d plans", len(plans))
-        for i, plan in enumerate(plans):
-            logger.debug("[STRATEGIST] Plan %d: %s", i, plan.get("name", "unnamed"))
-
         return {
             "plans": plans,
         }
@@ -391,7 +387,10 @@ async def rank_and_select(state: StrategistState) -> dict:
             action["risk_level"] = "safe"
             action["requires_approval"] = False
         elif tool == "scale_service":
-            replicas = action.get("tool_args", {}).get("replicas", 2)
+            # Fix 7: clamp replicas to 1-5
+            ta = action.get("tool_args", {})
+            replicas = max(1, min(5, int(ta.get("replicas", 2))))
+            ta["replicas"] = replicas
             action["risk_level"] = "safe" if replicas > 2 else "risky"
             action["requires_approval"] = replicas <= 2
 
@@ -451,6 +450,17 @@ async def execute_safe_actions(state: StrategistState) -> dict:
         "get_current_metrics": "mcp_servers.metrics_server",
     }
 
+    # Fix 10: dedup safe actions by tool name (LLM sometimes generates duplicates)
+    seen_tools: set = set()
+    deduped: list = []
+    for action in approved:
+        t = action.get("tool", "")
+        if t in seen_tools:
+            continue
+        seen_tools.add(t)
+        deduped.append(action)
+    approved = deduped
+
     for action in approved:
         tool = action.get("tool", "")
         tool_args = action.get("tool_args", {})
@@ -464,9 +474,7 @@ async def execute_safe_actions(state: StrategistState) -> dict:
             })
             continue
 
-        logger.debug("[STRATEGIST] Auto-executing safe action: tool=%s args=%s", tool, tool_args)
         result = await MCPToolCaller.call_tool(server, tool, tool_args)
-        logger.debug("[STRATEGIST] Safe action result: tool=%s success=%s", tool, result.get("status", "unknown"))
 
         tool_calls.append({
             "tool": tool,

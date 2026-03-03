@@ -21,12 +21,15 @@ from backend.models import Incident
 
 logger = logging.getLogger(__name__)
 
-POLL_INTERVAL = int(os.getenv("WATCHER_POLL_INTERVAL", "30"))  # seconds
-INITIAL_DELAY = 60  # wait for Prometheus to have data after startup
+POLL_INTERVAL = int(os.getenv("WATCHER_POLL_INTERVAL", "15"))  # seconds
+INITIAL_DELAY = 15  # brief wait for Prometheus to have data after startup
 CONSECUTIVE_THRESHOLD = 2  # require N consecutive anomalous checks before alerting
 VERIFICATION_CHECKS = 3
+HEALTHY_RESOLVE_STREAK = 3  # consecutive healthy polls before auto-resolving
 
 _anomaly_streak: Dict[str, int] = {svc: 0 for svc in SERVICES}
+_healthy_streak: Dict[str, int] = {svc: 0 for svc in SERVICES}
+_cooldown: Dict[str, int] = {}  # service → remaining cooldown cycles
 _pipeline_running: Set[str] = set()
 _last_check: Optional[str] = None
 
@@ -200,12 +203,15 @@ async def watcher_loop() -> None:
     await asyncio.sleep(INITIAL_DELAY)
 
     while True:
-        logger.debug("[WATCHER_LOOP] === Poll cycle start === checking %d services", len(SERVICES))
         # Update shared last_check so /api/watcher/status can report recent activity
         _last_check = datetime.now(timezone.utc).isoformat()
 
         for service in SERVICES:
-            logger.debug("[WATCHER_LOOP] Checking service=%s", service)
+            # Fix 6: post-pipeline cooldown — skip 1 cycle after completion
+            if _cooldown.get(service, 0) > 0:
+                _cooldown[service] -= 1
+                continue
+
             try:
                 anomaly = await check_anomalies(service)
             except Exception as e:
@@ -213,16 +219,26 @@ async def watcher_loop() -> None:
                 _anomaly_streak[service] = 0
                 continue
 
-            logger.debug("[WATCHER_LOOP] service=%s anomaly_result=%s", service, anomaly)
-
             if anomaly is None:
                 _anomaly_streak[service] = 0
-                logger.debug("[WATCHER_LOOP] service=%s streak=%d (threshold=%d)", service, 0, CONSECUTIVE_THRESHOLD)
+                _healthy_streak[service] = _healthy_streak.get(service, 0) + 1
+
+                # Fix 2: auto-resolve when healthy for N consecutive polls
+                if _healthy_streak[service] >= HEALTHY_RESOLVE_STREAK:
+                    try:
+                        open_inc = get_open_incident_for_service(service)
+                        if open_inc:
+                            from backend.incident_service import transition_incident_status
+                            resolved = transition_incident_status(open_inc.id, "resolved")
+                            if resolved:
+                                logger.info("[WATCHER_LOOP] Auto-resolved incident %s for service=%s (healthy for %d polls)", open_inc.id[:12], service, _healthy_streak[service])
+                    except Exception as e:
+                        logger.warning("[WATCHER_LOOP] auto-resolve DB check failed for %s: %s", service, e)
                 continue
 
-            # Anomaly detected
+            # Anomaly detected — reset healthy streak
+            _healthy_streak[service] = 0
             _anomaly_streak[service] = _anomaly_streak.get(service, 0) + 1
-            logger.debug("[WATCHER_LOOP] service=%s streak=%d (threshold=%d)", service, _anomaly_streak[service], CONSECUTIVE_THRESHOLD)
             logger.info(
                 "WatcherLoop: anomaly on %s, streak=%s, worst_severity=%s",
                 service,
@@ -230,46 +246,52 @@ async def watcher_loop() -> None:
                 anomaly.get("worst_severity"),
             )
 
-            # Cascading failure deduplication: if an upstream dependency already has an open incident,
-            # skip creating a new incident for this dependent service.
-            if service in DEPENDENCIES:
-                upstream_with_incidents = [
-                    dep for dep in DEPENDENCIES[service] if get_open_incident_for_service(dep)
-                ]
-                if upstream_with_incidents:
-                    logger.info(
-                        "WatcherLoop: skipping %s — upstream %s has open incident(s) (cascading failure)",
-                        service,
-                        upstream_with_incidents,
-                    )
-                    _anomaly_streak[service] = 0
+            # Cascading failure deduplication
+            try:
+                if service in DEPENDENCIES:
+                    upstream_with_incidents = [
+                        dep for dep in DEPENDENCIES[service] if get_open_incident_for_service(dep)
+                    ]
+                    if upstream_with_incidents:
+                        logger.info(
+                            "WatcherLoop: skipping %s — upstream %s has open incident(s) (cascading failure)",
+                            service,
+                            upstream_with_incidents,
+                        )
+                        _anomaly_streak[service] = 0
+                        continue
+
+                # Fix 1: dedup — skip if open incident already exists for this service
+                if get_open_incident_for_service(service):
                     continue
+            except Exception as e:
+                logger.warning("[WATCHER_LOOP] DB dedup check failed for %s: %s", service, e)
+                continue
 
             if (
                 _anomaly_streak[service] >= CONSECUTIVE_THRESHOLD
                 and service not in _pipeline_running
             ):
-                # Trigger full pipeline in background
-                logger.info("[WATCHER_LOOP] 🚨 TRIGGERING PIPELINE for service=%s streak=%d", service, _anomaly_streak[service])
+                logger.info("[WATCHER_LOOP] TRIGGERING PIPELINE for service=%s streak=%d", service, _anomaly_streak[service])
                 _pipeline_running.add(service)
 
                 async def _runner(svc: str, a: dict) -> None:
                     try:
                         await _run_full_pipeline_for_service(svc, a)
-                        logger.info("[WATCHER_LOOP] ✅ Pipeline completed for service=%s", svc)
+                        logger.info("[WATCHER_LOOP] Pipeline completed for service=%s", svc)
                     except Exception as exc:
-                        logger.error("[WATCHER_LOOP] ❌ Pipeline FAILED for service=%s error=%s", svc, exc)
+                        logger.error("[WATCHER_LOOP] Pipeline FAILED for service=%s error=%s", svc, exc)
                     finally:
                         _pipeline_running.discard(svc)
                         _anomaly_streak[svc] = 0
+                        _cooldown[svc] = 1  # Fix 6: skip next poll cycle
 
                 asyncio.create_task(_runner(service, anomaly))
             elif service in _pipeline_running:
-                logger.debug("[WATCHER_LOOP] Pipeline already running for service=%s, skipping", service)
+                pass
 
-        # Multi-service anomaly detection for cache_failure (shared dependency down, e.g., Redis)
+        # Multi-service anomaly detection for cache_failure (Redis)
         anomalous_services = [s for s in SERVICES if _anomaly_streak.get(s, 0) >= 1]
-        logger.debug("[WATCHER_LOOP] Multi-service check: anomalous_services=%s", anomalous_services)
         if len(anomalous_services) >= 2:
             redis_status = "unknown"
             try:
@@ -278,10 +300,9 @@ async def watcher_loop() -> None:
                 redis_status = redis_container.status
             except Exception:
                 pass
-            logger.debug("[WATCHER_LOOP] Redis container status=%s", redis_status)
 
-            if redis_status != "running":
-                # Redis is down and multiple services are degraded → cache_failure
+            # Fix 8: also check _pipeline_running to prevent duplicate Redis pipelines
+            if redis_status != "running" and "redis" not in _pipeline_running:
                 if not get_open_incident_for_service("redis"):
                     logger.info(
                         "WatcherLoop: Multi-service degradation detected. Redis is down. Triggering cache_failure pipeline."
@@ -316,7 +337,6 @@ async def watcher_loop() -> None:
 
                     asyncio.create_task(_runner_cache(anomalous_services))
 
-        logger.debug("[WATCHER_LOOP] === Poll cycle end === sleeping %ds", POLL_INTERVAL)
         await asyncio.sleep(POLL_INTERVAL)
 
 
@@ -325,6 +345,8 @@ __all__ = [
     "POLL_INTERVAL",
     "INITIAL_DELAY",
     "_anomaly_streak",
+    "_healthy_streak",
+    "_cooldown",
     "_last_check",
     "SERVICES",
 ]

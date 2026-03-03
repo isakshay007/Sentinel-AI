@@ -1,37 +1,42 @@
 "use client";
 
-import { useTheme } from "next-themes";
-import { Moon, Sun, Zap } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useInjectFault } from "@/contexts/inject-fault-context";
 
+const PAGE_TITLES: Record<string, string> = {
+  "/": "Dashboard",
+  "/incidents": "Incidents",
+  "/approvals": "Approvals",
+};
+
 export function Header() {
-  const { theme, setTheme } = useTheme();
   const { open } = useInjectFault();
+  const pathname = usePathname();
+
+  const title = Object.entries(PAGE_TITLES).find(
+    ([path]) => pathname === path || (path !== "/" && pathname.startsWith(path))
+  )?.[1] ?? "Dashboard";
 
   return (
-    <header className="h-14 border-b border-[#E5E7EB] dark:border-border flex items-center px-6 bg-white dark:bg-card shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-      <div className="flex-1 flex items-center gap-4">
-        <span className="text-lg font-semibold text-foreground">SentinelAI</span>
-        <span className="text-sm text-muted-foreground hidden sm:inline">
-          Human-AI Incident Response Workspace
-        </span>
+    <header className="h-14 border-b border-white/[0.03] flex items-center justify-between px-6 bg-[#0a0f1e]/60 backdrop-blur-2xl shrink-0 sticky top-0 z-30">
+      <div className="flex flex-col">
+        <h1 className="text-[14px] font-black text-white/90 tracking-[0.25em] uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.1)]">
+          {title}
+        </h1>
       </div>
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        >
-          <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
-        <Button onClick={open} className="bg-black hover:bg-black/90 text-white shrink-0">
-          <Zap className="h-4 w-4 mr-2" />
-          Inject Fault
-        </Button>
-      </div>
+
+      <Button
+        onClick={open}
+        size="sm"
+        className="group relative overflow-hidden bg-transparent border border-red-500/30 hover:border-red-500/60 text-red-500 px-5 gap-2 h-8 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all duration-300 hover:shadow-[0_0_20px_rgba(239,68,68,0.3)]"
+      >
+        <div className="absolute inset-0 bg-red-500/5 group-hover:bg-red-500/10 transition-colors" />
+        <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
+        <Zap className="h-3 w-3 relative z-10 animate-pulse" />
+        <span className="relative z-10">Inject Fault</span>
+      </Button>
     </header>
   );
 }

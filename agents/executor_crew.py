@@ -84,7 +84,6 @@ def execute_single_tool(tool: str, tool_args: dict) -> dict:
             logger.info("[EXECUTOR] Redis restart detected — running flush_cache post-step")
             try:
                 cache_result = _call_mcp_sync("mcp_servers.infra_server", "flush_cache", {})
-                logger.debug("[EXECUTOR] flush_cache result=%s", cache_result)
                 result = {"primary": result, "post_flush_cache": cache_result}
             except Exception as flush_err:
                 result = {

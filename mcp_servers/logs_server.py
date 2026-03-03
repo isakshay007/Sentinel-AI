@@ -57,7 +57,6 @@ def search_logs(
     """
     Search application logs by keyword, severity, service, and time range via Loki.
     """
-    logger.debug("[LOGS_MCP] search_logs: service=%s query=%s severity=%s minutes_ago=%d", service, query, severity, minutes_ago)
     if not service:
         # In this system logs are always scoped to a specific service
         return json.dumps(
@@ -113,7 +112,6 @@ def get_recent_errors(
     """
     Get recent ERROR (and optionally WARN) log entries from Loki.
     """
-    logger.debug("[LOGS_MCP] get_recent_errors: service=%s", service)
     if not service:
         return json.dumps(
             {

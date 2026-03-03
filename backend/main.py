@@ -11,7 +11,7 @@ from backend.dev_api import router as dev_router
 
 # Configure logging (uvicorn will override handler; this sets levels)
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="%(asctime)s %(name)s %(levelname)s %(message)s",
 )
 
@@ -47,10 +47,13 @@ async def startup_event() -> None:
         return
 
     async def _runner():
-        try:
-            await watcher_loop()
-        except Exception as e:
-            logging.getLogger(__name__).exception("WatcherLoop failed: %s", e)
+        log = logging.getLogger(__name__)
+        while True:
+            try:
+                await watcher_loop()
+            except Exception as e:
+                log.exception("WatcherLoop crashed: %s — restarting in 10s", e)
+                await asyncio.sleep(10)
 
     asyncio.create_task(_runner())
 

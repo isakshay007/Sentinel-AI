@@ -19,7 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useInjectFault } from "@/contexts/inject-fault-context";
 import { api } from "@/lib/api";
-import { Loader2, Zap } from "lucide-react";
+import { AlertTriangle, Loader2, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 type FaultType =
@@ -194,150 +194,150 @@ export function InjectFaultDialog() {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Inject Fault</DialogTitle>
-          <DialogDescription>
-            Break a real service to test SentinelAI&apos;s live incident response. The Watcher
-            will detect anomalies and trigger the full agent pipeline automatically.
+      <DialogContent className="sm:max-w-lg bg-[#0a0f1e]/90 backdrop-blur-2xl border-slate-700/40 shadow-[0_0_50px_rgba(0,0,0,0.5)] p-0 overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
+
+        <DialogHeader className="p-6 pb-0">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center border border-red-500/20">
+              <Zap className="h-5 w-5 text-red-500 animate-pulse" />
+            </div>
+            <div>
+              <DialogTitle className="text-[16px] font-black uppercase tracking-[0.25em] text-white">Manual Fault Injection</DialogTitle>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-red-500/70">System Authorization Required</p>
+            </div>
+          </div>
+          <DialogDescription className="text-slate-400 text-xs leading-relaxed font-medium">
+            Execute controlled stressors on active nodes to validate SentinelAI&apos;s adaptive response and agent collaboration protocols.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+
+        <div className="p-6 space-y-6">
           {error && (
-            <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</p>
+            <div className="bg-red-500/10 border border-red-500/20 p-3 rounded-lg flex items-center gap-3 animate-shake">
+              <AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />
+              <p className="text-[11px] font-bold text-red-400 uppercase tracking-wide">{error}</p>
+            </div>
           )}
 
-          {/* Fault Type */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Fault Type</label>
-            <Select
-              value={faultType}
-              onValueChange={(v) => onFaultTypeChange(v as FaultType)}
-              disabled={running}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {(Object.keys(FAULT_CONFIGS) as FaultType[]).map((key) => (
-                  <SelectItem key={key} value={key}>
-                    {FAULT_CONFIGS[key].label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">{config.description}</p>
-          </div>
-
-          {/* Target Service */}
-          {config.showTarget && (
+          <div className="grid grid-cols-2 gap-4">
+            {/* Fault Type */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Target Service</label>
-              <Select value={service} onValueChange={setService} disabled={running}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select service" />
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Tests</label>
+              <Select
+                value={faultType}
+                onValueChange={(v) => onFaultTypeChange(v as FaultType)}
+                disabled={running}
+              >
+                <SelectTrigger className="bg-slate-950/50 border-slate-800/60 h-10 text-xs font-bold uppercase tracking-wider">
+                  <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  {SERVICES.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>
-                      {s.label}
+                <SelectContent className="bg-[#0a0f1e] border-slate-800 shadow-2xl">
+                  {(Object.keys(FAULT_CONFIGS) as FaultType[]).map((key) => (
+                    <SelectItem key={key} value={key} className="text-xs font-bold uppercase tracking-wider focus:bg-red-500/10 focus:text-red-400">
+                      {FAULT_CONFIGS[key].label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-          )}
 
-          {!config.showTarget && faultType === "cache_failure" && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Target</label>
-              <div className="rounded-md border px-3 py-2 text-sm text-muted-foreground bg-muted/50">
-                redis (automatic)
+            {/* Target Service */}
+            {config.showTarget ? (
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Target Operation</label>
+                <Select value={service} onValueChange={setService} disabled={running}>
+                  <SelectTrigger className="bg-slate-950/50 border-slate-800/60 h-10 text-xs font-bold uppercase tracking-wider">
+                    <SelectValue placeholder="Select service" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#0a0f1e] border-slate-800 shadow-2xl">
+                    {SERVICES.map((s) => (
+                      <SelectItem key={s.value} value={s.value} className="text-xs font-bold uppercase tracking-wider focus:bg-blue-500/10 focus:text-blue-400">
+                        {s.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
-          )}
-
-          {faultType === "concurrent_faults" && (
-            <div className="rounded-md border px-3 py-2 text-sm space-y-1 bg-muted/30">
-              <p className="font-medium">Will inject two faults:</p>
-              <p className="text-muted-foreground">
-                1. Memory Leak on <span className="font-mono">user-service</span> (intensity: 90,
-                duration: 120s)
-              </p>
-              <p className="text-muted-foreground">
-                2. CPU Spike on <span className="font-mono">payment-service</span> (intensity: 90,
-                duration: 60s)
-              </p>
-            </div>
-          )}
-
-          {/* Intensity */}
-          {config.showIntensity && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Intensity{" "}
-                <span className="text-muted-foreground font-normal">({intensity})</span>
-              </label>
-              <input
-                type="range"
-                min={1}
-                max={100}
-                value={intensity}
-                onChange={(e) => setIntensity(Number(e.target.value))}
-                disabled={running}
-                className="w-full accent-primary"
-              />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>1</span>
-                <span>50</span>
-                <span>100</span>
+            ) : (
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Auto-Target</label>
+                <div className="h-10 flex items-center px-3 rounded-md bg-slate-950/30 border border-slate-800/40 text-[11px] font-mono text-slate-500 uppercase">
+                  {faultType === "cache_failure" ? "redis-cluster" : "multi-node"}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
-          {/* Duration */}
-          {config.showDuration && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Duration (seconds)</label>
-              <Select
-                value={String(duration)}
-                onValueChange={(v) => setDuration(Number(v))}
-                disabled={running}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="30">30s</SelectItem>
-                  <SelectItem value="60">60s</SelectItem>
-                  <SelectItem value="120">120s</SelectItem>
-                  <SelectItem value="180">180s</SelectItem>
-                  <SelectItem value="300">300s</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          <div className="p-4 rounded-xl bg-slate-950/50 border border-slate-800/50 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 via-transparent to-transparent opacity-50" />
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 relative z-10">Description</p>
+            <p className="text-[11px] leading-relaxed text-slate-300 font-medium relative z-10">
+              {config.description}
+            </p>
+          </div>
 
-          <p className="text-xs text-amber-600 bg-amber-100/60 border border-amber-200 px-3 py-2 rounded-md">
-            This will actually break the target service in Docker. The AI agents will detect and
-            respond automatically within 30–60 seconds.
-          </p>
+          <div className="grid grid-cols-2 gap-4">
+            {/* Intensity */}
+            {config.showIntensity && (
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Intensity</label>
+                  <span className="text-[11px] font-black tabular-nums text-red-500">{intensity}%</span>
+                </div>
+                <input
+                  type="range"
+                  min={1}
+                  max={100}
+                  value={intensity}
+                  onChange={(e) => setIntensity(Number(e.target.value))}
+                  disabled={running}
+                  className="w-full accent-red-500 h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer slider-red-fill"
+                  style={{ "--range-progress": `${intensity}%` } as React.CSSProperties}
+                />
+              </div>
+            )}
+
+            {/* Duration */}
+            {config.showDuration && (
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Execution Phase</label>
+                <Select
+                  value={String(duration)}
+                  onValueChange={(v) => setDuration(Number(v))}
+                  disabled={running}
+                >
+                  <SelectTrigger className="bg-slate-950/50 border-slate-800/60 h-10 text-xs font-bold uppercase tracking-wider tabular-nums">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#0a0f1e] border-slate-800 shadow-2xl">
+                    <SelectItem value="30" className="text-xs font-bold">30s Burst</SelectItem>
+                    <SelectItem value="60" className="text-xs font-bold">60s Sustained</SelectItem>
+                    <SelectItem value="120" className="text-xs font-bold">120s Prolonged</SelectItem>
+                    <SelectItem value="180" className="text-xs font-bold">180s Critical</SelectItem>
+                    <SelectItem value="300" className="text-xs font-bold">300s Maximum</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={running}>
-            Cancel
+
+        <DialogFooter className="bg-slate-950/50 p-6 border-t border-slate-800/50 gap-3">
+          <Button variant="ghost" onClick={handleClose} disabled={running} className="text-[11px] font-black uppercase tracking-widest text-slate-500 hover:text-white hover:bg-white/5 h-11 px-6">
+            Abort
           </Button>
           <Button
             onClick={handleInject}
             disabled={running}
-            className="bg-black hover:bg-black/90 text-white shrink-0"
+            className="bg-red-600 hover:bg-red-500 text-white h-11 px-8 rounded-lg text-[11px] font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(220,38,38,0.3)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
           >
             {running ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              <Loader2 className="h-4 w-4 animate-spin mr-3" />
             ) : (
-              <Zap className="h-4 w-4 mr-2" />
+              <Zap className="h-4 w-4 mr-3" />
             )}
-            {running ? "Injecting..." : "Inject Fault"}
+            {running ? "Executing Phase..." : "Authorize Injection"}
           </Button>
         </DialogFooter>
       </DialogContent>

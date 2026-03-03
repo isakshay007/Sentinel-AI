@@ -92,7 +92,7 @@ services:
       PROMETHEUS_URL: http://prometheus:9090
       LOKI_URL: http://loki:3100
       WATCHER_ENABLED: "1"
-      WATCHER_POLL_INTERVAL: "30"
+      WATCHER_POLL_INTERVAL: "15"
       CORS_ORIGINS: "*"
     volumes:
       - .:/app
@@ -180,10 +180,12 @@ services:
     container_name: sentinel-grafana
     environment:
       GF_SECURITY_ADMIN_PASSWORD: sentinel
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /etc/grafana/provisioning/dashboards/json/sentinel-services.json
     ports:
       - "3001:3000"
     volumes:
       - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - grafana_data:/var/lib/grafana
     networks:
       - sentinel-net

@@ -223,7 +223,6 @@ Respond with ONLY a JSON object (no other text, no markdown):
 
         result = json.loads(clean)
         hypothesis = result.get("hypothesis", "Unknown")
-        logger.debug("[DIAGNOSTICIAN] Hypothesis: %s", hypothesis)
 
         reasoning_chain = state.get("reasoning_chain", [])
         reasoning_chain.append({
@@ -280,12 +279,10 @@ async def gather_evidence(state: DiagnosticianState) -> dict:
     elif "pool" in hyp_lower or "exhaust" in hyp_lower:
         search_term = "connection"
 
-    logger.debug("[DIAGNOSTICIAN] Gathering evidence: tool=search_logs query=%s", search_term)
     log_result = await MCPToolCaller.call_tool(
         "mcp_servers.logs_server", "search_logs",
         {"query": search_term, "service": service, "minutes_ago": 120, "max_results": 15}
     )
-    logger.debug("[DIAGNOSTICIAN] Evidence result: type=log_search matches=%d", log_result.get("total_matches", 0))
     tool_calls.append({
         "tool": "search_logs", "server": "LogsMCP",
         "args": {"query": search_term, "service": service},
@@ -304,11 +301,9 @@ async def gather_evidence(state: DiagnosticianState) -> dict:
     # Evidence 2: Check multiple metrics
     for metric in ["memory_percent", "error_rate", "response_time_ms", "cpu_percent"]:
         metric_args = {"service": service, "metric": metric}
-        logger.debug("[DIAGNOSTICIAN] Gathering evidence: tool=detect_anomaly query=%s:%s", service, metric)
         anomaly_result = await MCPToolCaller.call_tool(
             "mcp_servers.metrics_server", "detect_anomaly", metric_args
         )
-        logger.debug("[DIAGNOSTICIAN] Evidence result: type=anomaly_check matches=%s", anomaly_result.get("is_anomalous", "?"))
         tool_calls.append({
             "tool": "detect_anomaly", "server": "MetricsMCP",
             "args": {"service": service, "metric": metric},
@@ -323,7 +318,6 @@ async def gather_evidence(state: DiagnosticianState) -> dict:
         })
 
     # Evidence 3: Check deployment history / container state
-    logger.debug("[DIAGNOSTICIAN] Gathering evidence: tool=get_deployment_history query=%s", service)
     deploy_result = await MCPToolCaller.call_tool(
         "mcp_servers.infra_server", "get_deployment_history",
         {"service": service}
@@ -492,6 +486,23 @@ Produce a comprehensive diagnosis. Respond with ONLY a JSON object:
         clean = clean.strip()
 
         diagnosis = json.loads(clean)
+
+        # Post-LLM normalization: override root_cause_category based on actual
+        # metric evidence so the label is deterministic across runs.
+        anomalous_metrics = [
+            e for e in evidence
+            if e.get("type") == "anomaly_check" and e.get("is_anomalous")
+        ]
+        metric_names = {e.get("metric") for e in anomalous_metrics}
+        if "memory_percent" in metric_names:
+            diagnosis["root_cause_category"] = "memory_leak"
+        elif "cpu_percent" in metric_names:
+            diagnosis["root_cause_category"] = "cpu_overload"
+        elif "response_time_ms" in metric_names:
+            diagnosis["root_cause_category"] = "latency_spike"
+        elif "error_rate" in metric_names:
+            diagnosis["root_cause_category"] = "error_rate_spike"
+        # keep LLM's label only if no metric evidence overrides it
 
         logger.info("[DIAGNOSTICIAN] Root cause: category=%s confidence=%.2f summary=%s",
                     diagnosis.get("root_cause_category", "?"),

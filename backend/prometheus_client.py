@@ -31,7 +31,6 @@ async def _async_client() -> httpx.AsyncClient:
 
 async def prom_query(query: str) -> Optional[float]:
     """Run an instant PromQL query and return a single float value or None."""
-    logger.debug("[PROM_QUERY] query=%s", query)
     try:
         async with await _async_client() as client:
             resp = await client.get(f"{PROMETHEUS_URL}/api/v1/query", params={"query": query})
@@ -42,12 +41,10 @@ async def prom_query(query: str) -> Optional[float]:
         raise
 
     if data.get("status") != "success":
-        logger.debug("[PROM_QUERY] result=non-success status for query=%s", query)
         return None
 
     result = data.get("data", {}).get("result", [])
     if not result:
-        logger.debug("[PROM_QUERY] result=empty for query=%s", query)
         return None
 
     # Handle both scalar and vector results
@@ -73,12 +70,9 @@ async def prom_query(query: str) -> Optional[float]:
     try:
         val = float(v)
         if math.isnan(val) or math.isinf(val):
-            logger.debug("[PROM_QUERY] result=NaN/Inf for query=%s", query)
             return None
-        logger.debug("[PROM_QUERY] result=%.4f for query=%s", val, query)
         return val
     except (TypeError, ValueError):
-        logger.debug("[PROM_QUERY] result=unparseable for query=%s", query)
         return None
 
 
@@ -183,7 +177,6 @@ async def get_service_health(service: str) -> Dict[str, Any]:
         "error_rate": float(err) if err is not None else 0.0,
         "up": int(up) if up is not None else None,
     }
-    logger.debug("[HEALTH] service=%s health=%s", service, health)
     return health
 
 
@@ -200,10 +193,7 @@ async def check_anomalies(service: str) -> Optional[Dict[str, Any]]:
     Compare service metrics against thresholds.
     Returns None if healthy, otherwise anomaly description.
     """
-    logger.debug("[ANOMALY_CHECK] service=%s starting", service)
-    # First check if service is up at all. If up==0 or missing, treat as service_down.
     is_up = await prom_query(f'up{{job="{service}"}}')
-    logger.debug("[ANOMALY_CHECK] service=%s up_value=%s", service, is_up)
     if is_up is None or is_up == 0:
         logger.warning("[ANOMALY_CHECK] service=%s is DOWN (up=0 or None)", service)
         return {
@@ -238,7 +228,6 @@ async def check_anomalies(service: str) -> Optional[Dict[str, Any]]:
         severity = _classify(metric, value, threshold)
         if metric == "response_time_ms" and severity == "warning":
             severity = "critical"
-        logger.debug("[ANOMALY_CHECK] service=%s metric=%s value=%.2f threshold=%.2f severity=%s", service, metric, value, threshold, severity or "normal")
         if severity:
             anomalies.append(
                 {
@@ -261,14 +250,12 @@ async def check_anomalies(service: str) -> Optional[Dict[str, Any]]:
         )
 
     if not anomalies:
-        logger.debug("[ANOMALY_CHECK] service=%s result: anomalies=0 worst_severity=normal", service)
         return None
 
     worst_severity = "warning"
     if any(a["severity"] == "critical" for a in anomalies):
         worst_severity = "critical"
 
-    logger.debug("[ANOMALY_CHECK] service=%s result: anomalies=%d worst_severity=%s", service, len(anomalies), worst_severity)
     return {
         "service": service,
         "anomalies": anomalies,
@@ -369,7 +356,6 @@ async def query_loki(query: str, service: str, minutes: int = 10) -> List[Dict[s
     Query Loki for logs matching a string.
     Returns list of {timestamp, message, level}.
     """
-    logger.debug("[LOKI_QUERY] service=%s query=%s minutes_ago=%d", service, query, minutes)
     end = int(time.time() * 1e9)
     start = end - minutes * 60 * 1_000_000_000
 
@@ -414,7 +400,6 @@ async def query_loki(query: str, service: str, minutes: int = 10) -> List[Dict[s
             ts_iso = datetime.fromtimestamp(ts_seconds, tz=timezone.utc).isoformat()
             results.append({"timestamp": ts_iso, "message": msg, "level": level})
 
-    logger.debug("[LOKI_QUERY] service=%s results_count=%d", service, len(results))
     # Newest first already; keep as-is
     return results
 

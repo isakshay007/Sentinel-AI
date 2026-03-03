@@ -418,11 +418,9 @@ async def inject_fault(body: dict):
         if not base:
             return {"error": f"Unknown service target: {target}"}
         url = base + chaos_endpoint_map[fault_type]
-        logger.debug("[CHAOS] Calling http://%s%s", target, chaos_endpoint_map[fault_type])
         async with httpx.AsyncClient() as client:
             resp = await client.post(url)
             resp.raise_for_status()
-            logger.debug("[CHAOS] Service response: status=%d body=%s", resp.status_code, resp.text[:200])
             result = resp.json() if resp.headers.get("content-type", "").startswith("application/json") else {
                 "status": "injecting"
             }

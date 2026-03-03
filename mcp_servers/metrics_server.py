@@ -61,7 +61,6 @@ def get_current_metrics(service: str) -> str:
     Returns:
         JSON with the latest metric values and service health status.
     """
-    logger.debug("[METRICS_MCP] get_current_metrics: service=%s", service)
     try:
         health = _run(get_service_health(service))
     except Exception as e:
@@ -125,8 +124,6 @@ def detect_anomaly(service: str, metric: str) -> str:
 
     Uses threshold-based comparison against THRESHOLDS.
     """
-    logger.debug("[METRICS_MCP] detect_anomaly: service=%s metric=%s", service, metric)
-
     threshold = THRESHOLDS.get(metric)
 
     try:
@@ -170,10 +167,6 @@ def detect_anomaly(service: str, metric: str) -> str:
             severity = "warning"
 
     evidence = {"current_value": current_value, "threshold": threshold}
-    logger.debug(
-        "[METRICS_MCP] detect_anomaly result: service=%s metric=%s value=%s threshold=%s anomalous=%s severity=%s",
-        service, metric, current_value, threshold, anomalous, severity,
-    )
 
     return json.dumps({
         "tool": "detect_anomaly",

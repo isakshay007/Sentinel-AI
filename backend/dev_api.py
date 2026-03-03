@@ -28,8 +28,6 @@ def dev_reset():
     from backend.database import SessionLocal
     from backend.models import Incident, AgentDecision, AuditLog, EvalResult, Approval, IncidentEvent
     from backend.approval import clear_approval_store
-    from backend.seed_db import seed_database
-    from backend.mock_data_generator import MockDataGenerator, seed_all_fixtures
 
     db = SessionLocal()
     try:
@@ -50,13 +48,4 @@ def dev_reset():
 
     clear_approval_store(all_=True)
 
-    # Re-seed fixtures (#14)
-    try:
-        seed_all_fixtures("tests/fixtures")
-        gen = MockDataGenerator(seed=42)
-        seed_database(gen)
-        logger.info("DEV RESET: fixtures re-seeded")
-    except Exception as e:
-        logger.warning("Fixture re-seed failed (non-fatal): %s", e)
-
-    return {"status": "database reset and fixtures re-seeded"}
+    return {"status": "database reset complete"}

@@ -201,7 +201,7 @@ def approve_action(action_id: str, decision: Optional[ApprovalDecision] = Body(d
             raise HTTPException(status_code=400, detail=f"Action already {req.status if req else 'not found'}")
 
         from agents.executor_crew import execute_single_tool
-        from backend.models import AgentDecision, AuditLog
+        from backend.models import AgentDecision, AuditLog, Incident
         from backend.database import SessionLocal
         from backend.incident_service import (
             is_last_pending_for_incident,
@@ -210,6 +210,22 @@ def approve_action(action_id: str, decision: Optional[ApprovalDecision] = Body(d
         )
 
         incident_id = req.incident_id or ""
+
+        # Fix 11: reject execution if incident is already resolved
+        if incident_id:
+            db_check = SessionLocal()
+            try:
+                inc = db_check.query(Incident).filter(Incident.id == incident_id).first()
+                if inc and inc.status == "resolved":
+                    update_approval_status(action_id, "cancelled", "system", "Incident already resolved")
+                    return {
+                        "status": "cancelled",
+                        "action_id": action_id,
+                        "message": "Incident already resolved — action not executed",
+                        "incident_id": incident_id,
+                    }
+            finally:
+                db_check.close()
         logger.info("[APPROVAL] Approving action: id=%s tool=%s", action_id[:12], req.tool)
 
         # Check BEFORE changing status
@@ -229,7 +245,6 @@ def approve_action(action_id: str, decision: Optional[ApprovalDecision] = Body(d
     incident_resolved = False
 
     try:
-        logger.debug("[APPROVAL] Executing tool=%s args=%s", req.tool, req.tool_args)
         exec_out = execute_single_tool(req.tool, req.tool_args)
         execution_result = exec_out
 

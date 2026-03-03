@@ -5,6 +5,14 @@ Always-on monitoring loop that replaces manual "Run Scenario" triggering.
 Periodically polls Prometheus for anomalies and, when one is confirmed,
 runs the full Watcher → Diagnostician → Strategist pipeline and registers
 any required approvals.
+
+Changes from original:
+  - Added direct HTTP liveness checks per service (catches dead containers
+    that emit no Prometheus metrics, fixing kill_service detection)
+  - Added direct Redis PING check every cycle (replaces fragile multi-service
+    anomaly heuristic, fixing cache_failure detection)
+  - Liveness failures bypass the consecutive-streak threshold for immediate
+    pipeline triggering
 """
 
 import asyncio
@@ -14,6 +22,8 @@ from datetime import datetime, timezone
 from typing import Dict, Optional, Set
 
 import docker
+import httpx
+import redis as redis_lib
 
 from backend.prometheus_client import check_anomalies, SERVICES
 from backend.database import SessionLocal
@@ -39,6 +49,67 @@ DEPENDENCIES: Dict[str, list[str]] = {
     "user-service": ["redis"],
 }
 
+# Ports for direct HTTP health checks (catches dead containers that
+# stop emitting Prometheus metrics, so check_anomalies returns None)
+SERVICE_PORTS: Dict[str, int] = {
+    "user-service": 8001,
+    "payment-service": 8002,
+    "api-gateway": 8000,
+}
+
+
+# =============================================================================
+# LIVENESS CHECKS
+# =============================================================================
+
+async def _check_service_liveness(service: str) -> Optional[dict]:
+    """Direct HTTP health check for a service.
+
+    When a container is dead/unresponsive, Prometheus has no fresh data and
+    check_anomalies() returns None (= healthy).  This function catches that
+    gap by hitting the /health endpoint directly.
+
+    Returns an anomaly dict if the service is DOWN, or None if healthy.
+    """
+    port = SERVICE_PORTS.get(service)
+    if port is None:
+        return None  # Not a service we can health-check (e.g. redis)
+
+    try:
+        async with httpx.AsyncClient(timeout=3.0) as client:
+            resp = await client.get(f"http://{service}:{port}/health")
+            if resp.status_code == 200:
+                return None  # Healthy
+    except Exception:
+        pass  # Connection refused / timeout / DNS failure = service is down
+
+    return {
+        "service": service,
+        "anomalies": [
+            {"metric": "up", "value": 0, "threshold": 1, "severity": "critical"},
+        ],
+        "worst_severity": "critical",
+        "detection_metrics": {"status": "down", "up": 0},
+    }
+
+
+async def _check_redis_liveness() -> bool:
+    """Direct Redis PING.  Returns True if reachable, False otherwise."""
+    try:
+        r = redis_lib.Redis(
+            host="redis", port=6379,
+            socket_timeout=2, socket_connect_timeout=2,
+        )
+        r.ping()
+        r.close()
+        return True
+    except Exception:
+        return False
+
+
+# =============================================================================
+# PIPELINE RUNNER
+# =============================================================================
 
 async def _run_full_pipeline_for_service(service: str, anomaly: dict) -> None:
     """
@@ -79,7 +150,6 @@ async def _run_full_pipeline_for_service(service: str, anomaly: dict) -> None:
         try:
             persist_diagnostician_result(diag)
         except Exception:
-            # continue; watcher data is already saved
             logger.exception("WatcherLoop: failed to persist diagnostician result")
 
     # Persist strategist and register pending actions for approval UI
@@ -94,7 +164,6 @@ async def _run_full_pipeline_for_service(service: str, anomaly: dict) -> None:
         if incident_id:
             pending_count = len(strat.get("pending_actions", []))
             if pending_count == 0:
-                # No risky actions — auto-resolve
                 transition_incident_status(incident_id, "resolved")
             else:
                 mark_investigating_if_open(incident_id)
@@ -111,7 +180,7 @@ async def _run_full_pipeline_for_service(service: str, anomaly: dict) -> None:
                 id=action.get("approval_id"),
             )
 
-    # Structured log mirroring the old pipeline
+    # Structured log
     final_status = "N/A"
     if incident_id_for_log:
         db = SessionLocal()
@@ -162,14 +231,12 @@ async def verify_remediation(service: str, incident_id: str) -> bool:
         if anomaly is None:
             healthy_count += 1
             if healthy_count >= VERIFICATION_CHECKS:
-                # If service was scaled up during remediation, scale back to 1
                 try:
                     client = docker.from_env()
                     containers = client.containers.list(filters={"name": f"sentinel-{service}"})
                     if len(containers) > 1:
                         logger.info("Scaling %s back to 1 replica after verified remediation", service)
                         import subprocess
-
                         subprocess.run(
                             ["docker-compose", "up", "-d", "--scale", f"{service}=1"],
                             check=False,
@@ -186,6 +253,10 @@ async def verify_remediation(service: str, incident_id: str) -> bool:
     return False
 
 
+# =============================================================================
+# MAIN LOOP
+# =============================================================================
+
 async def watcher_loop() -> None:
     """
     Always-on loop that checks each service for anomalies and triggers
@@ -199,18 +270,62 @@ async def watcher_loop() -> None:
         ", ".join(SERVICES),
     )
 
-    # Initial delay to let Prometheus and services warm up
     await asyncio.sleep(INITIAL_DELAY)
 
     while True:
-        # Update shared last_check so /api/watcher/status can report recent activity
         _last_check = datetime.now(timezone.utc).isoformat()
 
         for service in SERVICES:
-            # Fix 6: post-pipeline cooldown — skip 1 cycle after completion
+            # Post-pipeline cooldown — skip 1 cycle after completion
             if _cooldown.get(service, 0) > 0:
                 _cooldown[service] -= 1
                 continue
+
+            # ------------------------------------------------------------------
+            # NEW: Direct liveness check (catches dead containers that emit no
+            # Prometheus metrics, so check_anomalies would return None = healthy)
+            # ------------------------------------------------------------------
+            liveness_fail = await _check_service_liveness(service)
+            if liveness_fail is not None:
+                logger.warning(
+                    "[WATCHER_LOOP] %s FAILED health check — treating as critical",
+                    service,
+                )
+                _healthy_streak[service] = 0
+                _anomaly_streak[service] = 0
+
+                # Still respect dedup: skip if open incident exists
+                try:
+                    if get_open_incident_for_service(service):
+                        continue
+                except Exception as e:
+                    logger.warning("[WATCHER_LOOP] DB dedup check failed for %s: %s", service, e)
+                    continue
+
+                if service not in _pipeline_running:
+                    logger.info(
+                        "[WATCHER_LOOP] TRIGGERING PIPELINE for DOWN service=%s",
+                        service,
+                    )
+                    _pipeline_running.add(service)
+
+                    # Use default args to capture current values (closure fix)
+                    async def _runner_down(svc=service, a=liveness_fail):
+                        try:
+                            await _run_full_pipeline_for_service(svc, a)
+                            logger.info("[WATCHER_LOOP] Pipeline completed for DOWN service=%s", svc)
+                        except Exception as exc:
+                            logger.error("[WATCHER_LOOP] Pipeline FAILED for %s: %s", svc, exc)
+                        finally:
+                            _pipeline_running.discard(svc)
+                            _anomaly_streak[svc] = 0
+                            _cooldown[svc] = 1
+
+                    asyncio.create_task(_runner_down())
+                continue
+            # ------------------------------------------------------------------
+            # END liveness check
+            # ------------------------------------------------------------------
 
             try:
                 anomaly = await check_anomalies(service)
@@ -223,7 +338,7 @@ async def watcher_loop() -> None:
                 _anomaly_streak[service] = 0
                 _healthy_streak[service] = _healthy_streak.get(service, 0) + 1
 
-                # Fix 2: auto-resolve when healthy for N consecutive polls
+                # Auto-resolve when healthy for N consecutive polls
                 if _healthy_streak[service] >= HEALTHY_RESOLVE_STREAK:
                     try:
                         open_inc = get_open_incident_for_service(service)
@@ -231,7 +346,10 @@ async def watcher_loop() -> None:
                             from backend.incident_service import transition_incident_status
                             resolved = transition_incident_status(open_inc.id, "resolved")
                             if resolved:
-                                logger.info("[WATCHER_LOOP] Auto-resolved incident %s for service=%s (healthy for %d polls)", open_inc.id[:12], service, _healthy_streak[service])
+                                logger.info(
+                                    "[WATCHER_LOOP] Auto-resolved incident %s for service=%s (healthy for %d polls)",
+                                    open_inc.id[:12], service, _healthy_streak[service],
+                                )
                     except Exception as e:
                         logger.warning("[WATCHER_LOOP] auto-resolve DB check failed for %s: %s", service, e)
                 continue
@@ -261,7 +379,7 @@ async def watcher_loop() -> None:
                         _anomaly_streak[service] = 0
                         continue
 
-                # Fix 1: dedup — skip if open incident already exists for this service
+                # Dedup — skip if open incident already exists for this service
                 if get_open_incident_for_service(service):
                     continue
             except Exception as e:
@@ -275,7 +393,7 @@ async def watcher_loop() -> None:
                 logger.info("[WATCHER_LOOP] TRIGGERING PIPELINE for service=%s streak=%d", service, _anomaly_streak[service])
                 _pipeline_running.add(service)
 
-                async def _runner(svc: str, a: dict) -> None:
+                async def _runner(svc=service, a=anomaly):
                     try:
                         await _run_full_pipeline_for_service(svc, a)
                         logger.info("[WATCHER_LOOP] Pipeline completed for service=%s", svc)
@@ -284,32 +402,32 @@ async def watcher_loop() -> None:
                     finally:
                         _pipeline_running.discard(svc)
                         _anomaly_streak[svc] = 0
-                        _cooldown[svc] = 1  # Fix 6: skip next poll cycle
+                        _cooldown[svc] = 1
 
-                asyncio.create_task(_runner(service, anomaly))
+                asyncio.create_task(_runner())
             elif service in _pipeline_running:
                 pass
 
-        # Multi-service anomaly detection for cache_failure (Redis)
-        anomalous_services = [s for s in SERVICES if _anomaly_streak.get(s, 0) >= 1]
-        if len(anomalous_services) >= 2:
-            redis_status = "unknown"
+        # ------------------------------------------------------------------
+        # NEW: Direct Redis health check every cycle
+        # Replaces the old multi-service anomaly heuristic that required 2+
+        # services to be anomalous simultaneously AND the Docker container
+        # to show as not running — a race condition that caused cache_failure
+        # detection timeouts.
+        # ------------------------------------------------------------------
+        redis_alive = await _check_redis_liveness()
+        if not redis_alive and "redis" not in _pipeline_running:
             try:
-                client = docker.from_env()
-                redis_container = client.containers.get("sentinel-redis")
-                redis_status = redis_container.status
-            except Exception:
-                pass
-
-            # Fix 8: also check _pipeline_running to prevent duplicate Redis pipelines
-            if redis_status != "running" and "redis" not in _pipeline_running:
                 if not get_open_incident_for_service("redis"):
+                    affected = [s for s in SERVICES]
                     logger.info(
-                        "WatcherLoop: Multi-service degradation detected. Redis is down. Triggering cache_failure pipeline."
+                        "[WATCHER_LOOP] Redis PING failed — triggering cache_failure pipeline. "
+                        "Affected services: %s",
+                        affected,
                     )
                     _pipeline_running.add("redis")
 
-                    async def _runner_cache(affected: list[str]) -> None:
+                    async def _runner_cache(affected_svcs=affected):
                         try:
                             await _run_full_pipeline_for_service(
                                 "redis",
@@ -326,16 +444,21 @@ async def watcher_loop() -> None:
                                     "worst_severity": "critical",
                                     "detection_metrics": {
                                         "status": "down",
-                                        "affected_services": affected,
+                                        "affected_services": affected_svcs,
                                     },
                                 },
                             )
                         finally:
                             _pipeline_running.discard("redis")
-                            for s in affected:
+                            for s in affected_svcs:
                                 _anomaly_streak[s] = 0
 
-                    asyncio.create_task(_runner_cache(anomalous_services))
+                    asyncio.create_task(_runner_cache())
+            except Exception as e:
+                logger.warning("[WATCHER_LOOP] Redis liveness/dedup check failed: %s", e)
+        # ------------------------------------------------------------------
+        # END Redis check
+        # ------------------------------------------------------------------
 
         await asyncio.sleep(POLL_INTERVAL)
 
@@ -350,4 +473,3 @@ __all__ = [
     "_last_check",
     "SERVICES",
 ]
-

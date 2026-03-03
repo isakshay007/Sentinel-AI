@@ -32,6 +32,8 @@ export const api = {
     return fetchApi<AuditLogsResponse>(`/api/audit-logs${params.toString() ? `?${params}` : ""}`);
   },
   getEvalResults: () => fetchApi<EvalResultsResponse>("/api/eval-results"),
+  getEvalStatus: () => fetchApi<EvalStatusResponse>("/api/eval/status"),
+  getEvalReport: () => fetchApi<EvalReportResponse>("/api/eval/report"),
   getSafetyReport: () => fetchApi<SafetyReportResponse>("/api/safety-report"),
   getServiceHealth: () => fetchApi<ServiceHealthResponse>("/api/services/health"),
   getApprovals: () => fetchApi<ApprovalsResponse>("/api/approvals"),
@@ -153,6 +155,40 @@ export interface EvalResultsResponse {
       { scores?: Record<string, number>; watcher_alert?: boolean; diagnosis_root_cause?: string }
     >;
   }>;
+}
+
+export interface EvalScenarioResult {
+  scenario: string;
+  target: string;
+  score: number;
+  detection_time_s: number | null;
+  diagnosis_time_s: number | null;
+  resolution_time_s: number | null;
+  root_cause_found: string | null;
+  root_cause_correct: boolean;
+  resolution_status: string | null;
+  tool_count: number;
+  approval_count: number;
+  errors: string[];
+}
+
+export interface EvalStatusResponse {
+  has_results: boolean;
+  message?: string;
+  error?: string;
+  timestamp?: string;
+  scenarios_run?: number;
+  overall_score?: number;
+  model?: string;
+  scenarios?: EvalScenarioResult[];
+}
+
+export interface EvalReportResponse {
+  has_report: boolean;
+  message?: string;
+  error?: string;
+  timestamp?: string;
+  content?: string;
 }
 
 export interface SafetyReportResponse {

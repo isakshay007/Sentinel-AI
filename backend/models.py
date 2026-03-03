@@ -17,7 +17,7 @@ class Incident(Base):
 class AgentDecision(Base):
     __tablename__ = "agent_decisions"
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    incident_id = Column(String, nullable=True)
+    incident_id = Column(String, nullable=True, index=True)
     agent_name = Column(String, nullable=False)
     decision_type = Column(String)  # detect, diagnose, plan, execute
     reasoning = Column(Text)
@@ -39,7 +39,7 @@ class Approval(Base):
     """Persisted approval requests. Source of truth for approval history (#5, #11)."""
     __tablename__ = "approvals"
     id = Column(String, primary_key=True)
-    incident_id = Column(String, nullable=True)
+    incident_id = Column(String, nullable=True, index=True)
     agent_name = Column(String, nullable=False)
     action = Column(String, nullable=False)
     tool = Column(String, nullable=False)
@@ -57,7 +57,7 @@ class IncidentEvent(Base):
     """Single event store for lifecycle transitions (#9, #19)."""
     __tablename__ = "incident_events"
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    incident_id = Column(String, nullable=True)
+    incident_id = Column(String, nullable=True, index=True)
     event_type = Column(String, nullable=False)  # status_transition, approval, tool_call
     payload = Column(JSON, default=dict)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
@@ -66,7 +66,7 @@ class IncidentEvent(Base):
 class AuditLog(Base):
     __tablename__ = "audit_logs"
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    incident_id = Column(String, nullable=True)  # link to incident for trace view
+    incident_id = Column(String, nullable=True, index=True)  # link to incident for trace view
     agent_name = Column(String)
     action = Column(String)
     mcp_server = Column(String, nullable=True)

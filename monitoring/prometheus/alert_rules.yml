@@ -17,7 +17,7 @@ groups:
         labels:
           severity: critical
       - alert: HighLatency
-        expr: histogram_quantile(0.95, sum by(le, service)(rate(http_request_duration_seconds_bucket[2m]))) > 2.0
+        expr: histogram_quantile(0.95, sum by(le, service)(rate(http_request_duration_seconds_bucket[2m]))) > 0.5
         for: 30s
         labels:
           severity: warning

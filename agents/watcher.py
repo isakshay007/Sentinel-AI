@@ -43,6 +43,7 @@ class WatcherState(TypedDict):
     metrics: Optional[dict]
     metric_history: Optional[dict]
     anomaly_check: Optional[dict]
+    anomaly_results_all: Optional[dict]
     recent_errors: Optional[list]
 
     # Analysis
@@ -111,12 +112,15 @@ def get_groq_llm(temperature: float = 0.1) -> ChatGroq:
 # =============================================================================
 
 async def collect_metrics(state: WatcherState) -> dict:
-    """Node 1: Collect current metrics, history, and anomaly status via MetricsMCP."""
+    """Node 1: Collect current metrics, history, and anomaly checks for ALL
+    key metrics via MetricsMCP.  Checks cpu, memory, response_time, and
+    error_rate so that CPU spikes and latency issues are detected."""
     service = state["service"]
     logger.info("[WATCHER] Running for service=%s", service)
     tool_calls = state.get("tool_calls", [])
     errors = state.get("errors", [])
 
+    # ---- 1. Current metrics snapshot ----
     args = {"service": service}
     metrics = await MCPToolCaller.call_tool(
         "mcp_servers.metrics_server", "get_current_metrics", args
@@ -124,10 +128,10 @@ async def collect_metrics(state: WatcherState) -> dict:
     tool_calls.append({
         "tool": "get_current_metrics", "server": "MetricsMCP",
         "args": args,
-        "result_summary": metrics.get("health_status", "unknown")
+        "result_summary": metrics.get("health_status", "unknown"),
     })
 
-    # Call 2: Metric history (memory)
+    # ---- 2. Metric history (memory — for trend analysis) ----
     history_args = {"service": service, "metric": "memory_percent", "minutes": 120}
     metric_history = await MCPToolCaller.call_tool(
         "mcp_servers.metrics_server", "get_metric_history", history_args
@@ -135,24 +139,47 @@ async def collect_metrics(state: WatcherState) -> dict:
     tool_calls.append({
         "tool": "get_metric_history", "server": "MetricsMCP",
         "args": history_args,
-        "result_summary": f"{metric_history.get('data_points', 0)} points, trend={metric_history.get('statistics', {}).get('trend', '?')}"
+        "result_summary": (
+            f"{metric_history.get('data_points', 0)} points, "
+            f"trend={metric_history.get('statistics', {}).get('trend', '?')}"
+        ),
     })
 
-    # Call 3: Anomaly detection
-    anomaly_args = {"service": service, "metric": "memory_percent"}
-    anomaly_check = await MCPToolCaller.call_tool(
-        "mcp_servers.metrics_server", "detect_anomaly", anomaly_args
-    )
-    tool_calls.append({
-        "tool": "detect_anomaly", "server": "MetricsMCP",
-        "args": anomaly_args,
-        "result_summary": f"anomalous={anomaly_check.get('is_anomalous', '?')}, severity={anomaly_check.get('severity', '?')}"
-    })
+    # ---- 3. Anomaly detection for ALL key metrics ----
+    SEVERITY_RANK = {"normal": 0, "unknown": 1, "warning": 2, "critical": 3}
+    KEY_METRICS = ["memory_percent", "cpu_percent", "response_time_ms", "error_rate"]
+
+    anomaly_results = {}
+    worst_anomaly = None
+    worst_rank = -1
+
+    for metric in KEY_METRICS:
+        anomaly_args = {"service": service, "metric": metric}
+        result = await MCPToolCaller.call_tool(
+            "mcp_servers.metrics_server", "detect_anomaly", anomaly_args
+        )
+        anomaly_results[metric] = result
+        tool_calls.append({
+            "tool": "detect_anomaly", "server": "MetricsMCP",
+            "args": anomaly_args,
+            "result_summary": (
+                f"anomalous={result.get('is_anomalous', '?')}, "
+                f"severity={result.get('severity', '?')}"
+            ),
+        })
+        rank = SEVERITY_RANK.get(result.get("severity", "normal"), 0)
+        if result.get("is_anomalous") and rank > worst_rank:
+            worst_rank = rank
+            worst_anomaly = result
+
+    # Backward-compatible: single anomaly_check field uses worst result
+    anomaly_check = worst_anomaly or anomaly_results.get("memory_percent", {})
 
     return {
         "metrics": metrics,
         "metric_history": metric_history,
         "anomaly_check": anomaly_check,
+        "anomaly_results_all": anomaly_results,
         "tool_calls": tool_calls,
         "errors": errors,
     }
@@ -186,6 +213,7 @@ async def analyze(state: WatcherState) -> dict:
     metrics = state.get("metrics", {})
     metric_history = state.get("metric_history", {})
     anomaly_check = state.get("anomaly_check", {})
+    anomaly_results_all = state.get("anomaly_results_all", {})
     recent_errors = state.get("recent_errors", [])
     detection_context = state.get("detection_context")
 
@@ -197,7 +225,6 @@ async def analyze(state: WatcherState) -> dict:
     evidence = anomaly_check.get("evidence", {})
 
     # Include detection_metrics from watcher_loop's anomaly check
-    # (gives the LLM real Prometheus data even if MetricsMCP returns stale/unknown values)
     detection_section = ""
     if detection_context:
         dm = detection_context.get("detection_metrics", {})
@@ -216,6 +243,20 @@ Up: {dm.get('up', '?')}
 {json.dumps(anomalies_list, indent=2)}
 Worst Severity: {worst}
 """
+
+    # Summarize ALL metric anomaly checks from MCP
+    all_anomaly_lines = []
+    for m, res in anomaly_results_all.items():
+        ev = res.get("evidence", {})
+        all_anomaly_lines.append(
+            f"  {m}: anomalous={res.get('is_anomalous', '?')}, "
+            f"severity={res.get('severity', '?')}, "
+            f"value={ev.get('current_value', '?')}, threshold={ev.get('threshold', '?')}"
+        )
+    all_anomaly_section = (
+        "\n## All Metric Anomaly Checks (from MetricsMCP)\n"
+        + "\n".join(all_anomaly_lines)
+    ) if all_anomaly_lines else ""
 
     # Format errors (limit to 10)
     error_lines = []
@@ -243,15 +284,16 @@ Trend: {stats.get('trend', 'unknown')}
 Change: {stats.get('change_percent', 0)}%
 Min: {stats.get('min', '?')} -> Max: {stats.get('max', '?')} -> Current: {stats.get('latest', '?')}
 
-## MCP Anomaly Detection
+## MCP Anomaly Detection (worst)
 Is Anomalous: {anomaly_check.get('is_anomalous', '?')}
 Severity: {anomaly_check.get('severity', '?')}
 Evidence: {json.dumps(evidence)}
+{all_anomaly_section}
 
 ## Recent Error Logs ({len(recent_errors)} entries)
 {errors_text}
 
-IMPORTANT: If the "Anomaly Detection Results" section shows Status=down or Up=0, or if memory/CPU values exceed thresholds, this IS a real incident. Values of '?' from MetricsMCP may simply mean the service is too degraded to respond — trust the watcher_loop Prometheus data over MetricsMCP when they conflict.
+IMPORTANT: If ANY metric is flagged as anomalous (in "All Metric Anomaly Checks" or "Anomaly Detection Results"), this IS a real incident that requires alerting. If the "Anomaly Detection Results" section shows Status=down or Up=0, or if memory/CPU values exceed thresholds, this IS a real incident. Values of '?' from MetricsMCP may simply mean the service is too degraded to respond — trust the watcher_loop Prometheus data over MetricsMCP when they conflict.
 
 Based on this data, respond with ONLY a JSON object (no other text, no markdown, no code fences):
 {{
@@ -282,6 +324,22 @@ Based on this data, respond with ONLY a JSON object (no other text, no markdown,
         conf = float(analysis.get("confidence", 0.0))
         sev = analysis.get("severity", "low")
         logger.info("[WATCHER] LLM decision: is_incident=%s confidence=%.2f severity=%s", is_incident, conf, sev)
+
+        # Rule-based override: if MCP detected anomalies but LLM said no incident,
+        # force the alert.  The 8B model sometimes ignores clear anomaly signals.
+        any_mcp_anomalous = any(
+            r.get("is_anomalous") for r in anomaly_results_all.values()
+        )
+        dc_worst = (detection_context or {}).get("worst_severity") if detection_context else None
+        if not is_incident and (any_mcp_anomalous or dc_worst in ("critical", "warning")):
+            logger.warning(
+                "[WATCHER] LLM said no incident but MCP/detection_context disagrees — overriding to is_incident=True"
+            )
+            is_incident = True
+            conf = max(conf, 0.80)
+            if sev in ("low", "medium"):
+                sev = "high"
+
         return {
             "analysis": analysis_text,
             "should_alert": is_incident,
@@ -294,6 +352,11 @@ Based on this data, respond with ONLY a JSON object (no other text, no markdown,
         logger.warning("[WATCHER] LLM failed, using rule-based fallback for service=%s", state["service"])
         is_anomalous = anomaly_check.get("is_anomalous", False)
         health = metrics.get("health_status", "unknown")
+
+        # Check any MCP anomaly result
+        any_mcp_anomalous = any(
+            r.get("is_anomalous") for r in anomaly_results_all.values()
+        )
 
         # Check detection_context for authoritative severity
         dc_worst = (detection_context or {}).get("worst_severity") if detection_context else None
@@ -309,13 +372,23 @@ Based on this data, respond with ONLY a JSON object (no other text, no markdown,
                 "errors": state.get("errors", []) + [f"LLM error: {str(e)}"],
             }
 
-        fallback_alert = is_anomalous or health in ("critical", "warning")
+        fallback_alert = is_anomalous or any_mcp_anomalous or health in ("critical", "warning")
+
+        # Determine severity from worst MCP anomaly
+        fallback_severity = "medium"
+        for r in anomaly_results_all.values():
+            if r.get("severity") == "critical":
+                fallback_severity = "critical"
+                break
+            elif r.get("severity") == "warning" and fallback_severity != "critical":
+                fallback_severity = "high"
+
         return {
             "analysis": f"LLM analysis failed ({e}). Falling back to rule-based.",
             "should_alert": fallback_alert,
             "confidence": 0.8 if fallback_alert else 0.2,
-            "severity": anomaly_check.get("severity", "medium") if fallback_alert else "low",
-            "summary": f"Rule-based: anomalous={is_anomalous}, health={health}",
+            "severity": fallback_severity if fallback_alert else "low",
+            "summary": f"Rule-based: anomalous={is_anomalous}, any_mcp_anomalous={any_mcp_anomalous}, health={health}",
             "errors": state.get("errors", []) + [f"LLM error: {str(e)}"],
         }
 
@@ -443,6 +516,7 @@ async def run_watcher(service: str, scenario: str = None, detection_context: dic
             "metrics": None,
             "metric_history": None,
             "anomaly_check": None,
+            "anomaly_results_all": None,
             "recent_errors": None,
             "analysis": "Service is DOWN (up=0). Rule-based incident — LLM skipped.",
             "should_alert": True,
@@ -467,6 +541,7 @@ async def run_watcher(service: str, scenario: str = None, detection_context: dic
         metrics=None,
         metric_history=None,
         anomaly_check=None,
+        anomaly_results_all=None,
         recent_errors=None,
         analysis=None,
         should_alert=False,

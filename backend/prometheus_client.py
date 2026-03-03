@@ -452,11 +452,14 @@ def get_deployment_info(service: str) -> Dict[str, Any]:
 def _run_sync(coro):
     """Utility to run an async function from sync context."""
     try:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
     except RuntimeError:
         loop = None
 
     if loop and loop.is_running():
-        return asyncio.run(coro)
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(asyncio.run, coro)
+            return future.result(timeout=15)
     return asyncio.run(coro)
 

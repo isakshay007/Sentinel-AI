@@ -494,12 +494,34 @@ Produce a comprehensive diagnosis. Respond with ONLY a JSON object:
             if e.get("type") == "anomaly_check" and e.get("is_anomalous")
         ]
         metric_names = {e.get("metric") for e in anomalous_metrics}
-        if "memory_percent" in metric_names:
+
+        # Check for service down (container exited/dead or up==0)
+        container_down = [
+            e for e in evidence
+            if (e.get("type") in ("container_status", "deployment_history"))
+            and e.get("status") in ("exited", "dead", "stopped")
+        ]
+        up_zero = any(
+            a.get("metric") == "up" and float(a.get("value", 1)) == 0
+            for a in anomalous_metrics
+        )
+        # Also check the watcher's detection context for service-down
+        watcher_metrics = state.get("watcher_metrics") or {}
+        watcher_up = watcher_metrics.get("detection_metrics", {}).get("up")
+        watcher_status = watcher_metrics.get("detection_metrics", {}).get("status")
+        if watcher_up == 0 or watcher_status == "down":
+            up_zero = True
+
+        if container_down or up_zero:
+            diagnosis["root_cause_category"] = "service_down"
+        elif "memory_percent" in metric_names:
             diagnosis["root_cause_category"] = "memory_leak"
+        elif "response_time_ms" in metric_names:
+            # Latency checked BEFORE cpu: latency chaos causes secondary CPU
+            # elevation, so when both are anomalous, latency is the root cause.
+            diagnosis["root_cause_category"] = "latency_spike"
         elif "cpu_percent" in metric_names:
             diagnosis["root_cause_category"] = "cpu_overload"
-        elif "response_time_ms" in metric_names:
-            diagnosis["root_cause_category"] = "latency_spike"
         elif "error_rate" in metric_names:
             diagnosis["root_cause_category"] = "error_rate_spike"
         # keep LLM's label only if no metric evidence overrides it

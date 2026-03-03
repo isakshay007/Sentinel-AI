@@ -8,6 +8,10 @@ Tools:
   3. detect_anomaly       — Check if a metric is anomalous vs thresholds
   4. get_recent_errors    — Get recent error logs (via Loki)
 
+Changes from original:
+  - detect_anomaly now returns is_anomalous=True when service health is
+    unknown/unreachable (was False, which masked dead-service scenarios)
+
 Run:
   python -m mcp_servers.metrics_server
 """
@@ -130,25 +134,29 @@ def detect_anomaly(service: str, metric: str) -> str:
         health = _run(get_service_health(service))
     except Exception as e:
         logger.error("[METRICS_MCP] detect_anomaly error fetching health: %s", e)
+        # CHANGED: Connection failure is itself an anomaly — the service is
+        # likely down or severely degraded.
         return json.dumps({
             "tool": "detect_anomaly",
             "service": service,
             "metric": metric,
-            "is_anomalous": False,
-            "severity": "unknown",
+            "is_anomalous": True,
+            "severity": "critical",
             "evidence": {"current_value": None, "threshold": threshold},
-            "message": f"Error: {e}",
+            "message": f"Cannot reach service {service} to fetch health: {e}",
         }, indent=2)
 
     if not health or health.get("status") == "unknown":
+        # CHANGED: Service unreachable or returning unknown status IS an anomaly.
+        # Previously returned is_anomalous=False which masked dead-service scenarios.
         return json.dumps({
             "tool": "detect_anomaly",
             "service": service,
             "metric": metric,
-            "is_anomalous": False,
-            "severity": "unknown",
+            "is_anomalous": True,
+            "severity": "critical",
             "evidence": {"current_value": None, "threshold": threshold},
-            "message": f"Could not retrieve health data for {service}",
+            "message": f"Cannot retrieve health data for {service} — service may be down or unreachable",
         }, indent=2)
 
     current_value = health.get(metric)

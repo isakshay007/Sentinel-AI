@@ -41,15 +41,51 @@ const AGENT_META: Record<string, { label: string; color: string; icon: React.Ele
 type AgentState = "idle" | "monitoring" | "investigating" | "acting";
 
 function getAgentState(agentName: string, decisions: AgentDecision[], watcherStatus: WatcherStatus | null): AgentState {
+  // Watcher: always-on, derive from watcher status
   if (agentName === "watcher" && watcherStatus?.enabled) {
     const hasStreak = Object.values(watcherStatus.anomaly_streaks || {}).some((s) => s > 0);
     return hasStreak ? "investigating" : "monitoring";
   }
-  const recent = decisions.find((d) => d.agent_name === agentName);
-  if (!recent) return "idle";
-  const ageMs = Date.now() - new Date(recent.created_at ?? "").getTime();
-  if (ageMs < 30000) return "acting";
-  if (ageMs < 120000) return "investigating";
+
+  // For other agents: look at recent decisions to determine pipeline stage
+  const now = Date.now();
+
+  // Find the most recent decision per agent type
+  const latestByAgent: Record<string, AgentDecision> = {};
+  for (const d of decisions) {
+    if (!d.agent_name || !d.created_at) continue;
+    if (!latestByAgent[d.agent_name] || new Date(d.created_at) > new Date(latestByAgent[d.agent_name].created_at ?? "")) {
+      latestByAgent[d.agent_name] = d;
+    }
+  }
+
+  // Pipeline order: watcher → diagnostician → strategist → executor
+  const pipelineOrder = ["watcher", "diagnostician", "strategist", "executor"];
+  const agentIdx = pipelineOrder.indexOf(agentName);
+
+  // Check if this agent has a recent decision
+  const myDecision = latestByAgent[agentName];
+  const myAgeMs = myDecision ? now - new Date(myDecision.created_at ?? "").getTime() : Infinity;
+
+  // Recent decision thresholds (wider to match real pipeline times)
+  if (myAgeMs < 60_000) return "acting";      // Produced output within last 60s
+  if (myAgeMs < 300_000) return "investigating"; // Active within last 5min
+
+  // Pipeline inference: if the agent BEFORE us in the pipeline recently acted,
+  // we should show as "investigating" (we're likely working or about to work)
+  if (agentIdx > 0) {
+    const prevAgent = pipelineOrder[agentIdx - 1];
+    const prevDecision = latestByAgent[prevAgent];
+    if (prevDecision?.created_at) {
+      const prevAge = now - new Date(prevDecision.created_at).getTime();
+      // If the previous agent acted recently AND we haven't produced output yet (or our output is older),
+      // we're likely in-progress
+      if (prevAge < 120_000 && (myAgeMs > prevAge)) {
+        return "investigating";
+      }
+    }
+  }
+
   return "idle";
 }
 
@@ -75,7 +111,7 @@ export function Sidebar() {
 
   useEffect(() => {
     refresh();
-    const id = setInterval(refresh, 5000);
+    const id = setInterval(refresh, 3000);
     const handler = () => refresh();
     window.addEventListener("approvals-updated", handler);
     window.addEventListener("execution-completed", handler);

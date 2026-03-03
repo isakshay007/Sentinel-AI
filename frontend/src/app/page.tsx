@@ -840,7 +840,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Mac Terminal Live Log Panel */}
-        <div className="h-[400px]">
+        <div className="h-[425px]">
           <LiveTerminal />
         </div>
       </div>

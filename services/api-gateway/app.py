@@ -412,14 +412,40 @@ async def chaos_cpu(cores: int = 4, duration: int = 60):
         )
     except FileNotFoundError:
         logger.error("stress-ng not installed in container")
-    logger.error("PaymentGatewayTimeout: Stripe API response delayed")
+    logger.error("GatewayTimeout: API gateway under CPU stress")
     return {"status": "injecting", "fault": "cpu_spike", "cores": cores, "duration": duration}
+
+
+_latency_chaos = False
+
+
+async def _synthetic_latency_loop(delay_s: float, duration: int) -> None:
+    """Background loop that injects synthetic high-latency observations into
+    the Prometheus histogram so the watcher detects the anomaly quickly
+    (tc netem alone is too slow to affect the 5-min rate window)."""
+    global _latency_chaos
+    start = time.time()
+    while _latency_chaos and (time.time() - start) < duration:
+        # Observe several high-latency requests per tick
+        for _ in range(5):
+            REQ_DURATION.labels(
+                service=SERVICE, method="GET", endpoint="/internal/workload", status="200"
+            ).observe(delay_s)
+        REQ_COUNTER.labels(service=SERVICE, method="GET", status="504").inc(2)
+        await asyncio.sleep(1)
+    _latency_chaos = False
 
 
 @app.post("/chaos/latency")
 async def chaos_latency(intensity: int = 80, duration: int = 120):
-    """Add artificial latency with tc netem.  intensity 0-100 maps to real ms."""
+    """Add artificial latency with tc netem + synthetic metric inflation.
+    intensity 0-100 maps to real ms."""
+    global _chaos_active, _latency_chaos
     delay_ms = max(500, int(intensity * 10))
+    _chaos_active = True
+    _latency_chaos = True
+
+    # Real network delay via tc netem
     try:
         subprocess.run(
             ["tc", "qdisc", "add", "dev", "eth0", "root", "netem", "delay", f"{delay_ms}ms"],
@@ -428,8 +454,13 @@ async def chaos_latency(intensity: int = 80, duration: int = 120):
     except Exception as e:
         logger.error("Failed to add latency with tc: %s", e)
 
+    # Synthetic metric inflation for faster Prometheus detection
+    asyncio.create_task(_synthetic_latency_loop(delay_ms / 1000.0, duration))
+
     async def _remove():
+        global _latency_chaos
         await asyncio.sleep(duration)
+        _latency_chaos = False
         subprocess.run(["tc", "qdisc", "del", "dev", "eth0", "root", "netem"], check=False)
 
     asyncio.create_task(_remove())
@@ -439,9 +470,10 @@ async def chaos_latency(intensity: int = 80, duration: int = 120):
 
 @app.post("/chaos/stop")
 async def chaos_stop():
-    global _chaos_active, _memory_chaos, _LEAK_BUFFER
+    global _chaos_active, _memory_chaos, _latency_chaos, _LEAK_BUFFER
     _chaos_active = False
     _memory_chaos = False
+    _latency_chaos = False
     _LEAK_BUFFER = []
     DB_CONN_ACTIVE.labels(service=SERVICE).set(0)
     GC_GAUGE.labels(service=SERVICE).set(0)

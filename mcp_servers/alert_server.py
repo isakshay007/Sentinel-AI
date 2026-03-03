@@ -163,6 +163,9 @@ def send_notification(
         "recipients": recipients,
     }
     _notification_log.append(notification)
+    # Cap list to prevent unbounded growth in long-running processes
+    if len(_notification_log) > 500:
+        _notification_log[:] = _notification_log[-500:]
 
     return json.dumps({
         "tool": "send_notification",
@@ -236,6 +239,9 @@ def create_incident_ticket(
         "related_incident_id": related_incident_id,
     }
     _tickets.append(ticket)
+    # Cap list to prevent unbounded growth
+    if len(_tickets) > 500:
+        _tickets[:] = _tickets[-500:]
 
     return json.dumps({
         "tool": "create_incident_ticket",

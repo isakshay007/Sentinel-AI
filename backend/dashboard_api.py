@@ -323,6 +323,83 @@ def get_eval_results():
 
 
 # =============================================================================
+# LIVE EVAL STATUS + REPORT
+# =============================================================================
+
+@router.get("/eval/status")
+def get_eval_status():
+    """Return metadata from the latest live evaluation run."""
+    json_path = EVAL_DIR / "latest_eval.json"
+    if not json_path.exists():
+        return {
+            "has_results": False,
+            "message": "No live evaluation has been run yet. Use: python -m evaluation.live_eval",
+        }
+    try:
+        with open(json_path) as f:
+            data = json.load(f)
+        return {
+            "has_results": True,
+            "timestamp": data.get("timestamp"),
+            "scenarios_run": data.get("scenarios_run", 0),
+            "overall_score": data.get("overall_score", 0),
+            "model": data.get("model"),
+            "scenarios": [
+                {
+                    "scenario": s.get("scenario"),
+                    "target": s.get("target"),
+                    "score": s.get("score"),
+                    "detection_time_s": s.get("detection_time_s"),
+                    "diagnosis_time_s": s.get("diagnosis_time_s"),
+                    "resolution_time_s": s.get("resolution_time_s"),
+                    "root_cause_found": s.get("root_cause_found"),
+                    "root_cause_correct": s.get("root_cause_correct"),
+                    "resolution_status": s.get("resolution_status"),
+                    "tool_count": s.get("tool_count", 0),
+                    "approval_count": s.get("approval_count", 0),
+                    "errors": s.get("errors", []),
+                }
+                for s in data.get("scenarios", [])
+            ],
+        }
+    except (json.JSONDecodeError, KeyError, TypeError) as e:
+        logger.warning("[EVAL] Failed to read latest_eval.json: %s", e)
+        return {"has_results": False, "error": f"Corrupted eval file: {e}"}
+
+
+@router.get("/eval/report")
+def get_eval_report():
+    """Return the LLM-generated markdown evaluation report."""
+    report_path = EVAL_DIR / "latest_report.md"
+    json_path = EVAL_DIR / "latest_eval.json"
+
+    if not report_path.exists():
+        return {
+            "has_report": False,
+            "message": "No evaluation report found. Run: python -m evaluation.live_eval",
+        }
+    try:
+        content = report_path.read_text(encoding="utf-8")
+        # Get timestamp from JSON if available
+        timestamp = None
+        if json_path.exists():
+            try:
+                with open(json_path) as f:
+                    timestamp = json.load(f).get("timestamp")
+            except Exception:
+                pass
+
+        return {
+            "has_report": True,
+            "timestamp": timestamp,
+            "content": content,
+        }
+    except Exception as e:
+        logger.warning("[EVAL] Failed to read latest_report.md: %s", e)
+        return {"has_report": False, "error": f"Failed to read report: {e}"}
+
+
+# =============================================================================
 # SAFETY REPORT
 # =============================================================================
 
@@ -464,24 +541,58 @@ async def inject_fault(body: dict):
 
 @router.post("/chaos/stop")
 async def stop_chaos(body: dict):
+
     """
     Stop chaos on a specific target service by calling its /chaos/stop endpoint.
+    For killed services or Redis, restart the container via Docker API.
     """
     import httpx
-
+    import docker
+    
     target = body["target"]
     logger.info("[CHAOS] Stopping chaos on target=%s", target)
     base = SERVICE_URLS.get(target)
+
+    # Handle targets not in SERVICE_URLS (e.g. redis, or unknown)
     if not base:
-        return {"error": f"Unknown service target: {target}"}
-    url = base + "/chaos/stop"
-    async with httpx.AsyncClient() as client:
-        resp = await client.post(url)
-        resp.raise_for_status()
+        # Try to restart the container via Docker if it's stopped
+        container_name = f"sentinel-{target}"
         try:
-            return resp.json()
-        except Exception:
-            return {"status": "stopped"}
+            d = docker.from_env()
+            c = d.containers.get(container_name)
+            if c.status != "running":
+                logger.info("[CHAOS] Restarting stopped container: %s", container_name)
+                c.start()
+                return {"status": "restarted", "target": target, "container": container_name}
+            return {"status": "already_running", "target": target}
+        except docker.errors.NotFound:
+            return {"error": f"Unknown service target: {target}"}
+        except Exception as e:
+            logger.error("[CHAOS] Failed to restart %s: %s", container_name, e)
+            return {"error": f"Failed to restart {target}: {str(e)}"}
+
+    url = base + "/chaos/stop"
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            resp = await client.post(url)
+            resp.raise_for_status()
+            try:
+                return resp.json()
+            except Exception:
+                return {"status": "stopped"}
+    except httpx.ConnectError:
+        # Service container may be stopped — restart via Docker
+        container_name = f"sentinel-{target}"
+        try:
+            d = docker.from_env()
+            c = d.containers.get(container_name)
+            if c.status != "running":
+                logger.info("[CHAOS] Service unreachable, restarting container: %s", container_name)
+                c.start()
+                return {"status": "restarted", "target": target}
+        except Exception as e:
+            logger.error("[CHAOS] Restart fallback failed for %s: %s", target, e)
+        return {"status": "stopped", "note": "Service unreachable, attempted restart"}
 
 
 @router.get("/watcher/status")

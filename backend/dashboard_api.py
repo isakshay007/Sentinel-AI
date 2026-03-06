@@ -12,7 +12,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Query
 from backend.database import SessionLocal
-from backend.models import Incident, AgentDecision, AuditLog, IncidentEvent
+from backend.models import Incident, AgentDecision, AuditLog, IncidentEvent, Approval
 from backend.prometheus_client import get_all_services_health
 
 router = APIRouter(prefix="/api", tags=["dashboard"])
@@ -42,9 +42,50 @@ def get_dashboard_stats():
     try:
         total_incidents = db.query(Incident).count()
         open_incidents = db.query(Incident).filter(Incident.status.in_(OPEN_STATUSES)).count()
+        resolved_incidents = db.query(Incident).filter(Incident.status == "resolved").count()
         # Decisions: count across ALL incidents (persists after resolution per issue #5/8/13)
         total_decisions = db.query(AgentDecision).count()
         total_audits = db.query(AuditLog).count()
+
+        # Computed metrics from existing data
+        mttr_minutes = None
+        resolved_with_duration = (
+            db.query(Incident)
+            .filter(
+                Incident.status == "resolved",
+                Incident.detected_at.isnot(None),
+                Incident.resolved_at.isnot(None),
+            )
+            .all()
+        )
+        if resolved_with_duration:
+            total_sec = sum(
+                (inc.resolved_at - inc.detected_at).total_seconds()
+                for inc in resolved_with_duration
+            )
+            mttr_minutes = round(total_sec / len(resolved_with_duration) / 60, 1)
+
+        approvals_processed = (
+            db.query(Approval)
+            .filter(
+                Approval.status.in_(["approved", "rejected", "cancelled"]),
+                Approval.requested_at.isnot(None),
+                Approval.decided_at.isnot(None),
+            )
+            .all()
+        )
+        approval_latency_seconds = None
+        if approvals_processed:
+            total_sec = sum(
+                (a.decided_at - a.requested_at).total_seconds()
+                for a in approvals_processed
+            )
+            approval_latency_seconds = round(total_sec / len(approvals_processed), 1)
+
+        auto_resolve_pct = (
+            round(resolved_incidents / total_incidents * 100, 1)
+            if total_incidents else 0
+        )
 
         # Get latest safety report (graceful if dir missing)
         safety_score = 67.1
@@ -70,7 +111,11 @@ def get_dashboard_stats():
                         eval_score = round(sum(all_scores) / len(all_scores), 2)
 
         return {
-            "incidents": {"total": total_incidents, "open": open_incidents},
+            "incidents": {
+                "total": total_incidents,
+                "open": open_incidents,
+                "resolved": resolved_incidents,
+            },
             "agents": {
                 "total_decisions": total_decisions,
                 "total_tool_calls": total_audits,
@@ -78,6 +123,12 @@ def get_dashboard_stats():
             },
             "safety_score": safety_score,
             "eval_score": eval_score,
+            "metrics": {
+                "mttr_minutes": mttr_minutes,
+                "auto_resolve_pct": auto_resolve_pct,
+                "approvals_processed": len(approvals_processed),
+                "approval_latency_seconds": approval_latency_seconds,
+            },
         }
     finally:
         db.close()

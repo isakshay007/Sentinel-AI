@@ -1,0 +1,29 @@
+# Render Blueprint - Free deployment
+# Create from: dashboard.render.com → New → Blueprint
+# Or: render deploy
+
+services:
+  - type: web
+    name: sentinelai-backend
+    runtime: docker
+    dockerfilePath: ./docker/Dockerfile.backend
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sentinelai-db
+          property: connectionString
+      - key: GROQ_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: WATCHER_ENABLED
+        value: "0"   # Disable watcher (no Prometheus on free tier)
+      - key: CORS_ORIGINS
+        value: "*"
+    healthCheckPath: /health/ready
+
+databases:
+  - name: sentinelai-db
+    plan: free
+    databaseName: sentinelai
+    user: sentinel

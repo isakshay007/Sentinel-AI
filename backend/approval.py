@@ -12,10 +12,11 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional, List
 
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import APIRouter, HTTPException, Body, Request
 from pydantic import BaseModel
 
 from backend.database import SessionLocal
+from backend.limiter import limiter
 from backend.models import Approval as ApprovalModel
 
 router = APIRouter(prefix="/api", tags=["approvals"])
@@ -184,7 +185,8 @@ def list_pending_approvals():
 
 
 @router.post("/approve/{action_id}")
-def approve_action(action_id: str, decision: Optional[ApprovalDecision] = Body(default=None)):
+@limiter.limit("30/minute")
+def approve_action(request: Request, action_id: str, decision: Optional[ApprovalDecision] = Body(default=None)):
     """Approve a pending action. Triggers Executor, persists audit logs, updates incident status.
     Concurrency control (#13): per-action lock prevents double approval."""
     logger.info("[APPROVAL] Approving action: id=%s", action_id)
@@ -333,7 +335,8 @@ def approve_action(action_id: str, decision: Optional[ApprovalDecision] = Body(d
     }
 
 @router.post("/reject/{action_id}")
-def reject_action(action_id: str, decision: Optional[ApprovalDecision] = Body(default=None)):
+@limiter.limit("30/minute")
+def reject_action(request: Request, action_id: str, decision: Optional[ApprovalDecision] = Body(default=None)):
     """Reject a pending action. Concurrency control (#13): per-action lock."""
     req = get_by_id(action_id)
     if not req:

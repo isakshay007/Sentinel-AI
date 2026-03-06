@@ -66,10 +66,16 @@ export const api = {
 // ─── Response Types ─────────────────────────────────────────
 
 export interface DashboardStats {
-  incidents: { total: number; open: number };
+  incidents: { total: number; open: number; resolved?: number };
   agents: { total_decisions: number; total_tool_calls: number; active_agents: number };
   safety_score: number;
   eval_score: number;
+  metrics?: {
+    mttr_minutes: number | null;
+    auto_resolve_pct: number;
+    approvals_processed: number;
+    approval_latency_seconds: number | null;
+  };
 }
 
 export interface Incident {

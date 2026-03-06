@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/A2A-Protocol-F59E0B?style=for-the-badge" />
 </p>
 
-<h1 align="center">🛰️ Sentinel AI</h1>
+<h1 align="center"> SentinelAI</h1>
 <h3 align="center">Autonomous Multi-Agent DevOps Incident Response Platform</h3>
 
 <p align="center">
@@ -17,7 +17,7 @@
 
 ---
 
-Sentinel AI is an autonomous DevOps incident response platform that **monitors**, **diagnoses**, **plans**, and **remediates** infrastructure failures in real-time — without human intervention for safe actions, and with human-in-the-loop approval for risky ones.
+SentinelAI is an autonomous DevOps incident response platform that **monitors**, **diagnoses**, **plans**, and **remediates** infrastructure failures in real-time — without human intervention for safe actions, and with human-in-the-loop approval for risky ones.
 
 Built on a **multi-agent architecture** using LangGraph state machines, it coordinates four specialized AI agents that communicate through the **A2A (Agent-to-Agent) Protocol** and interact with live infrastructure through **Model Context Protocol (MCP)** tool servers.
 
@@ -88,7 +88,7 @@ The Watcher runs as a **continuous background loop**, polling Prometheus every 1
 
 ## MCP Tool Servers
 
-Sentinel AI uses **4 MCP servers** exposing **13 tools** that agents discover and call at runtime via the [Model Context Protocol](https://modelcontextprotocol.io/).
+SentinelAI uses **4 MCP servers** exposing **13 tools** that agents discover and call at runtime via the [Model Context Protocol](https://modelcontextprotocol.io/).
 
 | Server | Tools | Purpose |
 |--------|-------|---------|
@@ -219,7 +219,7 @@ cp .env.example .env
 docker-compose up --build
 ```
 
-This starts **12 containers**: PostgreSQL, Redis, 3 microservices, backend, frontend, Prometheus, Grafana, Loki, Promtail, and cAdvisor.
+This starts **12 containers**: PostgreSQL, Redis, 3 microservices, backend, frontend, Prometheus, Grafana, Loki, Promtail, and cAdvisor. Migrations run automatically on backend startup.
 
 ### 3. Access the Platform
 
@@ -234,9 +234,8 @@ This starts **12 containers**: PostgreSQL, Redis, 3 microservices, backend, fron
 ### Local Development (without Docker)
 
 ```bash
-# Terminal 1: Backend
+# Terminal 1: Backend (migrations run automatically on startup)
 pip install -r requirements.txt
-alembic -c backend/alembic.ini upgrade head
 uvicorn backend.main:app --reload --port 8000
 
 # Terminal 2: Frontend
@@ -319,5 +318,5 @@ mcp dev mcp_servers/metrics_server.py
 
 <p align="center">
   <strong>Built for the mission-critical environment.</strong><br/>
-  <sub>Sentinel AI — Where autonomous agents meet production reliability.</sub>
+  <sub>SentinelAI — Where autonomous agents meet production reliability.</sub>
 </p>
